@@ -8,9 +8,9 @@
 #include <LittleFS.h>
 #endif
 
-#include "og3/module_system.h"
 #include "og3/flash_support.h"
 #include "og3/logger.h"
+#include "og3/module_system.h"
 #include "og3/variable.h"
 
 #ifdef NATIVE
