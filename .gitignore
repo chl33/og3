@@ -1,0 +1,9 @@
+*~
+/bin/license-header-checker
+.ccls
+.clang_complete
+.pio
+/.ccls-cache/
+/test.cfg
+/.dir-locals.el
+/data/wifi.json

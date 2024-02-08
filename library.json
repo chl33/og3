@@ -1,0 +1,20 @@
+{
+  "name": "rt3",
+  "version": "0.0.1",
+  "description": "A library for esp projects",
+  "keywords": "esp32, esp8266, modules, tasks, mqtt",
+  "authors": [
+    {
+      "name": "Chris Lee",
+      "email": "lee.chris.h@gmail.com"
+    }
+  ],
+  "dependencies": {
+    "ottowinter/AsyncMqttClient-esphome": "~0.8.5",
+    "bblanchon/ArduinoJson": "7.0.0",
+    "esphome/ESPAsyncWebServer-esphome": "~3.0.0"
+  },
+  "license": "MIT",
+  "frameworks": "*",
+  "platforms": "espressif8266, espressif32, native"
+}
