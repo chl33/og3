@@ -3,7 +3,9 @@
 
 #pragma once
 
+#ifndef NATIVE
 #include <DNSServer.h>
+#endif
 
 #include <functional>
 #include <memory>
@@ -87,7 +89,9 @@ class WifiManager : public Module {
   void onWifiEvent(arduino_event_id_t task, arduino_event_info_t info);
 #endif
 
-  std::unique_ptr<DNSServer> m_dnsServer;
+#ifndef NATIVE
+  std::unique_ptr<DNSServer> m_dns_server;
+#endif
   SingleDependency m_dependencies;
   TaskScheduler m_scheduler;
   TaskScheduler m_status_scheduler;

@@ -29,7 +29,9 @@ class OnExit {
   const std::function<void()> m_exit_fn;
 };
 
+#ifndef NATIVE
 constexpr uint8_t DNS_PORT = 53;
+#endif
 const IPAddress apSoftIP(192, 168, 4, 1);
 
 static const char kStatusUninitialized[] = "init";
@@ -104,7 +106,9 @@ WifiManager::WifiManager(const char* default_board_name, Tasks* tasks,
     return m_config != nullptr;
   });
   add_init_fn([this]() {
+#ifndef NATIVE
     WiFi.persistent(false);  // Keep the esp from automatically writing essid+paswd to flash.
+#endif
     if (m_config) {
       m_config->read_config(&m_vg);
     }
@@ -123,11 +127,13 @@ WifiManager::WifiManager(const char* default_board_name, Tasks* tasks,
       trySetup();
     }
   });
+#ifndef NATIVE
   add_update_fn([this]() {
-    if (m_ap_mode && m_dnsServer) {
-      m_dnsServer->processNextRequest();
+    if (m_ap_mode && m_dns_server) {
+      m_dns_server->processNextRequest();
     }
   });
+#endif
 }
 
 void WifiManager::handleRequest(AsyncWebServerRequest* request, const char* title,
@@ -195,11 +201,11 @@ void WifiManager::trySetup() {
     m_ap_mode = true;
     if (WiFi.softAPConfig(apSoftIP, apSoftIP, IPAddress(255, 255, 255, 0)) &&
         WiFi.softAP(board().c_str())) {
-      if (!m_dnsServer) {
-        m_dnsServer.reset(new DNSServer());
+      if (!m_dns_server) {
+        m_dns_server.reset(new DNSServer());
       }
-      m_dnsServer->setErrorReplyCode(DNSReplyCode::NoError);
-      m_dnsServer->start(DNS_PORT, "*", apSoftIP);
+      m_dns_server->setErrorReplyCode(DNSReplyCode::NoError);
+      m_dns_server->start(DNS_PORT, "*", apSoftIP);
       for (const auto& callback : m_softAPCallbacks) {
         callback();
       }
