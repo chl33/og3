@@ -31,7 +31,7 @@ class Logger {
     log(buffer);
 #endif
   }
-  void logf(const char* format, ...) RT3_PRINTF_FORMAT(2) {
+  void logf(const char* format, ...) OG3_PRINTF_FORMAT(2) {
 #ifndef LOG_DISABLE
     va_list ap;
     va_start(ap, format);
@@ -42,7 +42,7 @@ class Logger {
 
 #ifdef LOG_DEBUG
   void debug(const char* text) { log(text); }
-  void debugf(const char* format, ...) RT3_PRINTF_FORMAT(2) {
+  void debugf(const char* format, ...) OG3_PRINTF_FORMAT(2) {
     va_list ap;
     va_start(ap, format);
     logv(format, ap);
@@ -50,7 +50,7 @@ class Logger {
   }
 #else
   inline void debug(const char* text) {}
-  inline void debugf(const char* format, ...) RT3_PRINTF_FORMAT(2) {}
+  inline void debugf(const char* format, ...) OG3_PRINTF_FORMAT(2) {}
 #endif
 };
 

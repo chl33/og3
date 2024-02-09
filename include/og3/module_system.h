@@ -44,7 +44,7 @@ class Module;
 //
 class ModuleSystem {
  public:
-  ModuleSystem(Logger* logger, unsigned reserve_num_modules = 16) RT3_NONNULL();
+  ModuleSystem(Logger* logger, unsigned reserve_num_modules = 16) OG3_NONNULL();
 
   void add_module(Module* module);
 
