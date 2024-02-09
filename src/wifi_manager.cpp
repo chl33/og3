@@ -29,6 +29,9 @@ class OnExit {
   const std::function<void()> m_exit_fn;
 };
 
+constexpr uint8_t DNS_PORT = 53;
+const IPAddress apSoftIP(192, 168, 4, 1);
+
 static const char kStatusUninitialized[] = "init";
 static const char kStatusNoShield[] = "no-shield";
 static const char kStatusIdle[] = "idle";
@@ -101,6 +104,7 @@ WifiManager::WifiManager(const char* default_board_name, Tasks* tasks,
     return m_config != nullptr;
   });
   add_init_fn([this]() {
+    WiFi.persistent(false);  // Keep the esp from automatically writing essid+paswd to flash.
     if (m_config) {
       m_config->read_config(&m_vg);
     }
@@ -119,14 +123,17 @@ WifiManager::WifiManager(const char* default_board_name, Tasks* tasks,
       trySetup();
     }
   });
+  add_update_fn([this]() {
+    if (m_ap_mode && m_dnsServer) {
+      m_dnsServer->processNextRequest();
+    }
+  });
 }
 
 void WifiManager::handleRequest(AsyncWebServerRequest* request, const char* title,
                                 const char* footer) {
 #ifndef NATIVE
-  if (request->method() == HTTP_POST) {
-    read(*request, &m_vg);
-  }
+  ::og3::read(*request, &m_vg);
   String form;
   html::writeFormTableInto(&form, m_vg);
   form += F(HTML_BUTTON("/", "Back"));
@@ -185,10 +192,17 @@ void WifiManager::trySetup() {
   auto start_ap = [this]() {
     log()->logf("Wifi: starting in AP mode (%s).", board().c_str());
     WiFi.mode(WIFI_AP);
-    // fix crash esp32 https://github.com/espressif/arduino-esp32/issues/2025
-    // WiFi.persistent(false);
     m_ap_mode = true;
-    if (WiFi.softAP(board().c_str())) {
+    if (WiFi.softAPConfig(apSoftIP, apSoftIP, IPAddress(255, 255, 255, 0)) &&
+        WiFi.softAP(board().c_str())) {
+      if (!m_dnsServer) {
+        m_dnsServer.reset(new DNSServer());
+      }
+      m_dnsServer->setErrorReplyCode(DNSReplyCode::NoError);
+      m_dnsServer->start(DNS_PORT, "*", apSoftIP);
+      for (const auto& callback : m_softAPCallbacks) {
+        callback();
+      }
       // Allow time to setup maybe??
       m_scheduler.runIn(2 * kMsecInSec, [this]() { onConnect(); });
       m_start_connect_msec = millis();

@@ -35,15 +35,23 @@ void handleWebRoot(AsyncWebServerRequest* request) {
   static String s_body;
   s_body.clear();
   og3::html::writeTableInto(&s_body, s_app.wifi_manager().variables());
+  og3::html::writeTableInto(&s_body, s_app.mqtt_manager().variables());
   s_app.wifi_manager().add_html_config_button(&s_body);
   s_app.mqtt_manager().add_html_config_button(&s_body);
   s_app.app_status().addHtmlButton(&s_body);
+  s_body += F(HTML_BUTTON("/restart", "Restart"));
   og3::sendWrappedHTML(request, s_app.board_cname(), kSoftware, s_body.c_str());
 }
 
 }  // namespace
 
 void setup() {
+  // For captive portal mode, map unknown URI paths to the root page.
+  s_app.wifi_manager().addSoftAPCallback([]() {
+    s_app.web_server().onNotFound([](AsyncWebServerRequest* request) {
+      s_app.wifi_manager().handleRequest(request, s_app.board_cname(), kSoftware);
+    });
+  });
   s_app.setup();
   s_app.web_server().serveStatic("/static/", LittleFS, "/static/").setCacheControl("max-age=600");
   s_app.web_server().on("/", handleWebRoot);
@@ -52,6 +60,9 @@ void setup() {
   });
   s_app.web_server().on(og3::MqttManager::kConfigUrl, [](AsyncWebServerRequest* request) {
     s_app.mqtt_manager().handleRequest(request, s_app.board_cname(), kSoftware);
+  });
+  s_app.web_server().on("/restart", [](AsyncWebServerRequest* request) {
+    og3::htmlRestartPage(request, &s_app.tasks());
   });
 }
 void loop() { s_app.loop(); }

@@ -60,6 +60,8 @@ void handleWebRoot(AsyncWebServerRequest* request) {
   og3::html::writeTableInto(&s_body, s_app.wifi_manager().variables());
   // Add a button for a web form, for configuring the board's Wifi settings.
   s_app.wifi_manager().add_html_config_button(&s_body);
+  // Add a button for rebooting the board.
+  s_body += F(HTML_BUTTON("/restart", "Restart"));
   // Send the rendered web page to the client.
   og3::sendWrappedHTML(request, s_app.board_cname(), kSoftware, s_body.c_str());
 }
@@ -68,11 +70,20 @@ void handleWebRoot(AsyncWebServerRequest* request) {
 
 void setup() {
   s_app.setup();
+  // For captive portal mode, map unknown URI paths to the root page.
+  s_app.wifi_manager().addSoftAPCallback([]() {
+    s_app.web_server().onNotFound([](AsyncWebServerRequest* request) {
+      s_app.wifi_manager().handleRequest(request, s_app.board_cname(), kSoftware);
+    });
+  });
   // Serve files in flash from the /static/ subdirectory, such as CSS files.
   s_app.web_server().serveStatic("/static/", LittleFS, "/static/").setCacheControl("max-age=600");
   s_app.web_server().on("/", handleWebRoot);
   s_app.web_server().on(og3::WifiManager::kConfigUrl, [](AsyncWebServerRequest* request) {
     s_app.wifi_manager().handleRequest(request, s_app.board_cname(), kSoftware);
+  });
+  s_app.web_server().on("/restart", [](AsyncWebServerRequest* request) {
+    og3::htmlRestartPage(request, &s_app.tasks());
   });
 }
 void loop() { s_app.loop(); }
