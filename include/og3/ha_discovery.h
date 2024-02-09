@@ -38,6 +38,7 @@ namespace binary_sensor {
 extern const char* kMoisture;
 extern const char* kMotion;
 extern const char* kPower;
+extern const char* kLight;
 }  // namespace binary_sensor
 }  // namespace ha::device_class
 
