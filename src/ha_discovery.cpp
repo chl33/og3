@@ -39,6 +39,7 @@ namespace binary_sensor {
 const char* kMoisture = "moisture";
 const char* kMotion = "motion";
 const char* kPower = "power";
+const char* kLight = "light";
 }  // namespace binary_sensor
 }  // namespace ha::device_class
 
