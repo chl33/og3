@@ -3,7 +3,12 @@
 
 #pragma once
 
+#ifndef NATIVE
+#include <DNSServer.h>
+#endif
+
 #include <functional>
+#include <memory>
 
 #include "og3/compiler_definitions.h"
 #include "og3/constants.h"
@@ -64,6 +69,9 @@ class WifiManager : public Module {
   void addDisconnectCallback(const std::function<void()>& callback) {
     m_disconnectCallbacks.push_back(callback);
   }
+  void addSoftAPCallback(const std::function<void()>& callback) {
+    m_softAPCallbacks.push_back(callback);
+  }
 
   static WifiManager* get(const NameToModule& n2m) { return GetModule<WifiManager>(n2m, kName); }
 
@@ -81,6 +89,9 @@ class WifiManager : public Module {
   void onWifiEvent(arduino_event_id_t task, arduino_event_info_t info);
 #endif
 
+#ifndef NATIVE
+  std::unique_ptr<DNSServer> m_dns_server;
+#endif
   SingleDependency m_dependencies;
   TaskScheduler m_scheduler;
   TaskScheduler m_status_scheduler;
@@ -99,6 +110,7 @@ class WifiManager : public Module {
 
   std::vector<std::function<void()>> m_connectCallbacks;
   std::vector<std::function<void()>> m_disconnectCallbacks;
+  std::vector<std::function<void()>> m_softAPCallbacks;
 #ifdef ARDUINO_ARCH_ESP32
   WiFiEventId_t m_wifiEventIdConnected;
   WiFiEventId_t m_wifiEventIdDisconnected;

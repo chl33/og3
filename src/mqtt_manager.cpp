@@ -175,9 +175,7 @@ void MqttManager::subscribe(const String& topic, const MqttMsgCallbackFn& fn) {
 void MqttManager::handleRequest(AsyncWebServerRequest* request, const char* title,
                                 const char* footer) {
 #ifndef NATIVE
-  if (request->method() == HTTP_POST) {
-    read(*request, &m_vg);
-  }
+  read(*request, &m_vg);
   String form;
   html::writeFormTableInto(&form, m_vg);
   form += F(HTML_BUTTON("/", "Back"));

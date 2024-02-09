@@ -5,6 +5,10 @@
 
 #include <functional>
 
+#ifndef NATIVE
+#include <DNSServer.h>
+#endif
+
 #include "og3/config_interface.h"
 #include "og3/constants.h"
 #include "og3/html_table.h"
@@ -28,6 +32,11 @@ class OnExit {
  private:
   const std::function<void()> m_exit_fn;
 };
+
+#ifndef NATIVE
+constexpr uint8_t DNS_PORT = 53;
+#endif
+const IPAddress apSoftIP(192, 168, 4, 1);
 
 static const char kStatusUninitialized[] = "init";
 static const char kStatusNoShield[] = "no-shield";
@@ -101,6 +110,9 @@ WifiManager::WifiManager(const char* default_board_name, Tasks* tasks,
     return m_config != nullptr;
   });
   add_init_fn([this]() {
+#ifndef NATIVE
+    WiFi.persistent(false);  // Keep the esp from automatically writing essid+paswd to flash.
+#endif
     if (m_config) {
       m_config->read_config(&m_vg);
     }
@@ -119,14 +131,19 @@ WifiManager::WifiManager(const char* default_board_name, Tasks* tasks,
       trySetup();
     }
   });
+#ifndef NATIVE
+  add_update_fn([this]() {
+    if (m_ap_mode && m_dns_server) {
+      m_dns_server->processNextRequest();
+    }
+  });
+#endif
 }
 
 void WifiManager::handleRequest(AsyncWebServerRequest* request, const char* title,
                                 const char* footer) {
 #ifndef NATIVE
-  if (request->method() == HTTP_POST) {
-    read(*request, &m_vg);
-  }
+  ::og3::read(*request, &m_vg);
   String form;
   html::writeFormTableInto(&form, m_vg);
   form += F(HTML_BUTTON("/", "Back"));
@@ -185,10 +202,17 @@ void WifiManager::trySetup() {
   auto start_ap = [this]() {
     log()->logf("Wifi: starting in AP mode (%s).", board().c_str());
     WiFi.mode(WIFI_AP);
-    // fix crash esp32 https://github.com/espressif/arduino-esp32/issues/2025
-    // WiFi.persistent(false);
     m_ap_mode = true;
-    if (WiFi.softAP(board().c_str())) {
+    if (WiFi.softAPConfig(apSoftIP, apSoftIP, IPAddress(255, 255, 255, 0)) &&
+        WiFi.softAP(board().c_str())) {
+      if (!m_dns_server) {
+        m_dns_server.reset(new DNSServer());
+      }
+      m_dns_server->setErrorReplyCode(DNSReplyCode::NoError);
+      m_dns_server->start(DNS_PORT, "*", apSoftIP);
+      for (const auto& callback : m_softAPCallbacks) {
+        callback();
+      }
       // Allow time to setup maybe??
       m_scheduler.runIn(2 * kMsecInSec, [this]() { onConnect(); });
       m_start_connect_msec = millis();
