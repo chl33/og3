@@ -18,7 +18,7 @@ class MqttManager;
 //  via MQTT every couple minutes.
 class AppStatus : public Module {
  public:
-  explicit AppStatus(Tasks* tasks) RT3_NONNULL();
+  explicit AppStatus(Tasks* tasks) OG3_NONNULL();
 
   static const char* kName;
   static const char* kUrl;

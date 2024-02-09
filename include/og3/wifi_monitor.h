@@ -15,7 +15,7 @@ class WifiMonitor : public Module {
  public:
   static const char kName[];
 
-  explicit WifiMonitor(Tasks* tasks) RT3_NONNULL();
+  explicit WifiMonitor(Tasks* tasks) OG3_NONNULL();
 
  private:
   void statusUpdate();

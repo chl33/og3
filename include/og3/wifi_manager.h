@@ -43,7 +43,7 @@ class WifiManager : public Module {
   };
 
   WifiManager(const char* default_board_name, Tasks* tasks, const Options& options = Options())
-      RT3_NONNULL();
+      OG3_NONNULL();
 
   void set_enable(bool enable) { m_enable = enable; }
 
