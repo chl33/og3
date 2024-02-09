@@ -46,7 +46,7 @@ class Blink : public og3::Module {
       : og3::Module("blink", &app->module_system()),
         m_app(app),
         m_vg("blink", 2),
-        m_high("led_on", false, "LED is on", 0, &m_vg),
+        m_high("led_on", false, "LED is on", &m_vg),
         // Blink every 10 second, starting at first millisecond.
         m_blink_timing(
             1, 10 * og3::kMsecInSec, [this]() { blink(); }, &app->tasks()) {
