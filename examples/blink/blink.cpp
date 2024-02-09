@@ -5,6 +5,7 @@
 #include <Arduino.h>
 #include <ArduinoJson.h>
 #include <ArduinoOTA.h>
+#include <DNSServer.h>
 #include <LittleFS.h>
 // This is the relevant include file for using the library.
 #include <og3/app.h>

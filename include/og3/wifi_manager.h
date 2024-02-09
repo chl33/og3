@@ -3,6 +3,10 @@
 
 #pragma once
 
+#ifndef NATIVE
+#include <DNSServer.h>
+#endif
+
 #include <functional>
 #include <memory>
 
@@ -15,7 +19,6 @@
 #include "og3/wifi.h"
 
 class AsyncWebServerRequest;
-class DNSServer;
 
 namespace og3 {
 
