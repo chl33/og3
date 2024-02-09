@@ -5,6 +5,10 @@
 
 #include <functional>
 
+#ifndef NATIVE
+#include <DNSServer.h>
+#endif
+
 #include "og3/config_interface.h"
 #include "og3/constants.h"
 #include "og3/html_table.h"
