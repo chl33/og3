@@ -7,9 +7,9 @@
 #include <string>
 #include <vector>
 
-#include "og3/module_system.h"
 #include "og3/logger.h"
 #include "og3/module.h"
+#include "og3/module_system.h"
 #include "unity.h"
 
 namespace og3 {

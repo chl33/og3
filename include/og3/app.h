@@ -4,8 +4,8 @@
 #pragma once
 
 #include "og3/compiler_definitions.h"
-#include "og3/module_system.h"
 #include "og3/logger.h"
+#include "og3/module_system.h"
 #include "og3/serial_logger.h"
 #include "og3/tasks.h"
 

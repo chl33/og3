@@ -5,9 +5,9 @@
 
 #include <functional>
 
-#include "og3/module_system.h"
 #include "og3/ha_discovery.h"
 #include "og3/module.h"
+#include "og3/module_system.h"
 #include "og3/variable.h"
 
 namespace og3 {
