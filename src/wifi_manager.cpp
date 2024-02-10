@@ -174,9 +174,14 @@ void WifiManager::onDisconnect() {
               m_was_connected ? "" : " not");
 #endif
   if (m_was_connected) {
+#ifndef NATIVE
+    WiFi.disconnect();  // disconnect so we can run Wifi.begin() later to attempt re-connection.
+#endif
     for (const auto& callback : m_disconnectCallbacks) {
       callback();
     }
+    // Try to reconnect after 1 minute.
+    m_scheduler.runIn(kMsecInMin, [this]() { trySetup(); });
   }
   m_was_connected = false;
 }
