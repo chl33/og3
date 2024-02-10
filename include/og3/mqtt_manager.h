@@ -114,7 +114,7 @@ class MqttManager : public Module {
   // Variable<uint16_t> m_port;
   Variable<String> m_auth_user;
   Variable<String> m_auth_password;
-  EnumVariable<Mode> m_mode;
+  EnumStrVariable<Mode> m_mode;
   Variable<bool> m_connected;
 
   String m_will_topic;
