@@ -224,16 +224,6 @@ class EnumStrVariable : public EnumStrVariableBase {
       : EnumStrVariableBase(name_, static_cast<int>(value), units_, description_,
                             static_cast<int>(min_value), static_cast<int>(max_value), value_names,
                             flags_, group) {}
-  bool fromString(const String& value) override {
-    if (EnumStrVariableBase::fromString(value)) {
-      return true;
-    }
-    setFailed(1 != sscanf(value.c_str(), "%d", &m_value));
-    if (failed()) {
-      return false;
-    }
-    return true;
-  }
   const T value() const { return static_cast<T>(m_value); }
   T value() { return static_cast<T>(m_value); }
 };
