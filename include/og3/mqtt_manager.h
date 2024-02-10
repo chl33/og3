@@ -101,7 +101,7 @@ class MqttManager : public Module {
   void onConnect(bool sessionPresent);
 
   Options m_opts;
-  TaskScheduler m_scheduler;
+  TaskScheduler m_connect_scheduler;
   ConfigInterface* m_config = nullptr;
   WifiManager* m_wifi_manager = nullptr;
 #ifndef NATIVE

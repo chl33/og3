@@ -93,8 +93,7 @@ class WifiManager : public Module {
   std::unique_ptr<DNSServer> m_dns_server;
 #endif
   SingleDependency m_dependencies;
-  TaskScheduler m_scheduler;
-  TaskScheduler m_status_scheduler;
+  TaskIdScheduler m_scheduler;
   VariableGroup m_vg;
   // Config varibles
   Variable<String> m_board;
