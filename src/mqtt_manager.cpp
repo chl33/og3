@@ -13,6 +13,11 @@
 #include "og3/web_server.h"
 #include "og3/wifi_manager.h"
 
+namespace {
+const char* s_modes[] = {"home-assistant", "adafruit.io."};
+
+}
+
 namespace og3 {
 
 const char MqttManager::kName[] = "mqtt";
@@ -57,7 +62,7 @@ MqttManager::MqttManager(const Options& opts, Tasks* tasks)
                       VariableBase::kConfig | VariableBase::kSettable | VariableBase::kNoPublish |
                           VariableBase::kNoDisplay,
                       &m_vg),
-      m_mode("mode", opts.mode, "", "mode",
+      m_mode("mode", opts.mode, "", "mode", Mode::kHomeAssistant, Mode::kAdafruitIO, s_modes,
              VariableBase::kConfig | VariableBase::kSettable | VariableBase::kNoPublish, &m_vg),
       m_connected("connected", false, "", "connected", VariableBase::kNoPublish, &m_vg) {
   // Module callbacks

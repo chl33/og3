@@ -20,6 +20,15 @@ String VariableBase::formEntry() const {
   return ret;
 }
 
+void VariableBase::writeHtmlFieldInto(String* out_str) const {
+  *out_str += formEntry();
+  if (units() && units()[0]) {
+    *out_str += " (";
+    html::escape(out_str, units());
+    *out_str += ")";
+  }
+}
+
 VariableGroup::VariableGroup(const char* name, size_t initial_size) : m_name(name) {
   m_variables.reserve(initial_size);
 }
@@ -63,6 +72,74 @@ VariableBase::VariableBase(const char* name_, const char* units_, const char* de
   if (m_group) {
     m_group->add(this);
   }
+}
+
+EnumStrVariableBase::EnumStrVariableBase(const char* name_, int value, const char* units_,
+                                         const char* description_, int min_value, int max_value,
+                                         const char* value_names[], unsigned flags_,
+                                         VariableGroup* group)
+    : EnumVariableBase(name_, units_, description_, flags_, group),
+      m_min_value(min_value),
+      m_max_value(max_value),
+      m_value_names(value_names),
+      m_value(value) {}
+
+String EnumStrVariableBase::string() const {
+  if (m_value < m_min_value || m_value > m_max_value) {
+    return "??";
+  }
+  return String(m_value_names[m_value - m_min_value]);
+}
+bool EnumStrVariableBase::fromString(const String& value) {
+  for (int i = m_min_value; i <= m_max_value; i += 1) {
+    if (0 == strcmp(m_value_names[i - m_min_value], value.c_str())) {
+      m_value = i;
+      setFailed(false);
+      return true;
+    }
+  }
+  setFailed(1 != sscanf(value.c_str(), "%d", &m_value));
+  return !failed();
+}
+bool EnumStrVariableBase::fromJson(const JsonVariant& json) {
+  if (json.is<int>()) {
+    m_value = json.as<int>();
+    return true;
+  }
+  if (!json.is<const char*>()) {
+    return false;
+  }
+  for (int i = m_min_value; i <= m_max_value; i += 1) {
+    if (0 == strcmp(m_value_names[i - m_min_value], json.as<const char*>())) {
+      m_value = i;
+      return true;
+    }
+  }
+  return false;
+}
+void EnumStrVariableBase::toJson(JsonDocument* doc) {
+  if (!failed()) {
+    (*doc)[name()] = m_value;
+  }
+}
+
+void EnumStrVariableBase::writeHtmlFieldInto(String* out_str) const {
+  *out_str += "<select name=\"";
+  *out_str += name();
+  *out_str += "\">\n";
+  // *out_str += "<option value=\"\">--Please choose an option--</option>\n";
+  for (int i = m_min_value; i <= m_max_value; i += 1) {
+    *out_str += "<option value=\"";
+    *out_str += i;
+    *out_str += "\"";
+    if (i == m_value) {
+      *out_str += " selected";
+    }
+    *out_str += ">";
+    *out_str += m_value_names[i - m_min_value];
+    *out_str += "</option>\n";
+  }
+  *out_str += "</select>\n";
 }
 
 void BoolVariable::toJson(JsonDocument* doc) {

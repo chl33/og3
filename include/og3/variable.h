@@ -6,6 +6,7 @@
 #include <Arduino.h>
 #include <ArduinoJson.h>
 
+#include <cstring>
 #include <vector>
 
 namespace og3 {
@@ -52,6 +53,9 @@ class VariableBase {
   virtual bool fromJson(const JsonVariant& doc) = 0;
 
   virtual String formEntry() const;
+
+  virtual void writeHtmlFieldInto(String* out_str) const;
+
   enum Flags {
     kSettable = 0x01,  // may be set via web form
     kConfig = 0x02,    // persist value via flash
@@ -152,6 +156,25 @@ class EnumVariableBase : public VariableBase {
       : VariableBase(name_, units_, description_, flags_, group) {}
 };
 
+class EnumStrVariableBase : public EnumVariableBase {
+ public:
+  EnumStrVariableBase(const char* name_, int value, const char* units_, const char* description_,
+                      int min_value, int max_value, const char* value_names[], unsigned flags_,
+                      VariableGroup* group);
+
+  String string() const override;
+  bool fromString(const String& value) override;
+  bool fromJson(const JsonVariant& json) override;
+  void toJson(JsonDocument* doc) override;
+  void writeHtmlFieldInto(String* out_str) const override;
+
+ protected:
+  const int m_min_value;
+  const int m_max_value;
+  const char** m_value_names;
+  int m_value;
+};
+
 template <typename T>
 class EnumVariable : public EnumVariableBase {
  public:
@@ -181,16 +204,41 @@ class EnumVariable : public EnumVariableBase {
     return true;
   }
 
-  const T& value() const { return m_value; }
-  T& value() { return m_value; }
   EnumVariable<T>& operator=(const T& value) {
     m_value = value;
     setFailed(false);
     return *this;
   }
 
+  const T& value() const { return m_value; }
+  T& value() { return m_value; }
+
  protected:
   T m_value;
+};
+
+// Enumeration where rendering of values to string (not json) is from a list of strings.
+template <typename T>
+class EnumStrVariable : public EnumStrVariableBase {
+ public:
+  EnumStrVariable(const char* name_, const T& value, const char* units_, const char* description_,
+                  T min_value, T max_value, const char* value_names[], unsigned flags_,
+                  VariableGroup* group)
+      : EnumStrVariableBase(name_, static_cast<int>(value), units_, description_,
+                            static_cast<int>(min_value), static_cast<int>(max_value), value_names,
+                            flags_, group) {}
+  bool fromString(const String& value) override {
+    if (EnumStrVariableBase::fromString(value)) {
+      return true;
+    }
+    setFailed(1 != sscanf(value.c_str(), "%d", &m_value));
+    if (failed()) {
+      return false;
+    }
+    return true;
+  }
+  const T value() const { return static_cast<T>(m_value); }
+  T value() { return static_cast<T>(m_value); }
 };
 
 template <>
