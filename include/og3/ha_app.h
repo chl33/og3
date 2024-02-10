@@ -39,9 +39,11 @@ class HAApp : public WebApp {
   AppStatus& app_status() { return m_app_status; }
 
   void handleMqttConfigRequest(AsyncWebServerRequest* request);
-  WebButton createMqttConfigButton();
   void handleAppStatusRequest(AsyncWebServerRequest* request);
+#ifndef NATIVE
+  WebButton createMqttConfigButton();
   WebButton createAppStatusButton();
+#endif
 
  private:
   MqttManager m_mqtt_manager;

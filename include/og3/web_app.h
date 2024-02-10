@@ -19,8 +19,10 @@ class WebApp : public WifiApp {
 #endif
 
   void handleWifiConfigRequest(AsyncWebServerRequest* request);
+#ifndef NATIVE
   WebButton createWifiConfigButton();
   WebButton createRestartButton();
+#endif
 
  protected:
 #ifndef NATIVE

@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include <Arduino.h>
+
 #include <functional>
 
 #include "og3/wifi.h"

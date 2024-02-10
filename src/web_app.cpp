@@ -3,7 +3,9 @@
 
 #include "og3/web_app.h"
 
+#ifndef NATIVE
 #include <LittleFS.h>
+#endif
 
 #include "og3/html_table.h"
 
@@ -33,6 +35,8 @@ void WebApp::handleWifiConfigRequest(AsyncWebServerRequest* request) {
   config().write_config(wifi_manager().variables());
 #endif
 }
+
+#ifndef NATIVE
 WebButton WebApp::createWifiConfigButton() {
   return WebButton(&web_server(), "WiFi Config", WifiManager::kConfigUrl,
                    [this](AsyncWebServerRequest* request) { handleWifiConfigRequest(request); });
@@ -42,5 +46,6 @@ WebButton WebApp::createRestartButton() {
   return WebButton(&web_server(), "Restart", "/restart",
                    [this](AsyncWebServerRequest* request) { htmlRestartPage(request, &tasks()); });
 }
+#endif
 
 }  // namespace og3

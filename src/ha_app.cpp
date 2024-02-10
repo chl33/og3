@@ -26,10 +26,12 @@ void HAApp::handleMqttConfigRequest(AsyncWebServerRequest* request) {
 #endif
 }
 
+#ifndef NATIVE
 WebButton HAApp::createMqttConfigButton() {
   return WebButton(&web_server(), "MQTT Config", MqttManager::kConfigUrl,
                    [this](AsyncWebServerRequest* request) { handleMqttConfigRequest(request); });
 }
+#endif
 
 void HAApp::handleAppStatusRequest(AsyncWebServerRequest* request) {
 #ifndef NATIVE
@@ -41,9 +43,11 @@ void HAApp::handleAppStatusRequest(AsyncWebServerRequest* request) {
 #endif
 }
 
+#ifndef NATIVE
 WebButton HAApp::createAppStatusButton() {
   return WebButton(&web_server(), "App Status", AppStatus::kUrl,
                    [this](AsyncWebServerRequest* request) { handleAppStatusRequest(request); });
 }
+#endif
 
 }  // namespace og3
