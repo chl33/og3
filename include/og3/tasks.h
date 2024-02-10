@@ -35,11 +35,11 @@ class Tasks : public Module {
   TaskQueue m_queue;
 };
 
-// The TaskScheduler assists in scheduling tasks with a given id.
+// The TaskIdScheduler assists in scheduling tasks with a given id.
 // Queuing an task with a given id will replace any task already queueed with the same id.
-class TaskScheduler {
+class TaskIdScheduler {
  public:
-  explicit TaskScheduler(Tasks* tasks = nullptr)
+  explicit TaskIdScheduler(Tasks* tasks = nullptr)
       : m_tasks(tasks), m_id(tasks ? tasks->getId() : 0) {}
 
   void setTasks(Tasks* tasks) {
@@ -67,6 +67,23 @@ class TaskScheduler {
   unsigned m_id;
 };
 
+// The TaskScheduler assists in scheduling tasks with a given id.
+// Queuing an task with a given id will replace any task already queueed with the same id.
+class TaskScheduler {
+ public:
+  explicit TaskScheduler(const Thunk& thunk, Tasks* tasks = nullptr)
+      : m_thunk(thunk), m_scheduler(tasks) {}
+
+  void setTasks(Tasks* tasks) { m_scheduler.setTasks(tasks); }
+  void runAt(unsigned long msec) { m_scheduler.runAt(msec, m_thunk); }
+  void runIn(unsigned long msec) { m_scheduler.runIn(msec, m_thunk); }
+  const Tasks* tasks() const { return m_scheduler.tasks(); }
+
+ private:
+  const Thunk m_thunk;
+  TaskIdScheduler m_scheduler;
+};
+
 // PeriodicTaskScheduler is like TaskIdQueue but automatically reschedules
 //  the task each time it is run.
 class PeriodicTaskScheduler {
@@ -84,7 +101,7 @@ class PeriodicTaskScheduler {
   void start(unsigned long msec);
   void cycle();
 
-  TaskScheduler m_scheduler;
+  TaskIdScheduler m_scheduler;
   const Thunk m_thunk;
   const unsigned m_initial_msec;
   const unsigned m_period_msec;

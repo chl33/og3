@@ -47,7 +47,7 @@ String MqttManager::willTopic(const char* device_name) const {
 MqttManager::MqttManager(const Options& opts, Tasks* tasks)
     : Module(kName, tasks->module_system()),
       m_opts(opts),
-      m_scheduler(tasks),
+      m_connect_scheduler([this]() { connect(); }, tasks),
       m_dependency(WifiManager::kName),
       m_vg(kName, 4),
       m_host_addr("host", opts.default_server, "", "MQTT server",
@@ -89,7 +89,7 @@ MqttManager::MqttManager(const Options& opts, Tasks* tasks)
     log()->log("Disconnected from MQTT.");
     if (WiFi.isConnected()) {
       // Try again in 10 seconds.
-      m_scheduler.runIn(10 * kMsecInSec, [this]() { connect(); });
+      m_connect_scheduler.runIn(10 * kMsecInSec);
     }
   });
   m_mqttClient.onPublish([this](uint16_t packetId) {

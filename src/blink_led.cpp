@@ -17,7 +17,7 @@ BlinkLed::BlinkLed(const char* name_, uint8_t led, App* app, unsigned onMsec, bo
       m_on_msec(onMsec),
       m_off_msec(offMsec ? offMsec : onMsec),
       m_on_low(onLow),
-      m_scheduler(&app->tasks()) {
+      m_scheduler([this]() { blinkCallback(); }, &app->tasks()) {
   add_init_fn([this]() {
     pinMode(m_led, OUTPUT);
     off();
@@ -35,15 +35,11 @@ void BlinkLed::off() {
 void BlinkLed::blink(uint8_t num) {
   m_num_blinks = num;
   on();
-  scheduleCallback(m_on_msec);
+  m_scheduler.runIn(m_on_msec);
 }
 void BlinkLed::delayedBlink(unsigned msec, uint8_t num) {
   m_num_blinks = num;
-  scheduleCallback(msec);
-}
-
-void BlinkLed::scheduleCallback(unsigned msec) {
-  m_scheduler.runIn(msec, [this] { blinkCallback(); });
+  m_scheduler.runIn(msec);
 }
 
 void BlinkLed::blinkCallback() {
@@ -52,12 +48,12 @@ void BlinkLed::blinkCallback() {
     if (m_num_blinks > 0) {
       m_num_blinks -= 1;
       // Turn back on in m_off_msec.
-      scheduleCallback(m_off_msec);
+      m_scheduler.runIn(m_off_msec);
     }
   } else {
     on();
     // Turn back off in m_on_msec.
-    scheduleCallback(m_on_msec);
+    m_scheduler.runIn(m_on_msec);
   }
 }
 

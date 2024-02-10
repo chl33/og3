@@ -19,16 +19,15 @@ class BlinkLed : public Module {
   void delayedBlink(unsigned msec, uint8_t num = 1);
 
  private:
-  void scheduleCallback(unsigned msec);
   void blinkCallback();
 
   const uint8_t m_led;
   const unsigned m_on_msec;
   const unsigned m_off_msec;
   const bool m_on_low;
-  TaskScheduler m_scheduler;
   bool m_is_on = false;
   uint8_t m_num_blinks = 0;
+  TaskScheduler m_scheduler;
 };
 
 }  // namespace og3
