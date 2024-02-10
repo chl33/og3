@@ -32,12 +32,13 @@ constexpr uint8_t kLEDPin = D4;
 // This is an example application with a web server and MQTT client support.
 // The MQTT client support includes code for Home Assistant device/entity discovery.
 og3::HAApp s_app(
-    og3::HAApp::Options("chl33", kModel, kSoftware)
-        .withWifiApp(og3::WifiApp::Options()
-                         .withApp(og3::App::Options().withLogType(og3::App::LogType::kSerial))
-                         .withDefaultDeviceName("ha-test")
-                         .withUdpLogHost(IPAddress(192, 168, 0, 20))
-                         .withOta(og3::OtaManager::Options(OTA_PASSWORD))));
+    og3::HAApp::Options("chl33", kModel,
+                        og3::WifiApp::Options()
+                            .withSoftwareName(kSoftware)
+                            .withApp(og3::App::Options().withLogType(og3::App::LogType::kSerial))
+                            .withDefaultDeviceName("ha-test")
+                            .withUdpLogHost(IPAddress(192, 168, 0, 20))
+                            .withOta(og3::OtaManager::Options(OTA_PASSWORD))));
 
 // This module is responsible for blinking the LED (10 second off, 10 second on, ...).
 class Blink : public og3::Module {
@@ -88,6 +89,11 @@ class Blink : public og3::Module {
 
 Blink s_blink(&s_app);
 
+og3::WebButton s_button_wifi_config = s_app.createWifiConfigButton();
+og3::WebButton s_button_mqtt_config = s_app.createMqttConfigButton();
+og3::WebButton s_button_app_status = s_app.createAppStatusButton();
+og3::WebButton s_button_restart = s_app.createRestartButton();
+
 void handleWebRoot(AsyncWebServerRequest* request) {
   // The send of the web page happens asynchronously after this function exits, so we need to
   // make sure the storage for the page remains.  I don't know how to handle the case where
@@ -97,33 +103,17 @@ void handleWebRoot(AsyncWebServerRequest* request) {
   og3::html::writeTableInto(&s_body, s_blink.variables());
   og3::html::writeTableInto(&s_body, s_app.wifi_manager().variables());
   og3::html::writeTableInto(&s_body, s_app.mqtt_manager().variables());
-  s_app.wifi_manager().add_html_config_button(&s_body);
-  s_app.mqtt_manager().add_html_config_button(&s_body);
-  s_app.app_status().addHtmlButton(&s_body);
-  s_body += F(HTML_BUTTON("/restart", "Restart"));
+  s_button_wifi_config.add_button(&s_body);
+  s_button_mqtt_config.add_button(&s_body);
+  s_button_app_status.add_button(&s_body);
+  s_button_restart.add_button(&s_body);
   og3::sendWrappedHTML(request, s_app.board_cname(), kSoftware, s_body.c_str());
 }
 
 }  // namespace
 
 void setup() {
-  // For captive portal mode, map unknown URI paths to the root page.
-  s_app.wifi_manager().addSoftAPCallback([]() {
-    s_app.web_server().onNotFound([](AsyncWebServerRequest* request) {
-      s_app.wifi_manager().handleRequest(request, s_app.board_cname(), kSoftware);
-    });
-  });
   s_app.setup();
-  s_app.web_server().serveStatic("/static/", LittleFS, "/static/").setCacheControl("max-age=600");
   s_app.web_server().on("/", handleWebRoot);
-  s_app.web_server().on(og3::WifiManager::kConfigUrl, [](AsyncWebServerRequest* request) {
-    s_app.wifi_manager().handleRequest(request, s_app.board_cname(), kSoftware);
-  });
-  s_app.web_server().on(og3::MqttManager::kConfigUrl, [](AsyncWebServerRequest* request) {
-    s_app.mqtt_manager().handleRequest(request, s_app.board_cname(), kSoftware);
-  });
-  s_app.web_server().on("/restart", [](AsyncWebServerRequest* request) {
-    og3::htmlRestartPage(request, &s_app.tasks());
-  });
 }
 void loop() { s_app.loop(); }

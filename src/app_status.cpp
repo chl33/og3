@@ -46,16 +46,4 @@ void AppStatus::mqttSend() {
   m_tasks->runIn(10 * kMsecInMin, [this]() { mqttSend(); });
 }
 
-void AppStatus::handleRequest(AsyncWebServerRequest* request, const char* software) {
-#ifndef NATIVE
-  static String s_body;
-  s_body.clear();
-  html::writeTableInto(&s_body, m_vg);
-  s_body += F(HTML_BUTTON("/", "Back"));
-  sendWrappedHTML(request, "App Status", software, s_body.c_str());
-#endif
-}
-
-void AppStatus::addHtmlButton(String* body) { add_html_button(body, "App Status", kUrl); }
-
 }  // namespace og3

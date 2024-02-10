@@ -25,11 +25,16 @@ class WifiApp : public App {
   struct Options {
     App::Options app;
     const char* default_device_name;
+    const char* software_name;
     WifiManager::Options wifi;
     OtaManager::Options ota;
     IPAddress udp_log_host;
     Options& withDefaultDeviceName(const char* default_device_name) {
       this->default_device_name = default_device_name;
+      return *this;
+    }
+    Options& withSoftwareName(const char* software_name) {
+      this->software_name = software_name;
       return *this;
     }
     Options& withApp(const App::Options& app) {
@@ -58,8 +63,10 @@ class WifiApp : public App {
 
   const String& board_name() const { return wifi_manager().board(); }
   const char* board_cname() const { return board_name().c_str(); }
+  const char* software_name() const { return m_software_name; }
 
  protected:
+  const char* m_software_name;
   ConfigInterface m_config;
   FlashSupport m_flash_support;
   WifiManager m_wifi_manager;

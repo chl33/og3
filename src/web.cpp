@@ -76,6 +76,20 @@ const char html_page_template[] PROGMEM = R"====(<!DOCTYPE html>
 </html>
 )====";
 
+WebButton::WebButton(AsyncWebServer* server, const char* label, const char* path,
+                     const Action& action)
+    : m_label(label), m_path(path) {
+  server->on(path, action);
+}
+
+void WebButton::add_button(String* html) {
+  *html += "<p><form action='";
+  *html += m_path;
+  *html += "' method='get'><button>";
+  *html += m_label;
+  *html += "</button></form></p>\n";
+}
+
 }  // namespace og3
 
 #endif

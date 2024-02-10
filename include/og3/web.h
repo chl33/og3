@@ -3,7 +3,8 @@
 
 #pragma once
 
-#include "og3/tasks.h"
+#include <functional>
+
 #include "og3/wifi.h"
 
 #ifdef ESP32
@@ -30,5 +31,19 @@ extern const char html_page_template[] PROGMEM;
 
 #define HTML_BUTTON(PATH, TEXT) \
   "<p><form action='" PATH "' method='get'><button>" TEXT "</button></form></p>\n"
+
+class WebButton {
+ public:
+  using Action = std::function<void(AsyncWebServerRequest*)>;
+
+  WebButton(AsyncWebServer* server, const char* label, const char* path, const Action& action);
+  void add_button(String* html);
+
+  WebButton& operator=(const WebButton&) = default;
+
+ private:
+  const char* m_label;
+  const char* m_path;
+};
 
 }  // namespace og3
