@@ -14,7 +14,7 @@
 
 namespace {
 
-const char* kSoftware = "web-app";
+const char* kSoftware = "web-app" SW_VERSION;
 
 // Select which pin to use for blinking depending on the kind of board we are using.
 #if defined(BLINK_LED)
@@ -27,6 +27,7 @@ constexpr uint8_t kLEDPin = D4;
 
 // WebApp adds support for web interfacs to the basic wifi-app shown in examples/wifi-app.
 og3::WebApp s_app(og3::WifiApp::Options()
+                      .withSoftwareName(kSoftware)
                       .withDefaultDeviceName("web-test")
                       .withApp(og3::App::Options().withLogType(og3::App::LogType::kSerial)));
 
@@ -49,6 +50,8 @@ class Blink : public og3::Module {
 };
 
 Blink s_blink(&s_app);
+og3::WebButton s_button_wifi_config = s_app.createWifiConfigButton();
+og3::WebButton s_button_restart = s_app.createRestartButton();
 
 void handleWebRoot(AsyncWebServerRequest* request) {
   // The send of the web page happens asynchronously after this function exits, so we need to make
@@ -59,9 +62,9 @@ void handleWebRoot(AsyncWebServerRequest* request) {
   // Show wifi-state on the root page of the web app.
   og3::html::writeTableInto(&s_body, s_app.wifi_manager().variables());
   // Add a button for a web form, for configuring the board's Wifi settings.
-  s_app.wifi_manager().add_html_config_button(&s_body);
+  s_button_wifi_config.add_button(&s_body);
   // Add a button for rebooting the board.
-  s_body += F(HTML_BUTTON("/restart", "Restart"));
+  s_button_restart.add_button(&s_body);
   // Send the rendered web page to the client.
   og3::sendWrappedHTML(request, s_app.board_cname(), kSoftware, s_body.c_str());
 }
@@ -70,20 +73,6 @@ void handleWebRoot(AsyncWebServerRequest* request) {
 
 void setup() {
   s_app.setup();
-  // For captive portal mode, map unknown URI paths to the root page.
-  s_app.wifi_manager().addSoftAPCallback([]() {
-    s_app.web_server().onNotFound([](AsyncWebServerRequest* request) {
-      s_app.wifi_manager().handleRequest(request, s_app.board_cname(), kSoftware);
-    });
-  });
-  // Serve files in flash from the /static/ subdirectory, such as CSS files.
-  s_app.web_server().serveStatic("/static/", LittleFS, "/static/").setCacheControl("max-age=600");
   s_app.web_server().on("/", handleWebRoot);
-  s_app.web_server().on(og3::WifiManager::kConfigUrl, [](AsyncWebServerRequest* request) {
-    s_app.wifi_manager().handleRequest(request, s_app.board_cname(), kSoftware);
-  });
-  s_app.web_server().on("/restart", [](AsyncWebServerRequest* request) {
-    og3::htmlRestartPage(request, &s_app.tasks());
-  });
 }
 void loop() { s_app.loop(); }

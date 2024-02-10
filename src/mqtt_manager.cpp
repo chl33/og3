@@ -14,9 +14,9 @@
 #include "og3/wifi_manager.h"
 
 namespace {
-const char* s_modes[] = {"home-assistant", "adafruit.io."};
-
-}
+const char* s_str_modes[] = {"home-assistant", "adafruit.io."};
+const char* s_str_connected[] = {"not connected", "connected"};
+}  // namespace
 
 namespace og3 {
 
@@ -62,9 +62,10 @@ MqttManager::MqttManager(const Options& opts, Tasks* tasks)
                       VariableBase::kConfig | VariableBase::kSettable | VariableBase::kNoPublish |
                           VariableBase::kNoDisplay,
                       &m_vg),
-      m_mode("mode", opts.mode, "", "mode", Mode::kHomeAssistant, Mode::kAdafruitIO, s_modes,
+      m_mode("mode", opts.mode, "", "mode", Mode::kHomeAssistant, Mode::kAdafruitIO, s_str_modes,
              VariableBase::kConfig | VariableBase::kSettable | VariableBase::kNoPublish, &m_vg),
-      m_connected("connected", false, "", "connected", VariableBase::kNoPublish, &m_vg) {
+      m_connected("connection", kNotConnected, "", "connection", kNotConnected, kConnected,
+                  s_str_connected, VariableBase::kNoPublish, &m_vg) {
   // Module callbacks
   setDependencies(&m_dependency);
   add_link_fn([this](NameToModule& name_to_module) -> bool {
@@ -85,7 +86,7 @@ MqttManager::MqttManager(const Options& opts, Tasks* tasks)
   // Configure mqtt client callbacks.
   m_mqttClient.onConnect([this](bool sessionPresent) { return onConnect(sessionPresent); });
   m_mqttClient.onDisconnect([this](AsyncMqttClientDisconnectReason reason) {
-    m_connected = false;
+    m_connected = kNotConnected;
     log()->log("Disconnected from MQTT.");
     if (WiFi.isConnected()) {
       // Try again in 10 seconds.
@@ -152,7 +153,7 @@ void MqttManager::connect() {
 }
 
 void MqttManager::onConnect(bool sessionPresent) {
-  m_connected = true;
+  m_connected = kConnected;
 #ifndef NATIVE
   log()->log("Connected to MQTT.");
   log()->logf("Session present: %s.", sessionPresent ? "true" : "false");
@@ -174,18 +175,6 @@ void MqttManager::subscribe(const String& topic, const MqttMsgCallbackFn& fn) {
   m_mqtt_callbacks.push_back({topic, fn});
   const uint16_t packetIdSub = client().subscribe(topic.c_str(), 2);
   log()->logf("Subscribing to '%s' (id=%d)", topic.c_str(), static_cast<int>(packetIdSub));
-#endif
-}
-
-void MqttManager::handleRequest(AsyncWebServerRequest* request, const char* title,
-                                const char* footer) {
-#ifndef NATIVE
-  read(*request, &m_vg);
-  String form;
-  html::writeFormTableInto(&form, m_vg);
-  form += F(HTML_BUTTON("/", "Back"));
-  sendWrappedHTML(request, title, footer, form.c_str());
-  m_config->write_config(m_vg);
 #endif
 }
 

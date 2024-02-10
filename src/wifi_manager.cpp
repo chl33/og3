@@ -125,22 +125,6 @@ WifiManager::WifiManager(const char* default_board_name, Tasks* tasks,
 #endif
 }
 
-void WifiManager::handleRequest(AsyncWebServerRequest* request, const char* title,
-                                const char* footer) {
-#ifndef NATIVE
-  ::og3::read(*request, &m_vg);
-  String form;
-  html::writeFormTableInto(&form, m_vg);
-  form += F(HTML_BUTTON("/", "Back"));
-  sendWrappedHTML(request, title, footer, form.c_str());
-  m_config->write_config(m_vg);
-#endif
-}
-
-void WifiManager::add_html_config_button(String* body) {
-  add_html_button(body, "WiFi Config", kConfigUrl);
-}
-
 void WifiManager::onConnect() {
   m_start_connect_msec = 0;
 #ifndef NATIVE

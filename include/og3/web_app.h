@@ -18,9 +18,16 @@ class WebApp : public WifiApp {
   AsyncWebServer& web_server() { return m_web_server.server(); }
 #endif
 
+  void handleWifiConfigRequest(AsyncWebServerRequest* request);
+#ifndef NATIVE
+  WebButton createWifiConfigButton();
+  WebButton createRestartButton();
+#endif
+
  protected:
 #ifndef NATIVE
   WebServer m_web_server;
+  String m_web_page;  // Stores html while asyncwebserver sends the data.
 #endif
 };
 

@@ -11,6 +11,7 @@ namespace og3 {
 
 WifiApp::WifiApp(const WifiApp::Options& options)
     : App(options.app),
+      m_software_name(options.software_name),
       m_config(&module_system()),
       m_flash_support(&module_system()),
       m_wifi_manager(options.default_device_name, &tasks(), options.wifi),

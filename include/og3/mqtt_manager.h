@@ -30,7 +30,6 @@ class MqttManager : public Module {
   static const char kConfigUrl[];
 
   static MqttManager* get(const NameToModule& n2m) { return GetModule<MqttManager>(n2m, kName); }
-  void add_html_config_button(String* body) { add_html_button(body, "MQTT Config", kConfigUrl); }
 
   enum class Mode {
     kHomeAssistant,
@@ -82,8 +81,6 @@ class MqttManager : public Module {
   using MqttMsgCallbackFn = std::function<void(const char*, const char*, size_t)>;
   void subscribe(const String& topic, const MqttMsgCallbackFn& fn);
 
-  void handleRequest(AsyncWebServerRequest* request, const char* title, const char* footer);
-
   String boardTopic(const char* device_name = nullptr) const;
   String topic(const char* name, const char* device_name = nullptr) const;
   String willTopic(const char* device_name = nullptr) const;
@@ -96,6 +93,7 @@ class MqttManager : public Module {
   // const Options& options() const { return m_opts; }
 
   const VariableGroup& variables() const { return m_vg; }
+  VariableGroup& mutableVariables() { return m_vg; }
 
  private:
   void onConnect(bool sessionPresent);
@@ -115,7 +113,8 @@ class MqttManager : public Module {
   Variable<String> m_auth_user;
   Variable<String> m_auth_password;
   EnumStrVariable<Mode> m_mode;
-  Variable<bool> m_connected;
+  enum ConnectionStatus { kNotConnected, kConnected };
+  EnumStrVariable<ConnectionStatus> m_connected;
 
   String m_will_topic;
 

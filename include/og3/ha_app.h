@@ -15,12 +15,8 @@ namespace og3 {
 class HAApp : public WebApp {
  public:
   struct Options {
-    Options(const char* manufacturer_, const char* model_, const char* software_)
-        : ha_discovery(manufacturer_, model_, software_) {}
-    Options& withWifiApp(const WifiApp::Options& app_) {
-      this->app = app_;
-      return *this;
-    }
+    Options(const char* manufacturer_, const char* model_, const WifiApp::Options& app_)
+        : app(app_), ha_discovery(manufacturer_, model_, app.software_name) {}
     Options& withMqtt(const MqttManager::Options& mqtt_) {
       this->mqtt = mqtt_;
       return *this;
@@ -41,6 +37,13 @@ class HAApp : public WebApp {
   MqttManager& mqtt_manager() { return m_mqtt_manager; }
   HADiscovery& ha_discovery() { return m_ha_discovery; }
   AppStatus& app_status() { return m_app_status; }
+
+  void handleMqttConfigRequest(AsyncWebServerRequest* request);
+  void handleAppStatusRequest(AsyncWebServerRequest* request);
+#ifndef NATIVE
+  WebButton createMqttConfigButton();
+  WebButton createAppStatusButton();
+#endif
 
  private:
   MqttManager m_mqtt_manager;

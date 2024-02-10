@@ -226,6 +226,11 @@ class EnumStrVariable : public EnumStrVariableBase {
                             flags_, group) {}
   const T value() const { return static_cast<T>(m_value); }
   T value() { return static_cast<T>(m_value); }
+  EnumStrVariable<T>& operator=(const T value) {
+    m_value = static_cast<int>(value);
+    setFailed(false);
+    return *this;
+  }
 };
 
 template <>

@@ -18,8 +18,6 @@
 #include "og3/variable.h"
 #include "og3/wifi.h"
 
-class AsyncWebServerRequest;
-
 namespace og3 {
 
 class ConfigInterface;
@@ -61,6 +59,7 @@ class WifiManager : public Module {
   bool wasConnected() const { return m_was_connected; }
 
   const VariableGroup& variables() const { return m_vg; }
+  VariableGroup& mutableVariables() { return m_vg; }
   const Variable<int>& rssi() const { return m_rssi; }
 
   void addConnectCallback(const std::function<void()>& callback) {
@@ -74,9 +73,6 @@ class WifiManager : public Module {
   }
 
   static WifiManager* get(const NameToModule& n2m) { return GetModule<WifiManager>(n2m, kName); }
-
-  void handleRequest(AsyncWebServerRequest* request, const char* title, const char* footer);
-  void add_html_config_button(String* body);
 
   void updateStatus();
 

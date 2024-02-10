@@ -28,6 +28,7 @@ constexpr uint8_t kLEDPin = D4;
 // For web-apps (see examples/web-app/web-app.cpp), the board name, ESSID, and password can be
 //  updated via a web form from the boards web interface.
 og3::WifiApp s_app(og3::WifiApp::Options()
+                       .withSoftwareName("wifi-app")
                        .withDefaultDeviceName("wifi-test")  // default name of board (mDNS, etc..)
                        .withApp(og3::App::Options().withLogType(og3::App::LogType::kSerial)));
 

@@ -25,8 +25,8 @@ class AppStatus : public Module {
 
   // Returns true if filesystem existed on previous boot.
   void read();
-  void handleRequest(AsyncWebServerRequest* request, const char* software);
-  void addHtmlButton(String* body);
+
+  const VariableGroup& variables() const { return m_vg; }
 
  private:
   void mqttSend();
