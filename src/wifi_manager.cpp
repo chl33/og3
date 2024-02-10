@@ -20,19 +20,6 @@
 namespace og3 {
 
 namespace {
-class OnExit {
- public:
-  explicit OnExit(const std::function<void()>& exit_fn) : m_exit_fn(exit_fn) {}
-  ~OnExit() {
-    if (m_exit_fn) {
-      m_exit_fn();
-    }
-  }
-
- private:
-  const std::function<void()> m_exit_fn;
-};
-
 #ifndef NATIVE
 constexpr uint8_t DNS_PORT = 53;
 #endif
@@ -50,7 +37,6 @@ static const char kStatusDisconnected[] = "disconnected";
 static const char kStatusWrongPassword[] = "wrong-password";
 
 const char* nullToEmpty(const char* str) { return str ? str : ""; }
-
 }  // namespace
 
 #ifndef NATIVE
