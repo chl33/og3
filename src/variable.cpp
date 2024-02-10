@@ -20,15 +20,6 @@ String VariableBase::formEntry() const {
   return ret;
 }
 
-void VariableBase::writeHtmlFieldInto(String* out_str) const {
-  *out_str += formEntry();
-  if (units() && units()[0]) {
-    *out_str += " (";
-    html::escape(out_str, units());
-    *out_str += ")";
-  }
-}
-
 VariableGroup::VariableGroup(const char* name, size_t initial_size) : m_name(name) {
   m_variables.reserve(initial_size);
 }
@@ -123,23 +114,24 @@ void EnumStrVariableBase::toJson(JsonDocument* doc) {
   }
 }
 
-void EnumStrVariableBase::writeHtmlFieldInto(String* out_str) const {
-  *out_str += "<select name=\"";
-  *out_str += name();
-  *out_str += "\">\n";
-  // *out_str += "<option value=\"\">--Please choose an option--</option>\n";
+String EnumStrVariableBase::formEntry() const {
+  String ret = "<select name=\"";
+  ret += name();
+  ret += "\">\n";
+  // ret += "<option value=\"\">--Please choose an option--</option>\n";
   for (int i = m_min_value; i <= m_max_value; i += 1) {
-    *out_str += "<option value=\"";
-    *out_str += i;
-    *out_str += "\"";
+    ret += "<option value=\"";
+    ret += i;
+    ret += "\"";
     if (i == m_value) {
-      *out_str += " selected";
+      ret += " selected";
     }
-    *out_str += ">";
-    *out_str += m_value_names[i - m_min_value];
-    *out_str += "</option>\n";
+    ret += ">";
+    ret += m_value_names[i - m_min_value];
+    ret += "</option>\n";
   }
-  *out_str += "</select>\n";
+  ret += "</select>\n";
+  return ret;
 }
 
 void BoolVariable::toJson(JsonDocument* doc) {

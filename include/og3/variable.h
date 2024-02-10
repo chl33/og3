@@ -54,8 +54,6 @@ class VariableBase {
 
   virtual String formEntry() const;
 
-  virtual void writeHtmlFieldInto(String* out_str) const;
-
   enum Flags {
     kSettable = 0x01,  // may be set via web form
     kConfig = 0x02,    // persist value via flash
@@ -166,7 +164,7 @@ class EnumStrVariableBase : public EnumVariableBase {
   bool fromString(const String& value) override;
   bool fromJson(const JsonVariant& json) override;
   void toJson(JsonDocument* doc) override;
-  void writeHtmlFieldInto(String* out_str) const override;
+  String formEntry() const override;
 
  protected:
   const int m_min_value;
@@ -204,14 +202,13 @@ class EnumVariable : public EnumVariableBase {
     return true;
   }
 
+  const T& value() const { return m_value; }
+  T& value() { return m_value; }
   EnumVariable<T>& operator=(const T& value) {
     m_value = value;
     setFailed(false);
     return *this;
   }
-
-  const T& value() const { return m_value; }
-  T& value() { return m_value; }
 
  protected:
   T m_value;

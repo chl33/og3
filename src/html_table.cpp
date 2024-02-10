@@ -73,8 +73,13 @@ void writeTableInto(String* out_str, const VariableGroup& vars, const char* titl
 void writeFormRowInto(String* out_str, const VariableBase& var) {
   *out_str += "<tr><td>";
   *out_str += var.human_str();
+  if (var.units() && var.units()[0]) {
+    *out_str += " (";
+    escape(out_str, var.units());
+    *out_str += ")";
+  }
   *out_str += "</td><td>";
-  var.writeHtmlFieldInto(out_str);
+  *out_str += var.formEntry();
   *out_str += "</td></tr>\n";
 }
 
