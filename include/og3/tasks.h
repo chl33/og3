@@ -39,8 +39,8 @@ class Tasks : public Module {
 // Queuing an task with a given id will replace any task already queueed with the same id.
 class TaskIdScheduler {
  public:
-  explicit TaskIdScheduler(Tasks* tasks = nullptr)
-      : m_tasks(tasks), m_id(tasks ? tasks->getId() : 0) {}
+  // You can set tasks = nullptr if you set it later on with setTasks().
+  explicit TaskIdScheduler(Tasks* tasks) : m_tasks(tasks), m_id(tasks ? tasks->getId() : 0) {}
 
   void setTasks(Tasks* tasks) {
     if (m_tasks) {
@@ -71,8 +71,8 @@ class TaskIdScheduler {
 // Queuing an task with a given id will replace any task already queueed with the same id.
 class TaskScheduler {
  public:
-  explicit TaskScheduler(const Thunk& thunk, Tasks* tasks = nullptr)
-      : m_thunk(thunk), m_scheduler(tasks) {}
+  // You can set tasks = nullptr if you set it later on with setTasks().
+  TaskScheduler(const Thunk& thunk, Tasks* tasks) : m_thunk(thunk), m_scheduler(tasks) {}
 
   void setTasks(Tasks* tasks) { m_scheduler.setTasks(tasks); }
   void runAt(unsigned long msec) { m_scheduler.runAt(msec, m_thunk); }
@@ -88,8 +88,9 @@ class TaskScheduler {
 //  the task each time it is run.
 class PeriodicTaskScheduler {
  public:
+  // You can set tasks = nullptr if you set it later on with setTasks().
   PeriodicTaskScheduler(unsigned msec_initial, unsigned period_msec, const Thunk& thunk,
-                        Tasks* tasks = nullptr);
+                        Tasks* tasks);
 
   void setTasks(Tasks* tasks_);
 
