@@ -17,6 +17,7 @@ class DIn : public Module {
   // Read the dio pin and return isHigh().
   bool read();
 
+  uint8_t pin() const { return m_pin; }
   const Variable<bool>& isHighVar() const { return m_is_high; }
   bool isHigh() const { return m_is_high.value(); }
 
