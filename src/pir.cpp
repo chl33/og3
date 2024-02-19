@@ -18,11 +18,11 @@ Tasks* s_tasks = nullptr;
 bool Pir::s_interrupt_setup = false;
 std::function<void()> Pir::s_motion_callback;
 
-Pir::Pir(const char* name, ModuleSystem* module_system, Tasks* tasks, uint8_t pin,
-         const char* description, VariableGroup* vg, bool publish, bool ha_discovery)
-    : Module(name, module_system),
-      m_din_name(String(name) + "_din"),
-      m_din(m_din_name.c_str(), module_system, pin, description, vg, publish) {
+Pir::Pir(const char* module_name, const char* motion_name, ModuleSystem* module_system,
+         Tasks* tasks, uint8_t pin, const char* description, VariableGroup* vg, bool publish,
+         bool ha_discovery)
+    : Module(module_name, module_system),
+      m_din(motion_name, module_system, pin, description, vg, publish) {
   setDependencies(&m_dependencies);
   if (ha_discovery) {
     add_init_fn([this]() {
