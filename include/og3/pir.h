@@ -15,8 +15,8 @@ namespace og3 {
 // Pir is a wrapper for PIR sensors.
 class Pir : public Module {
  public:
-  Pir(const char* name_, ModuleSystem* module_system_, Tasks* tasks, uint8_t pin_,
-      const char* description, VariableGroup* vg, bool publish, bool ha_discovery);
+  Pir(const char* module_name, const char* motion_name, ModuleSystem* module_system, Tasks* tasks,
+      uint8_t pin, const char* description, VariableGroup* vg, bool publish, bool ha_discovery);
 
   void read();
 
