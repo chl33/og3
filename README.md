@@ -2,7 +2,7 @@
 
 The og3 library is designed to help write applications for ESP microprocessors using the Arduino environment.  It was written especially to support MQTT applications and interface with [Home Assistant](https://www.home-assistant.io/).  This library is designed to be used with the [Platformio](https://platformio.org/) development environment.
 
-Note that this code is a work in progress and should be considered alpha or beta quality.  It is suitable for DIY projects at this point.
+Note that this code is a work in progress and should be considered alpha or beta quality.  It is suitable for DIY projects at this point.  The APIs of this code are still slowly evolving over time.
 
 - [Modules and the ModuleSystem](docs/modules.md).  This system helps to break an application into a set of reusable modules which can work together.
 - [Tasks](docs/scheduled-tasks.md).  This is a utility for running scheduled tasks.
