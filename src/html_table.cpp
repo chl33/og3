@@ -36,9 +36,9 @@ void escape(String* out_str, const char* in_str) {
   }
 }
 
-void writeRowInto(String* out_str, const VariableBase& var) {
+void writeRowInto(String* out_str, const VariableBase& var, const char* name) {
   *out_str += "<tr><td>";
-  escape(out_str, var.human_str());
+  escape(out_str, name ? name : var.human_str());
   *out_str += "</td><td>";
   escape(out_str, var.string().c_str());
   *out_str += " ";
@@ -53,21 +53,30 @@ void writeRowsInto(String* out_str, const VariableGroup& vars) {
     }
   }
 }
-void writeTableInto(String* out_str, const VariableGroup& vars, const char* title,
-                    const char* css_class) {
+
+void writeTableStart(String* out_str, const char* title, const char* css_class) {
   *out_str += "<table class=\"";
   *out_str += css_class ? css_class : "readings";
   *out_str +=
       "\">\n"
       "<thead><tr><th colspan=\"2\">";
-  escape(out_str, title ? title : vars.name());
+  escape(out_str, title);
   *out_str +=
       "</th></tr></thead>\n"
       "<tbody>\n";
-  writeRowsInto(out_str, vars);
+}
+
+void writeTableEnd(String* out_str) {
   *out_str +=
       "</tbody>\n"
       "</table>\n";
+}
+
+void writeTableInto(String* out_str, const VariableGroup& vars, const char* title,
+                    const char* css_class) {
+  writeTableStart(out_str, title ? title : vars.name(), css_class);
+  writeRowsInto(out_str, vars);
+  writeTableEnd(out_str);
 }
 
 void writeFormRowInto(String* out_str, const VariableBase& var) {
