@@ -10,7 +10,7 @@ constexpr unsigned kCfgSet = VariableBase::Flags::kConfig | VariableBase::Flags:
 constexpr unsigned kOutputSet = 0;
 }  // namespace
 
-PID::PID(const PID::Gains& gains, VariableGroup* vg, VariableGroup* cfg_vg)
+PID::PID(const PID::Gains& gains, VariableGroup* vg, VariableGroup* cfg_vg, VariableGroup* cmd_vg)
     : m_p("p", gains.p, "", "proportional gain", kCfgSet, 2, cfg_vg),
       m_i("i", gains.i, "", "integral gain", kCfgSet, 5, cfg_vg),
       m_d("d", gains.d, "", "derivative gain", kCfgSet, 2, cfg_vg),
@@ -20,8 +20,9 @@ PID::PID(const PID::Gains& gains, VariableGroup* vg, VariableGroup* cfg_vg)
       m_command_min("command_min", gains.command_min, "", "minimum output", kCfgSet, 1, cfg_vg),
       m_command_max("command_max", gains.command_max, "", "maximum output", kCfgSet, 1, cfg_vg),
       m_last_msec(millis()),
-      m_target("target", 0.0f, "", "control target", kCfgSet, 1, cfg_vg),
-      m_d_target("d_target", 0.0f, "", "control target derivative", kCfgSet, 1, cfg_vg),
+      m_target("target", 25.0f, "", "control target", kCfgSet, 1, cmd_vg),
+      m_d_target("d_target", 0.0f, "", "control target derivative", VariableBase::Flags::kConfig, 1,
+                 cmd_vg),
       m_error("error", 0.0f, "", "error", kOutputSet, 1, vg),
       m_d_error("d_error", 0.0f, "", "derivative error", kOutputSet, 1, vg),
       m_command("command", 0.0f, "", "control output", kOutputSet, 1, vg),
