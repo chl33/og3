@@ -55,6 +55,7 @@ class WifiManager : public Module {
   const String& password() const { return m_password.value(); }
   bool apMode() const { return m_ap_mode; }
 
+  const Variable<String>& ipAddressVariable() const { return m_ip_addr; }
   const String& ipAddress() const { return m_ip_addr.value(); }
   bool wasConnected() const { return m_was_connected; }
 

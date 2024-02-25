@@ -94,6 +94,8 @@ class MqttManager : public Module {
 
   const VariableGroup& variables() const { return m_vg; }
   VariableGroup& mutableVariables() { return m_vg; }
+  enum ConnectionStatus { kNotConnected, kConnected };
+  const EnumStrVariable<ConnectionStatus>& connectionStatusVariable() const { return m_connected; }
 
  private:
   void onConnect(bool sessionPresent);
@@ -113,7 +115,6 @@ class MqttManager : public Module {
   Variable<String> m_auth_user;
   Variable<String> m_auth_password;
   EnumStrVariable<Mode> m_mode;
-  enum ConnectionStatus { kNotConnected, kConnected };
   EnumStrVariable<ConnectionStatus> m_connected;
 
   String m_will_topic;
