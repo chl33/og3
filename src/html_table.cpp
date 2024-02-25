@@ -36,7 +36,11 @@ void escape(String* out_str, const char* in_str) {
   }
 }
 
-void writeRowInto(String* out_str, const VariableBase& var, const char* name) {
+void writeRowInto(String* out_str, const VariableBase& var, const char* name,
+                  bool write_even_if_failed) {
+  if (!write_even_if_failed && var.failed()) {
+    return;
+  }
   *out_str += "<tr><td>";
   escape(out_str, name ? name : var.human_str());
   *out_str += "</td><td>";
@@ -48,7 +52,7 @@ void writeRowInto(String* out_str, const VariableBase& var, const char* name) {
 
 void writeRowsInto(String* out_str, const VariableGroup& vars) {
   for (const VariableBase* var : vars.variables()) {
-    if (!var->noDisplay() && !var->failed()) {
+    if (!var->noDisplay()) {
       writeRowInto(out_str, *var);
     }
   }
