@@ -72,6 +72,7 @@ const char html_page_template[] PROGMEM = R"====(<!DOCTYPE html>
 <div style='text-align:right;font-size:10px;color: grey;'>
   <hr>%FOOTER%</div>
 </div>
+</div>
 </body>
 </html>
 )====";
