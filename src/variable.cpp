@@ -181,7 +181,7 @@ BinarySensorVariable& BinarySensorVariable::operator=(bool value) {
 String BoolVariable::formEntry() const {
   auto radio = [this](const String& val, bool checked) -> String {
     String id_val;
-    html::escape(&id_val, string().c_str());
+    html::escape(&id_val, name());
     id_val += "_" + val;
     return "<input id='" + id_val + "' name='" + name() + "' type='radio' value='" + val + "'" +
            (checked ? " checked" : "") + "><label for='" + id_val + "'>" + val + "</label>";
