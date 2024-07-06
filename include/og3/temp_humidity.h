@@ -23,6 +23,7 @@ class TempHumidity : public Module {
 
   bool ok() const { return m_ok; }
   float temperature() const { return m_temperature.value(); }
+  float temperaturef() const { return 32 + m_temperature.value() * 9 / 5; }
   float humidity() const { return m_humidity.value(); }
   const FloatVariable& temperatureVar() const { return m_temperature; }
   const FloatVariable& humidityVar() const { return m_humidity; }
