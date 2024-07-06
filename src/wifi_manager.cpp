@@ -139,11 +139,10 @@ void WifiManager::onConnect() {
 }
 
 void WifiManager::onDisconnect() {
-#ifndef NATIVE
-  log()->logf("Wifi: onDisconnect(%s): was%s connected.", strWifiStatus(),
-              m_was_connected ? "" : " not");
-#endif
   if (m_was_connected) {
+#ifndef NATIVE
+    log()->logf("Wifi: onDisconnect(%s): was connected.", strWifiStatus());
+#endif
 #ifndef NATIVE
     WiFi.disconnect();  // disconnect so we can run Wifi.begin() later to attempt re-connection.
 #endif
@@ -152,6 +151,10 @@ void WifiManager::onDisconnect() {
     }
     // Try to reconnect after 1 minute.
     m_scheduler.runIn(kMsecInMin, [this]() { trySetup(); });
+  } else {
+#ifndef NATIVE
+    log()->debugf("Wifi: onDisconnect(%s): was not connected.", strWifiStatus());
+#endif
   }
   m_was_connected = false;
 }
