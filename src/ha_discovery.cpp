@@ -27,6 +27,7 @@ namespace ha::device_class {
 // Sensors https://www.home-assistant.io/integrations/sensor
 namespace sensor {
 const char* kAtmosphericPressure = "atmospheric_pressure";
+const char* kDistance = "distance";
 const char* kDuration = "duration";
 const char* kHumidity = "humidity";
 const char* kMoisture = "moisture";

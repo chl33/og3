@@ -27,6 +27,7 @@ namespace ha::device_class {
 // Sensors https://www.home-assistant.io/integrations/sensor
 namespace sensor {
 extern const char* kAtmosphericPressure;
+extern const char* kDistance;
 extern const char* kDuration;
 extern const char* kHumidity;
 extern const char* kMoisture;
