@@ -13,6 +13,10 @@
 namespace og3 {
 namespace {
 bool strOk(const char* str) { return str && str[0]; }
+
+String default_value_template(const HADiscovery::Entry& entry) {
+  return String("{{value_json.") + entry.var.name() + "}}";
+};
 }  // namespace
 
 namespace ha::device_type {
@@ -43,6 +47,26 @@ const char* kPower = "power";
 const char* kLight = "light";
 }  // namespace binary_sensor
 }  // namespace ha::device_class
+
+HADiscovery::Entry::Entry(const VariableBase& var_, const char* device_type_,
+                          const char* device_class_, const ValueTemplateFn& value_template)
+    : var(var_),
+      device_type(device_type_),
+      device_class(device_class_),
+      value_template_fn(value_template ? value_template : default_value_template) {}
+
+HADiscovery::Entry::Entry(const FloatVariableBase& var_, const char* device_type_,
+                          const char* device_class_)
+    : var(var_),
+      device_type(device_type_),
+      device_class(device_class_),
+      value_template_fn([&var_](const Entry& entry) {
+        return String("{{value_json.") + entry.var.name() + "|float|round(" +
+               String(var_.decimals()) + ")}}";
+      }) {}
+
+HADiscovery::Entry::Entry(const BoolVariable& var_, const char* device_class_)
+    : Entry(var_, ha::device_type::kBinarySensor, device_class_) {}
 
 const char* HADiscovery::kName = "ha_discovery";
 
@@ -146,29 +170,29 @@ bool HADiscovery::addEntry(JsonDocument* json, const HADiscovery::Entry& entry) 
       js["stat_t"] = value;
     }
   }
-  js["val_tpl"] = entry.value_template;
+#ifdef NATIVE
+  js["val_tpl"] = entry.value_template_fn(entry).c_str();
+#else
+  js["val_tpl"] = entry.value_template_fn(entry);
+#endif
   if (entry.device_class) {
     js["dev_cla"] = entry.device_class;
   }
-  char var_name[64];
-  if (entry.name_prefix) {
-    snprintf(var_name, sizeof(var_name), "%s_%s", entry.name_prefix, entry.var.name());
-  } else {
-    snprintf(var_name, sizeof(var_name), "%s", entry.var.name());
-  }
   js["name"] = entry.var.name();
-  snprintf(value, sizeof(value), "%s_%s", m_device_id, var_name);
+  snprintf(value, sizeof(value), "%s_%s", m_device_id, entry.var.name());
   js["uniq_id"] = value;
-
-  return mqttSendConfig(var_name, entry.device_type, json);
+  if (entry.icon) {
+    js["ic"] = entry.icon;
+  }
+  return mqttSendConfig(entry.var.name(), entry.device_type, json);
 }
 
 bool HADiscovery::addEntry(JsonDocument* json, const VariableBase& var, const char* device_type,
-                           const char* device_class, const char* value_template,
+                           const char* device_class,
+                           const HADiscovery::Entry::ValueTemplateFn& value_template,
                            const char* subject_topic, const char* device_name) {
-  Entry entry(var, device_type, device_class);
+  Entry entry(var, device_type, device_class, value_template);
   entry.device_class = device_class;
-  entry.value_template = value_template;
   entry.subject_topic = subject_topic;
   entry.device_name = device_name;
   return addEntry(json, entry);
@@ -177,26 +201,23 @@ bool HADiscovery::addEntry(JsonDocument* json, const VariableBase& var, const ch
 bool HADiscovery::addMeas(JsonDocument* json, const VariableBase& var, const char* device_type,
                           const char* device_class, const char* subject_topic,
                           const char* device_name) {
-  char value_template[128];
-  snprintf(value_template, sizeof(value_template), "{{value_json.%s}}", var.name());
-  return addEntry(json, var, device_type, device_class, value_template, subject_topic, device_name);
+  return addEntry(json, var, device_type, device_class, default_value_template, subject_topic,
+                  device_name);
 }
 
 bool HADiscovery::addMeas(JsonDocument* json, const FloatVariableBase& var, const char* device_type,
                           const char* device_class, const char* subject_topic,
                           const char* device_name) {
-  char value_template[128];
-  snprintf(value_template, sizeof(value_template), "{{value_json.%s|float|round(%d)}}", var.name(),
-           var.decimals());
+  const auto value_template = [&var](const Entry& entry) -> String {
+    return String("{{value_json.") + var.name() + "|float|round(" + String(var.decimals()) + ")}}";
+  };
   return addEntry(json, var, device_type, device_class, value_template, subject_topic, device_name);
 }
 
 bool HADiscovery::addBinarySensor(JsonDocument* json, const VariableBase& var,
                                   const char* device_class, const char* subject_topic,
                                   const char* device_name) {
-  char value_template[128];
-  snprintf(value_template, sizeof(value_template), "{{value_json.%s}}", var.name());
-  return addEntry(json, var, ha::device_type::kBinarySensor, device_class, value_template,
+  return addEntry(json, var, ha::device_type::kBinarySensor, device_class, default_value_template,
                   subject_topic, device_name);
 }
 
@@ -245,8 +266,6 @@ void HADiscovery::addCommand(const char* name, const char* cmd_atom, JsonDocumen
   snprintf(topic, sizeof(topic), "~/%s/set", name);
   (*json)[cmd_atom] = topic;
 }
-
-void HADiscovery::addIcon(const char* icon_name, JsonDocument* json) { (*json)["ic"] = icon_name; }
 #endif
 
 bool HADiscovery::mqttSendConfig(const char* name, const char* device_type, JsonDocument* json) {
@@ -265,8 +284,6 @@ bool HADiscovery::mqttSendConfig(const char* name, const char* device_type, Json
     log()->logf("%ld Failed to publish config on topic %s.", millis(), topic);
     return false;
   }
-  log()->logf("%ld Publishing config '%s' packetId: %d\n %s.", millis(), topic, packetIdPub,
-              content.c_str());
 #endif
   return true;
 }

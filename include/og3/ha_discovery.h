@@ -5,6 +5,8 @@
 
 #include <Arduino.h>
 
+#include <functional>
+
 #include "og3/module.h"
 #include "og3/mqtt_manager.h"
 #include "og3/tasks.h"
@@ -72,21 +74,24 @@ class HADiscovery : public Module {
   void addRoot(JsonDocument* json, const char* device_name);
 
   struct Entry {
-    Entry(const VariableBase& var_, const char* device_type_, const char* device_class_)
-        : var(var_), device_type(device_type_), device_class(device_class_) {}
+    using ValueTemplateFn = std::function<String(const Entry&)>;
+    Entry(const VariableBase& var_, const char* device_type_, const char* device_class_,
+          const ValueTemplateFn& value_template = nullptr);
+    Entry(const FloatVariableBase& var_, const char* device_type_, const char* device_class_);
+    Entry(const BoolVariable& var_, const char* device_class_);
 
     const VariableBase& var;
     const char* device_type;
     const char* device_class;
-    const char* value_template = nullptr;
     const char* subject_topic = nullptr;
     const char* device_name = nullptr;
-    const char* name_prefix = nullptr;
+    const char* icon = nullptr;
+    ValueTemplateFn value_template_fn;
   };
   bool addEntry(JsonDocument* json, const Entry& entry);
   bool addEntry(JsonDocument* json, const VariableBase& var, const char* device_type,
-                const char* device_class, const char* value_template, const char* subject_topic,
-                const char* device_name);
+                const char* device_class, const Entry::ValueTemplateFn& value_template,
+                const char* subject_topic, const char* device_name);
   bool addMeas(JsonDocument* json, const VariableBase& var, const char* device_type,
                const char* device_class, const char* subject_topic = nullptr,
                const char* device_name = nullptr);

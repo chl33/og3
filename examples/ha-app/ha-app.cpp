@@ -46,7 +46,7 @@ class Blink : public og3::Module {
   explicit Blink(og3::App* app)
       : og3::Module("blink", &app->module_system()),
         m_app(app),
-        m_vg("blink", 2),
+        m_vg("blink"),
         m_high("led_on", false, "LED is on", &m_vg),
         // Blink every 10 second, starting at first millisecond.
         m_blink_timing(
