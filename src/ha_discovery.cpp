@@ -125,38 +125,53 @@ void HADiscovery::addRoot(JsonDocument* json, const char* device_name) {
 #endif
 }
 
-bool HADiscovery::addEntry(JsonDocument* json, const VariableBase& var, const char* device_type,
-                           const char* device_class, const char* value_template,
-                           const char* subject_topic, const char* device_name) {
+bool HADiscovery::addEntry(JsonDocument* json, const HADiscovery::Entry& entry) {
   if (!enabled()) {
     return true;
   }
   auto& js = *json;
   js.clear();
-  addRoot(json, device_name);
+  addRoot(json, entry.device_name);
 
   char value[128];
-  if (strOk(var.units())) {
-    js["unit_of_meas"] = var.units();
+  if (strOk(entry.var.units())) {
+    js["unit_of_meas"] = entry.var.units();
   }
   {
-    const char* subject = subject_topic ? subject_topic : "~";
-    if (!var.group()) {
+    const char* subject = entry.subject_topic ? entry.subject_topic : "~";
+    if (!entry.var.group()) {
       js["stat_t"] = subject;
     } else {
-      snprintf(value, sizeof(value), "%s/%s", subject, var.group()->name());
+      snprintf(value, sizeof(value), "%s/%s", subject, entry.var.group()->name());
       js["stat_t"] = value;
     }
   }
-  js["val_tpl"] = value_template;
-  if (device_class) {
-    js["dev_cla"] = device_class;
+  js["val_tpl"] = entry.value_template;
+  if (entry.device_class) {
+    js["dev_cla"] = entry.device_class;
   }
-  js["name"] = var.name();
-  snprintf(value, sizeof(value), "%s_%s", m_device_id, var.name());
+  char var_name[64];
+  if (entry.name_prefix) {
+    snprintf(var_name, sizeof(var_name), "%s_%s", entry.name_prefix, entry.var.name());
+  } else {
+    snprintf(var_name, sizeof(var_name), "%s", entry.var.name());
+  }
+  js["name"] = entry.var.name();
+  snprintf(value, sizeof(value), "%s_%s", m_device_id, var_name);
   js["uniq_id"] = value;
 
-  return mqttSendConfig(var.name(), device_type, json);
+  return mqttSendConfig(var_name, entry.device_type, json);
+}
+
+bool HADiscovery::addEntry(JsonDocument* json, const VariableBase& var, const char* device_type,
+                           const char* device_class, const char* value_template,
+                           const char* subject_topic, const char* device_name) {
+  Entry entry(var, device_type, device_class);
+  entry.device_class = device_class;
+  entry.value_template = value_template;
+  entry.subject_topic = subject_topic;
+  entry.device_name = device_name;
+  return addEntry(json, entry);
 }
 
 bool HADiscovery::addMeas(JsonDocument* json, const VariableBase& var, const char* device_type,
