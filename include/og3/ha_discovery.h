@@ -70,6 +70,20 @@ class HADiscovery : public Module {
   HADiscovery(const Options& opts, ModuleSystem* module_system);
 
   void addRoot(JsonDocument* json, const char* device_name);
+
+  struct Entry {
+    Entry(const VariableBase& var_, const char* device_type_, const char* device_class_)
+        : var(var_), device_type(device_type_), device_class(device_class_) {}
+
+    const VariableBase& var;
+    const char* device_type;
+    const char* device_class;
+    const char* value_template = nullptr;
+    const char* subject_topic = nullptr;
+    const char* device_name = nullptr;
+    const char* name_prefix = nullptr;
+  };
+  bool addEntry(JsonDocument* json, const Entry& entry);
   bool addEntry(JsonDocument* json, const VariableBase& var, const char* device_type,
                 const char* device_class, const char* value_template, const char* subject_topic,
                 const char* device_name);
