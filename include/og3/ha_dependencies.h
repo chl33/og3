@@ -44,16 +44,7 @@ class HADependenciesArray : public HADependencies {
     return idx < d1 ? HADependencies::depends_on(idx) : m_more_deps.depends_on(idx - d1);
   }
 
-  MqttManager* mqtt_manager() { return m_mqtt_manager; }
-  const MqttManager* mqtt_manager() const { return m_mqtt_manager; }
-  HADiscovery* ha_discovery() { return m_ha_discovery; }
-  const HADiscovery* ha_discovery() const { return m_ha_discovery; }
-
-  const bool ok() { return m_mqtt_manager && m_ha_discovery; }
-
  protected:
-  MqttManager* m_mqtt_manager = nullptr;
-  HADiscovery* m_ha_discovery = nullptr;
   DependenciesArray<N> m_more_deps;
 };
 
