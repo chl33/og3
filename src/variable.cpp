@@ -3,9 +3,21 @@
 
 #include "og3/variable.h"
 
+#include <memory>
+
 #include "og3/html_table.h"
 
 namespace og3 {
+namespace {
+std::unique_ptr<String> variable_name(const char* var_name, const VariableGroup* group) {
+  if (!group || group->varname_type() != VariableGroup::VarNameType::kWithGroup) {
+    return nullptr;
+  }
+  std::unique_ptr<String> ret(new String());
+  *ret = String(group->name()) + "_" + var_name;
+  return ret;
+}
+}  // namespace
 
 String VariableBase::formEntry() const {
   String ret = "<input id='";
@@ -20,7 +32,9 @@ String VariableBase::formEntry() const {
   return ret;
 }
 
-VariableGroup::VariableGroup(const char* name, size_t initial_size) : m_name(name) {
+VariableGroup::VariableGroup(const char* name, VariableGroup::VarNameType varname_type,
+                             size_t initial_size)
+    : m_name(name), m_varname_type(varname_type) {
   m_variables.reserve(initial_size);
 }
 
@@ -59,7 +73,12 @@ void VariableGroup::toJson(std::ostream* out_str, unsigned flags) const {
 
 VariableBase::VariableBase(const char* name_, const char* units_, const char* description_,
                            unsigned flags_, VariableGroup* group)
-    : m_name(name_), m_units(units_), m_description(description_), m_flags(flags_), m_group(group) {
+    : m_name_string(variable_name(name_, group)),
+      m_name(m_name_string ? m_name_string->c_str() : name_),
+      m_units(units_),
+      m_description(description_),
+      m_flags(flags_),
+      m_group(group) {
   if (m_group) {
     m_group->add(this);
   }

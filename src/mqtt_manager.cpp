@@ -49,7 +49,7 @@ MqttManager::MqttManager(const Options& opts, Tasks* tasks)
       m_opts(opts),
       m_connect_scheduler([this]() { connect(); }, tasks),
       m_dependency(WifiManager::kName),
-      m_vg(kName, 4),
+      m_vg(kName, VariableGroup::VarNameType::kBase, 4),
       m_host_addr("host", opts.default_server, "", "MQTT server",
                   VariableBase::kConfig | VariableBase::kSettable, &m_vg),
 #if 0
