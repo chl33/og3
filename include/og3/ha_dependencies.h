@@ -35,7 +35,6 @@ template <unsigned N>
 class HADependenciesArray : public HADependencies {
  public:
   HADependenciesArray(const std::array<const char*, N>& module_names) : m_more_deps(module_names) {}
-  bool resolve(const NameToModule& name_to_module) override;
   size_t num_depends_on() const override {
     return HADependencies::num_depends_on() + m_more_deps.num_depends_on();
   }
