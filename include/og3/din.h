@@ -12,7 +12,7 @@ namespace og3 {
 class DIn : public Module {
  public:
   DIn(const char* name_, ModuleSystem* module_system_, uint8_t pin_, const char* description,
-      VariableGroup* vg, bool publish = true);
+      VariableGroup* vg, bool publish = true, bool invert = false);
 
   // Read the dio pin and return isHigh().
   bool read();
@@ -23,6 +23,7 @@ class DIn : public Module {
 
  private:
   const uint8_t m_pin;
+  const bool m_invert;
   BinarySensorVariable m_is_high;
 };
 

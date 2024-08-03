@@ -10,15 +10,17 @@
 namespace og3 {
 
 DIn::DIn(const char* name_, ModuleSystem* module_system_, uint8_t pin_, const char* description,
-         VariableGroup* vg, bool publish)
+         VariableGroup* vg, bool publish, bool invert)
     : Module(name_, module_system_),
       m_pin(pin_),
+      m_invert(invert),
       m_is_high(name_, false, description, vg, publish) {
   add_init_fn([this]() { pinMode(m_pin, INPUT); });
 }
 
 bool DIn::read() {
-  const bool is_high = (HIGH == digitalRead(m_pin));
+  const bool pin_is_high = (HIGH == digitalRead(m_pin));
+  const bool is_high = m_invert ? !pin_is_high : pin_is_high;
   if (is_high != m_is_high.value()) {
     log()->debugf("%s -> %s", name(), is_high ? "high" : "low");
   }
