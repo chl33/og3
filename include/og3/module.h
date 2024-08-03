@@ -34,7 +34,7 @@ class Module {
   void add_init_fn(const Thunk& thunk);
   void add_start_fn(const Thunk& thunk);
   void add_update_fn(const Thunk& thunk);
-  void add_html_button(String* body, const char* title, const char* url);
+  void add_html_button(String* body, const char* title, const char* url) const;
   unsigned sorted_index() const { return m_sorted_idx; }
 
  protected:
