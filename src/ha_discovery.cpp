@@ -278,7 +278,7 @@ bool HADiscovery::mqttSendConfig(const char* name, const char* device_type, Json
   char topic[256];
   snprintf(topic, sizeof(topic), "homeassistant/%s/%s/%s/config", device_type,
            m_device_name.c_str(), name);
-  log()->debugf("sendConfig: '%s'\n %s", topic, content.c_str());
+  // log()->debugf("sendConfig: '%s'\n %s", topic, content.c_str());
   const int packetIdPub = m_mqtt_manager->client().publish(topic, 1, true, content.c_str());
   if (packetIdPub == 0) {
     log()->logf("%ld Failed to publish config on topic %s.", millis(), topic);
@@ -305,22 +305,30 @@ void HADiscovery::onMqttConnect() {
     return;
   }
 
-  auto tryAgain = [this]() {
+  auto tryAgain = [this](bool failed) {
     // Queuing config to mqtt to send failed, so retry in a little while.
-    log()->logf("%ld HA discovery onMqttConect failed at %zu/%zu: pausing.", millis(),
-                m_idx_mqtt_connect_next_discovery_calback, m_discovery_callbacks.size());
-    // Call back in 100msec.
-    m_tasks->runIn(1000, std::bind(&HADiscovery::onMqttConnect, this));
+    log()->logf("%ld HA discovery onMqttConect %s at %zu/%zu: pausing.", millis(),
+                failed ? "failed" : "pause", m_idx_mqtt_connect_next_discovery_calback,
+                m_discovery_callbacks.size());
+    // Call back in 0.1sec.
+    m_tasks->runIn(100, std::bind(&HADiscovery::onMqttConnect, this));
   };
 
+  constexpr unsigned kMaxSends = 8;  // send up to 8 at a time.
   JsonDocument m_json;
+  unsigned sent = 0;
   while (m_idx_mqtt_connect_next_discovery_calback < m_discovery_callbacks.size()) {
+    if (sent >= kMaxSends) {
+      tryAgain(false);
+      return;
+    }
     auto& callback = m_discovery_callbacks[m_idx_mqtt_connect_next_discovery_calback];
     if (!callback(this, &m_json)) {
-      tryAgain();
+      tryAgain(true);
       return;
     }
     m_idx_mqtt_connect_next_discovery_calback += 1;
+    sent += 1;
   }
 }
 
