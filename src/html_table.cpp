@@ -36,15 +36,15 @@ void escape(String* out_str, const char* in_str) {
   }
 }
 
-void writeRowInto(String* out_str, const VariableBase& var, const char* name,
-                  bool write_even_if_failed) {
-  if (!write_even_if_failed && var.failed()) {
-    return;
-  }
+void writeRowInto(String* out_str, const VariableBase& var, const char* name) {
   *out_str += "<tr><td>";
   escape(out_str, name ? name : var.human_str());
   *out_str += "</td><td>";
-  escape(out_str, var.string().c_str());
+  if (var.failed()) {
+    *out_str += "(failed)";
+  } else {
+    escape(out_str, var.string().c_str());
+  }
   *out_str += " ";
   escape(out_str, var.units());
   *out_str += "</td></tr>\n";
