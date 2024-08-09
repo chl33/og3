@@ -48,7 +48,7 @@ void test1() {
   og3::TestLogger log;
   og3::ModuleSystem modules(&log);
   og3::VariableGroup vg("vg");
-  og3::Adc adc("test", A0, &modules, "desc", 0, &vg);
+  og3::Adc adc("test", A0, &modules, "desc", 0, vg);
 
   using namespace fakeit;
   When(Method(ArduinoFake(), analogRead)).Return(0, 10);
@@ -76,7 +76,7 @@ void test2() {
           .valid_in_min = 0,
           .valid_in_max = 2050,
       },
-      &modules, &cvg, &vg);
+      &modules, cvg, vg);
 
   using namespace fakeit;
   When(Method(ArduinoFake(), analogRead)).Return(1024, 2048, (1024 + 2048) / 2, 0, 2050, 4000);
@@ -88,7 +88,7 @@ void test2() {
   mas.mapped_value().toJson(&json);
   {
     og3::VariableGroup tvg("tmp");
-    og3::FloatVariable out("out", 1.0f, "", "", 0, 0, &tvg);
+    og3::FloatVariable out("out", 1.0f, "", "", 0, 0, tvg);
     TEST_ASSERT_EQUAL_FLOAT(1.0f, out.value());
     TEST_ASSERT_TRUE(out.fromJson(json[mas.name()]));
     TEST_ASSERT_EQUAL_FLOAT(0.0f, out.value());

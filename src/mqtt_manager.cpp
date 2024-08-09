@@ -51,21 +51,21 @@ MqttManager::MqttManager(const Options& opts, Tasks* tasks)
       m_dependency(WifiManager::kName),
       m_vg(kName, VariableGroup::VarNameType::kBase, 4),
       m_host_addr("host", opts.default_server, "", "MQTT server",
-                  VariableBase::kConfig | VariableBase::kSettable, &m_vg),
+                  VariableBase::kConfig | VariableBase::kSettable, m_vg),
 #if 0
       m_port("port", opts.port, "", "port",
-                  VariableBase::kConfig | VariableBase::kSettable | VariableBase::kNoPublish, &m_vg),
+                  VariableBase::kConfig | VariableBase::kSettable | VariableBase::kNoPublish, m_vg),
 #endif
       m_auth_user("user", opts.default_user, "", "username",
-                  VariableBase::kConfig | VariableBase::kSettable, &m_vg),
+                  VariableBase::kConfig | VariableBase::kSettable, m_vg),
       m_auth_password("password", opts.default_password, "", "password",
                       VariableBase::kConfig | VariableBase::kSettable | VariableBase::kNoPublish |
                           VariableBase::kNoDisplay,
-                      &m_vg),
+                      m_vg),
       m_mode("mode", opts.mode, "", "mode", Mode::kHomeAssistant, Mode::kAdafruitIO, s_str_modes,
-             VariableBase::kConfig | VariableBase::kSettable | VariableBase::kNoPublish, &m_vg),
+             VariableBase::kConfig | VariableBase::kSettable | VariableBase::kNoPublish, m_vg),
       m_connected("connection", kNotConnected, "", "connection", kNotConnected, kConnected,
-                  s_str_connected, VariableBase::kNoPublish, &m_vg) {
+                  s_str_connected, VariableBase::kNoPublish, m_vg) {
   // Module callbacks
   setDependencies(&m_dependency);
   add_link_fn([this](NameToModule& name_to_module) -> bool {
@@ -75,7 +75,7 @@ MqttManager::MqttManager(const Options& opts, Tasks* tasks)
   });
   add_init_fn([this]() {
     if (m_config) {
-      m_config->read_config(&m_vg);
+      m_config->read_config(m_vg);
     }
     if (m_wifi_manager) {
       m_wifi_manager->addConnectCallback([this] { connect(); });

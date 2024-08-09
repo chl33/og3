@@ -14,10 +14,10 @@ void tearDown() {}
 
 void test_int_vars() {
   og3::VariableGroup vg("test1");
-  og3::Variable<int> ival("ival", 10, "", "test integer", 0, &vg);
+  og3::Variable<int> ival("ival", 10, "", "test integer", 0, vg);
   TEST_ASSERT_EQUAL_STRING("ival", ival.name());
   TEST_ASSERT_EQUAL_STRING("test integer", ival.description());
-  TEST_ASSERT_EQUAL_STRING("test1", ival.group()->name());
+  TEST_ASSERT_EQUAL_STRING("test1", ival.group().name());
   TEST_ASSERT_EQUAL(10, ival.value());
   ival = -11;
   TEST_ASSERT_EQUAL(-11, ival.value());
@@ -29,7 +29,7 @@ void test_int_vars() {
 
 void test_unsigned_vars() {
   og3::VariableGroup vg("test2");
-  og3::Variable<unsigned> uval("uval", 10, "", "test integer", 0, &vg);
+  og3::Variable<unsigned> uval("uval", 10, "", "test integer", 0, vg);
   TEST_ASSERT_EQUAL(10, uval.value());
   uval = 11;
   TEST_ASSERT_EQUAL(11, uval.value());
@@ -41,7 +41,7 @@ void test_unsigned_vars() {
 
 void test_float_vars() {
   og3::VariableGroup vg("test3");
-  og3::FloatVariable fval("fval", 10.0, "", "test float", 0, 2, &vg);
+  og3::FloatVariable fval("fval", 10.0, "", "test float", 0, 2, vg);
   TEST_ASSERT_EQUAL_FLOAT(10.0, fval.value());
   fval = 0.5;
   TEST_ASSERT_EQUAL_FLOAT(0.5, fval.value());
@@ -53,7 +53,7 @@ void test_float_vars() {
 
 void test_double_vars() {
   og3::VariableGroup vg("test4");
-  og3::DoubleVariable fval("fval", 10.0, "", "test double", 0, 2, &vg);
+  og3::DoubleVariable fval("fval", 10.0, "", "test double", 0, 2, vg);
   TEST_ASSERT_EQUAL_FLOAT(10.0, fval.value());
   fval = 0.5;
   TEST_ASSERT_EQUAL_FLOAT(0.5, fval.value());
@@ -65,7 +65,7 @@ void test_double_vars() {
 
 void test_string_vars() {
   og3::VariableGroup vg("test5");
-  og3::Variable<String> sval("sval", "default", "", "test string", 0, &vg);
+  og3::Variable<String> sval("sval", "default", "", "test string", 0, vg);
   TEST_ASSERT_EQUAL_STRING("default", sval.value().c_str());
   sval = "11";
   TEST_ASSERT_EQUAL_STRING("11", sval.value().c_str());
@@ -77,8 +77,8 @@ void test_string_vars() {
 
 void test_bool_vars() {
   og3::VariableGroup vg("bool");
-  og3::Variable<bool> bval("bval", false, "", "test bool", 0, &vg);
-  og3::BoolVariable bbval("bbval", false, "test bool2", 0, &vg);
+  og3::Variable<bool> bval("bval", false, "", "test bool", 0, vg);
+  og3::BoolVariable bbval("bbval", false, "test bool2", 0, vg);
   TEST_ASSERT_FALSE(bval.value());
   TEST_ASSERT_FALSE(bbval.value());
   bval = true;
@@ -107,11 +107,11 @@ void test_bool_vars() {
 
 void test_html_table() {
   og3::VariableGroup vg("climate");
-  og3::Variable<String> loc("loc", String("home"), "", "location", 0, &vg);
-  og3::FloatVariable tempC("tempC", 20.22, og3::units::kCelsius, "temperature", 0, 2, &vg);
+  og3::Variable<String> loc("loc", String("home"), "", "location", 0, vg);
+  og3::FloatVariable tempC("tempC", 20.22, og3::units::kCelsius, "temperature", 0, 2, vg);
   og3::FloatVariable tempF("tempF", tempC.value() + 9 / 5 + 32, og3::units::kFahrenheit,
-                           "temperatureF", 0, 1, &vg);
-  og3::DoubleVariable humidtiy("humidity", 60.1, og3::units::kPercentage, "humidity", 0, 1, &vg);
+                           "temperatureF", 0, 1, vg);
+  og3::DoubleVariable humidtiy("humidity", 60.1, og3::units::kPercentage, "humidity", 0, 1, vg);
   String html;
   og3::html::writeTableInto(&html, vg);
 #if 0

@@ -90,7 +90,7 @@ ConfigInterface::ConfigInterface(ModuleSystem* module_system)
 
 Logger* ConfigInterface::log() { return module_system()->log(); }
 
-bool ConfigInterface::read_config(VariableGroup* var_group, const char* filename) {
+bool ConfigInterface::read_config(VariableGroup& var_group, const char* filename) {
   // Make sure flash is setup.
   if (!m_fs || !m_fs->setup()) {
     return false;
@@ -100,7 +100,7 @@ bool ConfigInterface::read_config(VariableGroup* var_group, const char* filename
   if (filename) {
     snprintf(fname, sizeof(fname), "%s%s", kFSRoot, filename);
   } else {
-    snprintf(fname, sizeof(fname), "%s%s.json", kFSRoot, var_group->name());
+    snprintf(fname, sizeof(fname), "%s%s.json", kFSRoot, var_group.name());
   }
 
   if (!LittleFS.exists(fname)) {
@@ -115,7 +115,7 @@ bool ConfigInterface::read_config(VariableGroup* var_group, const char* filename
   log()->debugf("Reading config file '%s'.", fname);
   JsonDocument doc;
   deserializeJson(doc, config_file);
-  for (auto* var : var_group->variables()) {
+  for (auto* var : var_group.variables()) {
     if (!var->config()) {
       continue;
     }

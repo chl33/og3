@@ -80,15 +80,15 @@ WifiManager::WifiManager(const char* default_board_name, Tasks* tasks,
       m_scheduler(tasks),
       m_vg(kName, VariableGroup::VarNameType::kBase, 4),
       m_board("board", default_board_name, "", "Device name",
-              VariableBase::kConfig | VariableBase::kSettable, &m_vg),
+              VariableBase::kConfig | VariableBase::kSettable, m_vg),
       m_essid("essid", nullToEmpty(options.default_essid), "", "",
-              VariableBase::kConfig | VariableBase::kSettable | VariableBase::kNoPublish, &m_vg),
+              VariableBase::kConfig | VariableBase::kSettable | VariableBase::kNoPublish, m_vg),
       m_password("password", nullToEmpty(options.default_password), "", "",
                  VariableBase::kConfig | VariableBase::kSettable | VariableBase::kNoPublish |
                      VariableBase::kNoDisplay,
-                 &m_vg),
-      m_ip_addr("ip", "", "", "", 0, &m_vg),
-      m_rssi("rssi", 0, units::kDecibel, "", 0, &m_vg) {
+                 m_vg),
+      m_ip_addr("ip", "", "", "", 0, m_vg),
+      m_rssi("rssi", 0, units::kDecibel, "", 0, m_vg) {
   setDependencies(&m_dependencies);
   add_link_fn([this](og3::NameToModule& name_to_module) -> bool {
     m_config = ConfigInterface::get(name_to_module);
@@ -99,7 +99,7 @@ WifiManager::WifiManager(const char* default_board_name, Tasks* tasks,
     WiFi.persistent(false);  // Keep the esp from automatically writing essid+paswd to flash.
 #endif
     if (m_config) {
-      m_config->read_config(&m_vg);
+      m_config->read_config(m_vg);
     }
 #ifdef ARDUINO_ARCH_ESP32
     m_wifiEventIdConnected = WiFi.onEvent(

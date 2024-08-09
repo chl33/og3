@@ -31,8 +31,8 @@ class MappedAnalogSensor {
     unsigned valid_in_max;        // If the input reads more than this, the reading is invalid.
   };
 
-  MappedAnalogSensor(const Options& options, ModuleSystem* module_system_, VariableGroup* cfgvg,
-                     VariableGroup* vg);
+  MappedAnalogSensor(const Options& options, ModuleSystem* module_system_, VariableGroup& cfgvg,
+                     VariableGroup& vg);
 
   float map(int inval) const;
   float read();

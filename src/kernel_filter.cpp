@@ -5,7 +5,7 @@
 
 namespace og3 {
 
-KernelFilter::KernelFilter(const Options& options, ModuleSystem* module_system_, VariableGroup* vg)
+KernelFilter::KernelFilter(const Options& options, ModuleSystem* module_system_, VariableGroup& vg)
     : m_value(options.name, 0.0f, options.units, options.description, options.var_flags,
               options.decimals, vg),
       m_sigma(-100.0f),

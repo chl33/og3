@@ -29,7 +29,7 @@ class KernelFilter {
     size_t size;              // The number of samples used for the smoothing kernel.
   };
 
-  KernelFilter(const Options& options, ModuleSystem* module_system_, VariableGroup* vg);
+  KernelFilter(const Options& options, ModuleSystem* module_system_, VariableGroup& vg);
 
   float value() const { return m_value.value(); }
   float kernelValue(float dt) const { return exp(m_exp_scalar * dt * dt); }

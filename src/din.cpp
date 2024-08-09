@@ -10,7 +10,7 @@
 namespace og3 {
 
 DIn::DIn(const char* name_, ModuleSystem* module_system_, uint8_t pin_, const char* description,
-         VariableGroup* vg, bool publish, bool invert)
+         VariableGroup& vg, bool publish, bool invert)
     : Module(name_, module_system_),
       m_pin(pin_),
       m_invert(invert),

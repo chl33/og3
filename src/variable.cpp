@@ -9,12 +9,12 @@
 
 namespace og3 {
 namespace {
-std::unique_ptr<String> variable_name(const char* var_name, const VariableGroup* group) {
-  if (!group || group->varname_type() != VariableGroup::VarNameType::kWithGroup) {
+std::unique_ptr<String> variable_name(const char* var_name, const VariableGroup& group) {
+  if (group.varname_type() != VariableGroup::VarNameType::kWithGroup) {
     return nullptr;
   }
   std::unique_ptr<String> ret(new String());
-  *ret = String(group->name()) + "_" + var_name;
+  *ret = String(group.name()) + "_" + var_name;
   return ret;
 }
 }  // namespace
@@ -72,22 +72,20 @@ void VariableGroup::toJson(std::ostream* out_str, unsigned flags) const {
 }
 
 VariableBase::VariableBase(const char* name_, const char* units_, const char* description_,
-                           unsigned flags_, VariableGroup* group)
+                           unsigned flags_, VariableGroup& group)
     : m_name_string(variable_name(name_, group)),
       m_name(m_name_string ? m_name_string->c_str() : name_),
       m_units(units_),
       m_description(description_),
       m_flags(flags_),
       m_group(group) {
-  if (m_group) {
-    m_group->add(this);
-  }
+  group.add(this);
 }
 
 EnumStrVariableBase::EnumStrVariableBase(const char* name_, int value, const char* units_,
                                          const char* description_, int min_value, int max_value,
                                          const char* value_names[], unsigned flags_,
-                                         VariableGroup* group)
+                                         VariableGroup& group)
     : EnumVariableBase(name_, units_, description_, flags_, group),
       m_min_value(min_value),
       m_max_value(max_value),
@@ -207,6 +205,12 @@ String BoolVariable::formEntry() const {
   };
   return String("<p>") + human_str() + radio("true", value()) + "\n" + radio("false", !value()) +
          "</p>\n";
+}
+
+BinaryCoverSensorVariable& BinaryCoverSensorVariable::operator=(bool value) {
+  m_value = value;
+  setFailed(false);
+  return *this;
 }
 
 }  // namespace og3

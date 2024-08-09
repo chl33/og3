@@ -21,7 +21,7 @@ class Adc : public Module {
   static constexpr unsigned kMaxCounts = kResolution - 1;
 
   Adc(const char* name_, uint8_t pin_, ModuleSystem* module_system_, const char* description,
-      unsigned var_flags, VariableGroup* vg);
+      unsigned var_flags, VariableGroup& vg);
 
   Adc(const Adc&) = delete;
 

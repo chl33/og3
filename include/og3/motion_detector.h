@@ -12,7 +12,7 @@ namespace og3 {
 class MotionDetector : public DIn {
  public:
   MotionDetector(const char* name, ModuleSystem* module_system, uint8_t pin,
-                 const char* description, VariableGroup* vg, bool publish = true,
+                 const char* description, VariableGroup& vg, bool publish = true,
                  bool ha_discovery = true);
 
  private:

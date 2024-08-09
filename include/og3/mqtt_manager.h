@@ -77,7 +77,7 @@ class MqttManager : public Module {
 
   void mqttSend(const char topic[], const char content[]);
   bool mqttSend(const VariableGroup& variables, unsigned flags = VariableBase::kNoPublish);
-
+  // arguments: (const char* topic, const char* payload, size_t len) {
   using MqttMsgCallbackFn = std::function<void(const char*, const char*, size_t)>;
   void subscribe(const String& topic, const MqttMsgCallbackFn& fn);
 

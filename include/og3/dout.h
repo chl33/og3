@@ -12,7 +12,7 @@ namespace og3 {
 class DOut : public Module {
  public:
   DOut(const char* name_, bool initial_val, ModuleSystem* module_system_, uint8_t pin_,
-       const char* description, bool publish, VariableGroup* vg);
+       const char* description, bool publish, VariableGroup& vg);
 
   void set(bool is_high);
 

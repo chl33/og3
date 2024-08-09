@@ -8,7 +8,7 @@
 namespace og3 {
 
 Relay::Relay(const char* name_, Tasks* tasks, uint8_t pin_, const char* description, bool publish,
-             VariableGroup* vg, OnLevel on_level)
+             VariableGroup& vg, OnLevel on_level)
     : DOut(name_, false, tasks->module_system(), pin_, description, publish, vg),
       m_on_level(on_level),
       m_tasks(tasks) {

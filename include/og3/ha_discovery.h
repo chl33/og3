@@ -38,10 +38,12 @@ extern const char* kSignalStrength;
 extern const char* kVoltage;
 }  // namespace sensor
 namespace binary_sensor {
+extern const char* kGarage;
+extern const char* kLight;
 extern const char* kMoisture;
 extern const char* kMotion;
 extern const char* kPower;
-extern const char* kLight;
+extern const char* kPresence;
 }  // namespace binary_sensor
 }  // namespace ha::device_class
 
@@ -86,6 +88,10 @@ class HADiscovery : public Module {
     const char* subject_topic = nullptr;
     const char* device_name = nullptr;
     const char* icon = nullptr;
+    // Command subject, if applicable
+    const char* command = nullptr;
+    // Callback to be registered for 'command', if set.
+    MqttManager::MqttMsgCallbackFn command_callback;
     ValueTemplateFn value_template_fn;
   };
   bool addEntry(JsonDocument* json, const Entry& entry);

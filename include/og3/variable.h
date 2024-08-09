@@ -52,7 +52,7 @@ class VariableBase {
  public:
   VariableBase(const VariableBase&) = delete;
   VariableBase(const char* name_, const char* units_, const char* description_, unsigned flags_,
-               VariableGroup* group);
+               VariableGroup& group);
 
   virtual String string() const = 0;
   virtual bool fromString(const String&) = 0;
@@ -75,7 +75,7 @@ class VariableBase {
   const char* human_str() const {
     return m_description && m_description[0] ? description() : name();
   }
-  const VariableGroup* group() const { return m_group; }
+  const VariableGroup& group() const { return m_group; }
 
   unsigned flags() const { return m_flags; }
   bool settable() const { return testFlag(Flags::kSettable); }
@@ -93,14 +93,14 @@ class VariableBase {
   const char* m_units;
   const char* m_description;
   const unsigned m_flags;
-  VariableGroup* m_group;
+  const VariableGroup& m_group;
   bool m_failed = false;
 };
 
 class FloatVariableBase : public VariableBase {
  public:
   FloatVariableBase(const char* name_, const char* units_, const char* description_,
-                    unsigned flags_, unsigned decimals_, VariableGroup* group)
+                    unsigned flags_, unsigned decimals_, VariableGroup& group)
       : VariableBase(name_, units_, description_, flags_, group), m_decimals(decimals_) {}
 
   unsigned decimals() const { return m_decimals; }
@@ -113,7 +113,7 @@ template <typename T>
 class Variable : public VariableBase {
  public:
   Variable(const char* name_, const T& value, const char* units_, const char* description_,
-           unsigned flags_, VariableGroup* group)
+           unsigned flags_, VariableGroup& group)
       : VariableBase(name_, units_, description_, flags_, group), m_value(value) {}
   String string() const override;
   bool fromString(const String&) override;
@@ -137,7 +137,7 @@ class FloatingPointVariable : public FloatVariableBase {
  public:
   FloatingPointVariable(const char* name_, const T& value, const char* units_,
                         const char* description_, unsigned flags_, unsigned decimals_,
-                        VariableGroup* group)
+                        VariableGroup& group)
       : FloatVariableBase(name_, units_, description_, flags_, decimals_, group), m_value(value) {}
   String string() const override;
   bool fromString(const String&) override;
@@ -159,7 +159,7 @@ class FloatingPointVariable : public FloatVariableBase {
 class EnumVariableBase : public VariableBase {
  public:
   EnumVariableBase(const char* name_, const char* units_, const char* description_, unsigned flags_,
-                   VariableGroup* group)
+                   VariableGroup& group)
       : VariableBase(name_, units_, description_, flags_, group) {}
 };
 
@@ -167,7 +167,7 @@ class EnumStrVariableBase : public EnumVariableBase {
  public:
   EnumStrVariableBase(const char* name_, int value, const char* units_, const char* description_,
                       int min_value, int max_value, const char* value_names[], unsigned flags_,
-                      VariableGroup* group);
+                      VariableGroup& group);
 
   String string() const override;
   bool fromString(const String& value) override;
@@ -186,7 +186,7 @@ template <typename T>
 class EnumVariable : public EnumVariableBase {
  public:
   EnumVariable(const char* name_, const T& value, const char* units_, const char* description_,
-               unsigned flags_, VariableGroup* group)
+               unsigned flags_, VariableGroup& group)
       : EnumVariableBase(name_, units_, description_, flags_, group), m_value(value) {}
   String string() const override { return String(static_cast<int>(value())); }
   bool fromString(const String& value) override {
@@ -229,7 +229,7 @@ class EnumStrVariable : public EnumStrVariableBase {
  public:
   EnumStrVariable(const char* name_, const T& value, const char* units_, const char* description_,
                   T min_value, T max_value, const char* value_names[], unsigned flags_,
-                  VariableGroup* group)
+                  VariableGroup& group)
       : EnumStrVariableBase(name_, static_cast<int>(value), units_, description_,
                             static_cast<int>(min_value), static_cast<int>(max_value), value_names,
                             flags_, group) {}
@@ -365,7 +365,7 @@ using DoubleVariable = FloatingPointVariable<double>;
 class BoolVariable : public Variable<bool> {
  public:
   BoolVariable(const char* name_, const bool value, const char* description_, unsigned flags_,
-               VariableGroup* group)
+               VariableGroup& group)
       : Variable<bool>(name_, value, "", description_, flags_, group) {}
   String string() const final { return value() ? "true" : "false"; }
   void toJson(JsonDocument* doc);
@@ -376,12 +376,21 @@ class BoolVariable : public Variable<bool> {
 class BinarySensorVariable : public Variable<bool> {
  public:
   BinarySensorVariable(const char* name_, const bool value, const char* description_,
-                       VariableGroup* group, bool publish = true)
+                       VariableGroup& group, bool publish = true)
       : Variable<bool>(name_, value, "", description_, publish ? 0 : kNoPublish, group) {}
-  String string() const final { return value() ? "ON" : "OFF"; }
+  String string() const override { return value() ? "ON" : "OFF"; }
   void toJson(JsonDocument* doc);
   bool fromJson(const JsonVariant& json);
   BinarySensorVariable& operator=(bool value);
+};
+
+class BinaryCoverSensorVariable : public BinarySensorVariable {
+ public:
+  BinaryCoverSensorVariable(const char* name_, const bool value, const char* description_,
+                            VariableGroup& group, bool publish = true)
+      : BinarySensorVariable(name_, value, description_, group, publish) {}
+  String string() const final { return value() ? "open" : "closed"; }
+  BinaryCoverSensorVariable& operator=(bool value);
 };
 
 }  // namespace og3

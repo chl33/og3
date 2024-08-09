@@ -17,7 +17,7 @@ class Relay : public DOut {
   };
 
   Relay(const char* name_, Tasks* tasks, uint8_t pin_, const char* description, bool publish,
-        VariableGroup* vg, OnLevel on_level = OnLevel::kHigh);
+        VariableGroup& vg, OnLevel on_level = OnLevel::kHigh);
 
   bool turnOn(int on_msec = 0, const std::function<void()>& off_fn = nullptr);
   void turnOffIn(int msec, const std::function<void()>& fn = nullptr);

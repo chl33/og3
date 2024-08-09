@@ -19,7 +19,7 @@ constexpr float kSecPerUsec = 1e-6;
 // This was used with a HC-SR04 sensor.
 class Sonar : public Module {
  public:
-  Sonar(const char* name, int trigPin, int echoPin, ModuleSystem* module_system, VariableGroup* vg,
+  Sonar(const char* name, int trigPin, int echoPin, ModuleSystem* module_system, VariableGroup& vg,
         bool ha_discovery = true);
 
   void setTemp(float tempC);
