@@ -15,8 +15,8 @@ class VariableBase;
 class VariableGroup;
 
 #ifndef NATIVE
-bool read(const AsyncWebServerRequest& request, VariableBase* var);
-bool read(const AsyncWebServerRequest& request, VariableGroup* var_group);
+bool read(const AsyncWebServerRequest& request, VariableBase& var);
+bool read(const AsyncWebServerRequest& request, const VariableGroup& var_group);
 
 // A module for managing a AsyncWebServer.
 class WebServer : public Module {

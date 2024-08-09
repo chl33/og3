@@ -8,7 +8,7 @@
 namespace og3 {
 
 TempHumidity::TempHumidity(const char* temp_name, const char* humidity_name,
-                           ModuleSystem* module_system_, const char* description, VariableGroup* vg,
+                           ModuleSystem* module_system_, const char* description, VariableGroup& vg,
                            bool publish, bool ha_discovery)
     : Module(temp_name, module_system_),
       m_temperature(temp_name, 0.0f, units::kCelsius, description,

@@ -19,8 +19,8 @@ AppStatus::AppStatus(Tasks* tasks)
     : Module(kName, tasks->module_system()),
       m_tasks(tasks),
       m_vg(kName),
-      m_mem_available("mem_avail", 0.0f, units::kKilobytes, "memory available", 0, 1, &m_vg),
-      m_uptime_msec("uptime", 0, units::kMilliseconds, "uptime", 0, &m_vg) {
+      m_mem_available("mem_avail", 0.0f, units::kKilobytes, "memory available", 0, 1, m_vg),
+      m_uptime_msec("uptime", 0, units::kMilliseconds, "uptime", 0, m_vg) {
   add_link_fn([this](const NameToModule& name_to_module) -> bool {
     m_mqtt_manager = MqttManager::get(name_to_module);
     return true;

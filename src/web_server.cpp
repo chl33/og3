@@ -11,17 +11,17 @@ namespace og3 {
 #ifndef NATIVE
 const char* WebServer::kName = "web_server";
 
-bool read(const AsyncWebServerRequest& request, VariableBase* var) {
-  if (!request.hasParam(var->name(), true)) {
+bool read(const AsyncWebServerRequest& request, VariableBase& var) {
+  if (!request.hasParam(var.name(), true)) {
     return false;
   }
-  return var->fromString(request.getParam(var->name(), true)->value());
+  return var.fromString(request.getParam(var.name(), true)->value());
 }
-bool read(const AsyncWebServerRequest& request, VariableGroup* var_group) {
+bool read(const AsyncWebServerRequest& request, const VariableGroup& var_group) {
   bool ret = true;
-  for (auto* var : var_group->variables()) {
+  for (auto* var : var_group.variables()) {
     if (var->settable()) {
-      ret = read(request, var) && ret;
+      ret = read(request, *var) && ret;
     }
   }
   return ret;

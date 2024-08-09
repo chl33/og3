@@ -6,7 +6,7 @@
 namespace og3 {
 
 MappedAnalogSensor::MappedAnalogSensor(const Options& options, ModuleSystem* module_system_,
-                                       VariableGroup* cfg_vg, VariableGroup* vg)
+                                       VariableGroup& cfg_vg, VariableGroup& vg)
     : m_valid_in_min(options.valid_in_min),
       m_valid_in_max(options.valid_in_max),
       m_name(options.name),

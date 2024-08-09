@@ -18,7 +18,7 @@ namespace og3 {
 class TempHumidity : public Module {
  public:
   TempHumidity(const char* temp_name, const char* humidity_name, ModuleSystem* module_system_,
-               const char* description, VariableGroup* vg, bool publish = true,
+               const char* description, VariableGroup& vg, bool publish = true,
                bool ha_discovery = true);
 
   bool ok() const { return m_ok; }

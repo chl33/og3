@@ -16,7 +16,7 @@ namespace og3 {
 class Pir : public Module {
  public:
   Pir(const char* module_name, const char* motion_name, ModuleSystem* module_system, Tasks* tasks,
-      uint8_t pin, const char* description, VariableGroup* vg, bool publish, bool ha_discovery);
+      uint8_t pin, const char* description, VariableGroup& vg, bool publish, bool ha_discovery);
 
   void read();
 

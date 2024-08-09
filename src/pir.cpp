@@ -19,7 +19,7 @@ bool Pir::s_interrupt_setup = false;
 std::function<void()> Pir::s_motion_callback;
 
 Pir::Pir(const char* module_name, const char* motion_name, ModuleSystem* module_system,
-         Tasks* tasks, uint8_t pin, const char* description, VariableGroup* vg, bool publish,
+         Tasks* tasks, uint8_t pin, const char* description, VariableGroup& vg, bool publish,
          bool ha_discovery)
     : Module(module_name, module_system),
       m_din(motion_name, module_system, pin, description, vg, publish) {

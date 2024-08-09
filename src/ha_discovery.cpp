@@ -41,10 +41,12 @@ const char* kVoltage = "voltage";
 }  // namespace sensor
 
 namespace binary_sensor {
+const char* kGarage = "garage";
+const char* kLight = "light";
 const char* kMoisture = "moisture";
 const char* kMotion = "motion";
 const char* kPower = "power";
-const char* kLight = "light";
+const char* kPresence = "presence";
 }  // namespace binary_sensor
 }  // namespace ha::device_class
 
@@ -163,12 +165,8 @@ bool HADiscovery::addEntry(JsonDocument* json, const HADiscovery::Entry& entry) 
   }
   {
     const char* subject = entry.subject_topic ? entry.subject_topic : "~";
-    if (!entry.var.group()) {
-      js["stat_t"] = subject;
-    } else {
-      snprintf(value, sizeof(value), "%s/%s", subject, entry.var.group()->name());
-      js["stat_t"] = value;
-    }
+    snprintf(value, sizeof(value), "%s/%s", subject, entry.var.group().name());
+    js["stat_t"] = value;
   }
 #ifdef NATIVE
   js["val_tpl"] = entry.value_template_fn(entry).c_str();
@@ -183,6 +181,13 @@ bool HADiscovery::addEntry(JsonDocument* json, const HADiscovery::Entry& entry) 
   js["uniq_id"] = value;
   if (entry.icon) {
     js["ic"] = entry.icon;
+  }
+  if (entry.command) {
+    snprintf(value, sizeof(value), "~/%s", entry.command);
+    js["cmd_t"] = value;
+    if (entry.command_callback) {
+      mqttSubscribe(entry.command, entry.command_callback);
+    }
   }
   return mqttSendConfig(entry.var.name(), entry.device_type, json);
 }

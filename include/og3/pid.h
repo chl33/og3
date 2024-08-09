@@ -45,7 +45,7 @@ class PID {
     float command_max = -1.0e10;  // The maximum allowed output value.
   };
 
-  PID(const Gains& gains, VariableGroup* vg, VariableGroup* cfg_vg, VariableGroup* cmd_vg);
+  PID(const Gains& gains, VariableGroup& vg, VariableGroup& cfg_vg, VariableGroup& cmd_vg);
 
   void initialize() {
     m_last_msec = millis();

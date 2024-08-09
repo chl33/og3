@@ -9,7 +9,7 @@ namespace og3 {
 
 // m/s (dry air)
 Sonar::Sonar(const char* name, int trigPin, int echoPin, ModuleSystem* module_system,
-             VariableGroup* vg, bool ha_discovery)
+             VariableGroup& vg, bool ha_discovery)
     : Module(name, module_system),
       m_trigPin(trigPin),
       m_echoPin(echoPin),
