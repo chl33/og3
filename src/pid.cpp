@@ -34,7 +34,7 @@ float PID::command(float measured, unsigned now_msec) { return command(measured,
 
 float PID::command(float measured, float d_measured, unsigned now_msec) {
   auto command_is_saturated = [this]() {
-    if (m_error.value() >= 0) {
+    if (m_error.value() <= 0) {
       const float saturation = m_command_max.value() * 0.99 + m_command_min.value() * 0.01;
       return m_command.value() > saturation;
     } else {
