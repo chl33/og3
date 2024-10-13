@@ -16,4 +16,12 @@ Example programs:
 - [Web-app](examples/web-app/web-app.cpp) adds to Wifi-app a web interface for configuring the Wifi options.
 - [HA-app](examples/ha-app/ha-app.cpp) is a simple application using MQTT, for talking to [Home Assistant](https://www.home-assistant.io/).  It builds on Web-app.
 
+## Projects which use og3
+
+- [Plant133](https://github.com/chl33/Plant133) is a device that can monitor and water up to 4 plants at a time.
+- [Dough133](https://github.com/chl33/Dough133) is a temperature-controlled container for proofing and fermenting soughdough.
+- [Garage133](https://github.com/chl33/Garage133) is a DIY device for garage door automation.
+- [Room133](https://github.com/chl33/Room133) is a device for room monitoring, for use with Home Assistant
+    - [Boiler](https://github.com/chl33/Boiler) is software for the Room133 board, which monitors the water level of a boiler.
+
 chl33
