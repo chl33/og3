@@ -100,6 +100,9 @@ WifiManager::WifiManager(const char* default_board_name, Tasks* tasks,
 #endif
     if (m_config) {
       m_config->read_config(m_vg);
+      if (m_board.value().isEmpty()) {
+        m_board = "og3board";
+      }
     }
 #ifdef ARDUINO_ARCH_ESP32
     m_wifiEventIdConnected = WiFi.onEvent(
@@ -128,7 +131,7 @@ WifiManager::WifiManager(const char* default_board_name, Tasks* tasks,
 void WifiManager::onConnect() {
   m_start_connect_msec = 0;
 #ifndef NATIVE
-  const IPAddress ip = WiFi.localIP();
+  const IPAddress ip = m_ap_mode ? WiFi.softAPIP() : WiFi.localIP();
   m_ip_addr = ip.toString().c_str();
   log()->logf("Connected to Wi-Fi. IP address: %s", m_ip_addr.value().c_str());
   for (const auto& callback : m_connectCallbacks) {
@@ -177,11 +180,12 @@ void WifiManager::trySetup() {
 
   // This is a function to call to startup the board in AP mode.
   auto start_ap = [this]() {
-    log()->logf("Wifi: starting in AP mode (%s).", board().c_str());
+    const char* essid = !board().isEmpty() ? board().c_str() : "og3board";
+    log()->logf("Wifi: starting in AP mode (%s).", essid);
     WiFi.mode(WIFI_AP);
     m_ap_mode = true;
-    if (WiFi.softAPConfig(apSoftIP, apSoftIP, IPAddress(255, 255, 255, 0)) &&
-        WiFi.softAP(board().c_str())) {
+    if (WiFi.softAPConfig(apSoftIP, apSoftIP, IPAddress(255, 255, 255, 0)) && WiFi.softAP(essid)) {
+      log()->debugf("Started AP mode as %s", essid);
       if (!m_dns_server) {
         m_dns_server.reset(new DNSServer());
       }
@@ -191,8 +195,10 @@ void WifiManager::trySetup() {
         callback();
       }
       // Allow time to setup maybe??
-      m_scheduler.runIn(2 * kMsecInSec, [this]() { onConnect(); });
+      m_scheduler.runIn(100, [this]() { onConnect(); });
       m_start_connect_msec = millis();
+    } else {
+      log()->log("Failed to setup SoftAP mode.");
     }
   };
 
