@@ -100,7 +100,7 @@ WifiManager::WifiManager(const char* default_board_name, Tasks* tasks,
 #endif
     if (m_config) {
       m_config->read_config(m_vg);
-      if (m_board.value().isEmpty()) {
+      if (m_board.value().length() == 0) {
         m_board = "og3board";
       }
     }
@@ -180,7 +180,7 @@ void WifiManager::trySetup() {
 
   // This is a function to call to startup the board in AP mode.
   auto start_ap = [this]() {
-    const char* essid = !board().isEmpty() ? board().c_str() : "og3board";
+    const char* essid = (board().length() > 0) ? board().c_str() : "og3board";
     log()->logf("Wifi: starting in AP mode (%s).", essid);
     WiFi.mode(WIFI_AP);
     m_ap_mode = true;
