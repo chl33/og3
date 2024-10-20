@@ -43,6 +43,11 @@ class WifiManager : public Module {
     Options() {}
     const char* default_essid = nullptr;
     const char* default_password = nullptr;
+    const char* ap_password = nullptr;
+    Options& withApPassword(const char* pw) {
+      this->ap_password = pw;
+      return *this;
+    }
   };
 
   WifiManager(const char* default_board_name, Tasks* tasks, const Options& options = Options())
@@ -62,6 +67,7 @@ class WifiManager : public Module {
   const VariableGroup& variables() const { return m_vg; }
   VariableGroup& mutableVariables() { return m_vg; }
   const Variable<int>& rssi() const { return m_rssi; }
+  const char* ap_password() const { return m_ap_password; }
 
   void addConnectCallback(const std::function<void()>& callback) {
     m_connectCallbacks.push_back(callback);
@@ -91,6 +97,7 @@ class WifiManager : public Module {
 #endif
   SingleDependency m_dependencies;
   TaskIdScheduler m_scheduler;
+  const char* m_ap_password;
   VariableGroup m_vg;
   // Config varibles
   Variable<String> m_board;

@@ -78,6 +78,7 @@ WifiManager::WifiManager(const char* default_board_name, Tasks* tasks,
     : Module(WifiManager::kName, tasks->module_system()),
       m_dependencies(ConfigInterface::kName),
       m_scheduler(tasks),
+      m_ap_password(options.ap_password),
       m_vg(kName, VariableGroup::VarNameType::kBase, 4),
       m_board("board", default_board_name, "", "Device name",
               VariableBase::kConfig | VariableBase::kSettable, m_vg),
@@ -184,22 +185,33 @@ void WifiManager::trySetup() {
     log()->logf("Wifi: starting in AP mode (%s).", essid);
     WiFi.mode(WIFI_AP);
     m_ap_mode = true;
-    if (WiFi.softAPConfig(apSoftIP, apSoftIP, IPAddress(255, 255, 255, 0)) && WiFi.softAP(essid)) {
-      log()->debugf("Started AP mode as %s", essid);
-      if (!m_dns_server) {
-        m_dns_server.reset(new DNSServer());
-      }
-      m_dns_server->setErrorReplyCode(DNSReplyCode::NoError);
-      m_dns_server->start(DNS_PORT, "*", apSoftIP);
-      for (const auto& callback : m_softAPCallbacks) {
-        callback();
-      }
-      // Allow time to setup maybe??
-      m_scheduler.runIn(100, [this]() { onConnect(); });
-      m_start_connect_msec = millis();
-    } else {
-      log()->log("Failed to setup SoftAP mode.");
+    if (!WiFi.softAPConfig(apSoftIP, apSoftIP, IPAddress(255, 255, 255, 0))) {
+      log()->log("Failed to setup soft-AP config");
+      return;
     }
+    if (m_ap_password) {
+      if (!WiFi.softAP(essid, m_ap_password)) {
+        log()->log("Failed to setup SoftAP mode (with password).");
+        return;
+      }
+    } else {
+      if (!WiFi.softAP(essid)) {
+        log()->log("Failed to setup SoftAP mode.");
+        return;
+      }
+    }
+    log()->debugf("Started AP mode as %s", essid);
+    if (!m_dns_server) {
+      m_dns_server.reset(new DNSServer());
+    }
+    m_dns_server->setErrorReplyCode(DNSReplyCode::NoError);
+    m_dns_server->start(DNS_PORT, "*", apSoftIP);
+    for (const auto& callback : m_softAPCallbacks) {
+      callback();
+    }
+    // Allow time to setup maybe??
+    m_scheduler.runIn(100, [this]() { onConnect(); });
+    m_start_connect_msec = millis();
   };
 
   // This is a function to startup the board as a Wifi client (if configured).
