@@ -5,7 +5,6 @@
 
 #include <cstdio>
 #include <functional>
-#include <limits>
 #include <vector>
 
 #include "og3/util.h"
@@ -17,12 +16,6 @@ struct TimedThunk {
   Thunk thunk = nullptr;
   unsigned id = 0;
 };
-
-// Return true if t1 is before t2, allowing that t1 may have wrapped around.
-inline bool isBefore(unsigned long t1, unsigned long t2) {
-  const unsigned long d = t2 - t1;
-  return d < std::numeric_limits<unsigned long>::max() / 2;
-}
 
 // TaskQueue stores callbacks to be called at particular times.
 // Tasks can optionally be stored with a numeric ID.
