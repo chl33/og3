@@ -70,6 +70,14 @@ HADiscovery::Entry::Entry(const FloatVariableBase& var_, const char* device_type
 HADiscovery::Entry::Entry(const BoolVariable& var_, const char* device_class_)
     : Entry(var_, ha::device_type::kBinarySensor, device_class_) {}
 
+HADiscovery::Entry::Entry(const EnumStrVariableBase& var_, const char* device_type_)
+    : var(var_),
+      device_type(device_type_),
+      device_class("enum"),
+      value_template_fn(default_value_template),
+      num_options(var_.num_values()),
+      options(var_.value_names()) {}
+
 const char* HADiscovery::kName = "ha_discovery";
 
 HADiscovery::HADiscovery(const Options& opts, ModuleSystem* module_system)
@@ -189,6 +197,12 @@ bool HADiscovery::addEntry(JsonDocument* json, const HADiscovery::Entry& entry) 
       mqttSubscribe(entry.command, entry.command_callback);
     }
   }
+  if (entry.num_options && entry.options) {
+    JsonArray options = js["options"].to<JsonArray>();
+    for (unsigned i = 0; i < entry.num_options; i++) {
+      options.add(entry.options[i]);
+    }
+  }
   return mqttSendConfig(entry.var.name(), entry.device_type, json);
 }
 
@@ -217,6 +231,15 @@ bool HADiscovery::addMeas(JsonDocument* json, const FloatVariableBase& var, cons
     return String("{{value_json.") + var.name() + "|float|round(" + String(var.decimals()) + ")}}";
   };
   return addEntry(json, var, device_type, device_class, value_template, subject_topic, device_name);
+}
+
+bool HADiscovery::addEnum(JsonDocument* json, const EnumStrVariableBase& var,
+                          const char* device_type, const char* subject_topic,
+                          const char* device_name) {
+  Entry entry(var, device_type);
+  entry.subject_topic = subject_topic;
+  entry.device_name = device_name;
+  return addEntry(json, entry);
 }
 
 bool HADiscovery::addBinarySensor(JsonDocument* json, const VariableBase& var,

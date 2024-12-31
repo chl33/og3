@@ -81,6 +81,7 @@ class HADiscovery : public Module {
           const ValueTemplateFn& value_template = nullptr);
     Entry(const FloatVariableBase& var_, const char* device_type_, const char* device_class_);
     Entry(const BoolVariable& var_, const char* device_class_);
+    Entry(const EnumStrVariableBase& var, const char* device_type);
 
     const VariableBase& var;
     const char* device_type;
@@ -93,6 +94,8 @@ class HADiscovery : public Module {
     // Callback to be registered for 'command', if set.
     MqttManager::MqttMsgCallbackFn command_callback;
     ValueTemplateFn value_template_fn;
+    const unsigned num_options = 0;
+    const char** options = nullptr;
   };
   bool addEntry(JsonDocument* json, const Entry& entry);
   bool addEntry(JsonDocument* json, const VariableBase& var, const char* device_type,
@@ -104,6 +107,9 @@ class HADiscovery : public Module {
   bool addMeas(JsonDocument* json, const FloatVariableBase& var, const char* device_type,
                const char* device_class, const char* subject_topic = nullptr,
                const char* device_name = nullptr);
+
+  bool addEnum(JsonDocument* json, const EnumStrVariableBase& var, const char* device_type,
+               const char* subject_topic = nullptr, const char* device_name = nullptr);
   bool addBinarySensor(JsonDocument* json, const VariableBase& var, const char* device_class,
                        const char* subject_topic = nullptr, const char* device_name = nullptr);
   bool addMotionSensor(JsonDocument* json, const VariableBase& var,

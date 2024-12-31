@@ -158,16 +158,15 @@ class FloatingPointVariable : public FloatVariableBase {
 
 class EnumVariableBase : public VariableBase {
  public:
-  EnumVariableBase(const char* name_, const char* units_, const char* description_, unsigned flags_,
+  EnumVariableBase(const char* name_, const char* description_, unsigned flags_,
                    VariableGroup& group)
-      : VariableBase(name_, units_, description_, flags_, group) {}
+      : VariableBase(name_, nullptr /*units_*/, description_, flags_, group) {}
 };
 
 class EnumStrVariableBase : public EnumVariableBase {
  public:
-  EnumStrVariableBase(const char* name_, int value, const char* units_, const char* description_,
-                      int min_value, int max_value, const char* value_names[], unsigned flags_,
-                      VariableGroup& group);
+  EnumStrVariableBase(const char* name_, int value, const char* description_, unsigned num_values,
+                      const char* value_names[], unsigned flags_, VariableGroup& group);
 
   String string() const override;
   bool fromString(const String& value) override;
@@ -175,9 +174,11 @@ class EnumStrVariableBase : public EnumVariableBase {
   void toJson(JsonDocument* doc) override;
   String formEntry() const override;
 
+  unsigned num_values() const { return m_num_values; }
+  const char** value_names() const { return m_value_names; }
+
  protected:
-  const int m_min_value;
-  const int m_max_value;
+  const unsigned m_num_values;
   const char** m_value_names;
   int m_value;
 };
@@ -185,9 +186,9 @@ class EnumStrVariableBase : public EnumVariableBase {
 template <typename T>
 class EnumVariable : public EnumVariableBase {
  public:
-  EnumVariable(const char* name_, const T& value, const char* units_, const char* description_,
-               unsigned flags_, VariableGroup& group)
-      : EnumVariableBase(name_, units_, description_, flags_, group), m_value(value) {}
+  EnumVariable(const char* name_, const T& value, const char* description_, unsigned flags_,
+               VariableGroup& group)
+      : EnumVariableBase(name_, description_, flags_, group), m_value(value) {}
   String string() const override { return String(static_cast<int>(value())); }
   bool fromString(const String& value) override {
     int ival = -1;
@@ -227,12 +228,10 @@ class EnumVariable : public EnumVariableBase {
 template <typename T>
 class EnumStrVariable : public EnumStrVariableBase {
  public:
-  EnumStrVariable(const char* name_, const T& value, const char* units_, const char* description_,
-                  T min_value, T max_value, const char* value_names[], unsigned flags_,
-                  VariableGroup& group)
-      : EnumStrVariableBase(name_, static_cast<int>(value), units_, description_,
-                            static_cast<int>(min_value), static_cast<int>(max_value), value_names,
-                            flags_, group) {}
+  EnumStrVariable(const char* name_, const T& value, const char* description_, const T& max_value,
+                  const char* value_names[], unsigned flags_, VariableGroup& group)
+      : EnumStrVariableBase(name_, static_cast<int>(value), description_,
+                            static_cast<unsigned>(max_value) + 1, value_names, flags_, group) {}
   const T value() const { return static_cast<T>(m_value); }
   T value() { return static_cast<T>(m_value); }
   EnumStrVariable<T>& operator=(const T value) {
