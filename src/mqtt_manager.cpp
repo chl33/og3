@@ -62,10 +62,10 @@ MqttManager::MqttManager(const Options& opts, Tasks* tasks)
                       VariableBase::kConfig | VariableBase::kSettable | VariableBase::kNoPublish |
                           VariableBase::kNoDisplay,
                       m_vg),
-      m_mode("mode", opts.mode, "", "mode", Mode::kHomeAssistant, Mode::kAdafruitIO, s_str_modes,
+      m_mode("mode", opts.mode, "mode", Mode::kAdafruitIO, s_str_modes,
              VariableBase::kConfig | VariableBase::kSettable | VariableBase::kNoPublish, m_vg),
-      m_connected("connection", kNotConnected, "", "connection", kNotConnected, kConnected,
-                  s_str_connected, VariableBase::kNoPublish, m_vg) {
+      m_connected("connection", kNotConnected, "connection", kConnected, s_str_connected,
+                  VariableBase::kNoPublish, m_vg) {
   // Module callbacks
   setDependencies(&m_dependency);
   add_link_fn([this](NameToModule& name_to_module) -> bool {

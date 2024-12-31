@@ -60,6 +60,8 @@ class ModuleSystem {
   void start();
 
   Logger* log() { return *m_logger; }
+  size_t num_modules() const { return m_modules.size(); }
+  size_t module_capacity() const { return m_modules.capacity(); }
 
  private:
   friend class Module;
