@@ -69,8 +69,8 @@ void tearDown() {}
 
 void test1() {
   og3::TestLogger log;
-  og3::TestLogger* plog = &log;
-  og3::ModuleSystem depends(&pog);
+  og3::Logger* plog = &log;
+  og3::ModuleSystem depends(&plog);
   og3::TestModule test2("test2", {"test1"}, &depends);
   og3::TestModule test1("test1", {}, &depends);
   og3::TestModule test3("test3", {"test2"}, &depends);
@@ -85,8 +85,8 @@ void test1() {
 
 void test2() {
   og3::TestLogger log;
-  og3::TestLogger* plog = &log;
-  og3::ModuleSystem depends(&pog);
+  og3::Logger* plog = &log;
+  og3::ModuleSystem depends(&plog);
   og3::TestModule test3("test3", {"test2"}, &depends);
   og3::TestModule test2("test2", {"test1"}, &depends);
   og3::TestModule test1("test1", {}, &depends);
@@ -100,7 +100,7 @@ void test2() {
 
 void test3() {
   og3::TestLogger log;
-  og3::TestLogger* plog = &log;
+  og3::Logger* plog = &log;
   og3::ModuleSystem depends(&plog);
   // Circular dependencies.
   og3::TestModule test2("test2", {"test1"}, &depends);

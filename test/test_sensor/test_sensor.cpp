@@ -46,7 +46,8 @@ void tearDown() {}
 
 void test1() {
   og3::TestLogger log;
-  og3::ModuleSystem modules(&log);
+  og3::Logger* plog = &log;
+  og3::ModuleSystem modules(&plog);
   og3::VariableGroup vg("vg");
   og3::Adc adc("test", A0, &modules, "desc", 0, vg);
 
@@ -60,7 +61,8 @@ void test1() {
 
 void test2() {
   og3::TestLogger log;
-  og3::ModuleSystem modules(&log);
+  og3::Logger* plog = &log;
+  og3::ModuleSystem modules(&plog);
   og3::VariableGroup vg("vg");
   og3::VariableGroup cvg("cvg");
 

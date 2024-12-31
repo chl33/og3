@@ -91,7 +91,7 @@ EnumStrVariableBase::EnumStrVariableBase(const char* name_, int value, const cha
       m_value(value) {}
 
 String EnumStrVariableBase::string() const {
-  if (m_value < 0 || m_value >= m_num_values) {
+  if (m_value < 0 || m_value >= static_cast<int>(m_num_values)) {
     return "??";
   }
   return String(m_value_names[m_value]);
@@ -138,7 +138,7 @@ String EnumStrVariableBase::formEntry() const {
     ret += "<option value=\"";
     ret += i;
     ret += "\"";
-    if (i == m_value) {
+    if (static_cast<int>(i) == m_value) {
       ret += " selected";
     }
     ret += ">";
