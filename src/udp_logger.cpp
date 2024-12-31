@@ -11,7 +11,7 @@ namespace og3 {
 UdpLogger::UdpLogger(WifiManager* wifi_mgr, IPAddress ip_address, uint16_t port)
     : m_ip_address(ip_address), m_port(port) {
   wifi_mgr->addConnectCallback([this]() {
-#ifdef arduino_arch_esp32
+#ifdef ARDUINO_ARCH_ESP32
     m_udp.begin(WiFi.localIP(), m_port);
 #endif
     m_ready = true;
