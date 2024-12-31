@@ -21,7 +21,7 @@ bool ModuleSystem::ThunkRec::operator<(const ModuleSystem::ThunkRec& o) const {
   return mod->sorted_index() < o.mod->sorted_index();
 }
 
-ModuleSystem::ModuleSystem(Logger* logger, unsigned reserve_num_modules) : m_logger(logger) {
+ModuleSystem::ModuleSystem(Logger** logger, unsigned reserve_num_modules) : m_logger(logger) {
   m_modules.reserve(reserve_num_modules);
 }
 

@@ -11,7 +11,7 @@ App::App(const Options& options)
     : m_options(options),
       m_logger(options.log_type == LogType::kSerial ? reinterpret_cast<Logger*>(&m_serial_logger)
                                                     : reinterpret_cast<Logger*>(&m_null_logger)),
-      m_module_system(m_logger, options.reserve_num_modules),
+      m_module_system(&m_logger, options.reserve_num_modules),
       m_tasks(options.reserve_tasks, &m_module_system) {}
 
 }  // namespace og3

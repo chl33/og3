@@ -10,7 +10,7 @@ HAApp::HAApp(const HAApp::Options& options)
     : WebApp(options.app),
       m_mqtt_manager(options.mqtt, &tasks()),
       m_ha_discovery(options.ha_discovery, &module_system()),
-      m_app_status(&tasks()),
+      m_app_status(&tasks(), options.app.app.log_type),
       m_wifi_monitor(&tasks()) {}
 
 void HAApp::setup() { WebApp::setup(); }

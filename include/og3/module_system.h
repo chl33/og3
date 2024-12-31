@@ -44,7 +44,9 @@ class Module;
 //
 class ModuleSystem {
  public:
-  ModuleSystem(Logger* logger, unsigned reserve_num_modules = 16) OG3_NONNULL();
+  // This uses a Logger** because this gets initialized from a logger pointer
+  //  in App which can get later overridden in subclasses.
+  ModuleSystem(Logger** logger, unsigned reserve_num_modules = 16);
 
   void add_module(Module* module);
 
@@ -57,7 +59,9 @@ class ModuleSystem {
   void init();
   void start();
 
-  Logger* log() { return m_logger; }
+  Logger* log() { return *m_logger; }
+  size_t num_modules() const { return m_modules.size(); }
+  size_t module_capacity() const { return m_modules.capacity(); }
 
  private:
   friend class Module;
@@ -71,7 +75,7 @@ class ModuleSystem {
   bool link_modules_by_name();
   bool topological_sort(size_t* sorted_module_indexes);
 
-  Logger* m_logger;
+  Logger** m_logger;
   bool m_is_ok = false;
   std::vector<Module*> m_modules;
 

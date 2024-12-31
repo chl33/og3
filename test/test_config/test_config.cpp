@@ -32,7 +32,8 @@ void test_config() {
   og3::DoubleVariable humidity("humidity", 60.1, og3::units::kPercentage, "humidity",
                                og3::VariableBase::kConfig, 1, vg);
   StdoutLogger log;
-  og3::ModuleSystem ds(&log);
+  og3::Logger* plog = &log;
+  og3::ModuleSystem ds(&plog);
   og3::FlashSupport flash(&ds);
   og3::ConfigInterface config(&ds);
 

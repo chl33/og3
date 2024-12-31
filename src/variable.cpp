@@ -82,25 +82,23 @@ VariableBase::VariableBase(const char* name_, const char* units_, const char* de
   group.add(this);
 }
 
-EnumStrVariableBase::EnumStrVariableBase(const char* name_, int value, const char* units_,
-                                         const char* description_, int min_value, int max_value,
-                                         const char* value_names[], unsigned flags_,
-                                         VariableGroup& group)
-    : EnumVariableBase(name_, units_, description_, flags_, group),
-      m_min_value(min_value),
-      m_max_value(max_value),
+EnumStrVariableBase::EnumStrVariableBase(const char* name_, int value, const char* description_,
+                                         unsigned num_values, const char* value_names[],
+                                         unsigned flags_, VariableGroup& group)
+    : EnumVariableBase(name_, description_, flags_, group),
+      m_num_values(num_values),
       m_value_names(value_names),
       m_value(value) {}
 
 String EnumStrVariableBase::string() const {
-  if (m_value < m_min_value || m_value > m_max_value) {
+  if (m_value < 0 || m_value >= static_cast<int>(m_num_values)) {
     return "??";
   }
-  return String(m_value_names[m_value - m_min_value]);
+  return String(m_value_names[m_value]);
 }
 bool EnumStrVariableBase::fromString(const String& value) {
-  for (int i = m_min_value; i <= m_max_value; i += 1) {
-    if (0 == strcmp(m_value_names[i - m_min_value], value.c_str())) {
+  for (unsigned i = 0; i < m_num_values; i += 1) {
+    if (0 == strcmp(m_value_names[i], value.c_str())) {
       m_value = i;
       setFailed(false);
       return true;
@@ -117,8 +115,8 @@ bool EnumStrVariableBase::fromJson(const JsonVariant& json) {
   if (!json.is<const char*>()) {
     return false;
   }
-  for (int i = m_min_value; i <= m_max_value; i += 1) {
-    if (0 == strcmp(m_value_names[i - m_min_value], json.as<const char*>())) {
+  for (unsigned i = 0; i < m_num_values; i += 1) {
+    if (0 == strcmp(m_value_names[i], json.as<const char*>())) {
       m_value = i;
       return true;
     }
@@ -127,7 +125,7 @@ bool EnumStrVariableBase::fromJson(const JsonVariant& json) {
 }
 void EnumStrVariableBase::toJson(JsonDocument* doc) {
   if (!failed()) {
-    (*doc)[name()] = m_value;
+    (*doc)[name()] = string();
   }
 }
 
@@ -136,15 +134,15 @@ String EnumStrVariableBase::formEntry() const {
   ret += name();
   ret += "\">\n";
   // ret += "<option value=\"\">--Please choose an option--</option>\n";
-  for (int i = m_min_value; i <= m_max_value; i += 1) {
+  for (unsigned i = 0; i <= m_num_values; i += 1) {
     ret += "<option value=\"";
     ret += i;
     ret += "\"";
-    if (i == m_value) {
+    if (static_cast<int>(i) == m_value) {
       ret += " selected";
     }
     ret += ">";
-    ret += m_value_names[i - m_min_value];
+    ret += m_value_names[i];
     ret += "</option>\n";
   }
   ret += "</select>\n";
