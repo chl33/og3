@@ -16,6 +16,8 @@ namespace og3 {
 
 const char* Tasks::kName = "tasks";
 
+Thunk Tasks::s_run_next = nullptr;
+
 Tasks::Tasks(std::size_t capacity, ModuleSystem* module_system)
     : Module(kName, module_system), m_queue(capacity) {
   add_update_fn([this]() { loop(); });
@@ -49,7 +51,11 @@ int Tasks::loop() {
 bool Tasks::getThunk(unsigned long now, Thunk* t) {
   bool ret = false;
   noInterrupts();
-  if (!m_queue.empty() && isBefore(m_queue.nextMsec(), now)) {
+  if (s_run_next) {
+    *t = s_run_next;
+    s_run_next = nullptr;
+    ret = true;
+  } else if (!m_queue.empty() && isBefore(m_queue.nextMsec(), now)) {
     *t = m_queue.first().thunk;
     m_queue.popFirst();
     ret = true;

@@ -15,8 +15,8 @@ namespace og3 {
 // Pir is a wrapper for PIR sensors.
 class Pir : public Module {
  public:
-  Pir(const char* module_name, const char* motion_name, ModuleSystem* module_system, Tasks* tasks,
-      uint8_t pin, const char* description, VariableGroup& vg, bool publish, bool ha_discovery);
+  Pir(const char* module_name, const char* motion_name, ModuleSystem* module_system, uint8_t pin,
+      const char* description, VariableGroup& vg, bool publish, bool ha_discovery);
 
   void read();
 
@@ -32,11 +32,10 @@ class Pir : public Module {
   bool haDeclare(HADiscovery* had, JsonDocument* json);
 
 #ifndef NATIVE
-  static IRAM_ATTR void _onMotion();
+  static void IRAM_ATTR _onMotion();
 #endif
 
   static bool s_interrupt_setup;
-  static Thunk s_motion_callback;
 
   HADependencies m_dependencies;
   const String m_din_name;

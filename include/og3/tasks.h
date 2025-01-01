@@ -16,6 +16,9 @@ class Tasks : public Module {
 
   static Tasks* get(const NameToModule& n2m) { return GetModule<Tasks>(n2m, kName); }
 
+  // A way to specify code to run from an interrupt.
+  static void run_next(const Thunk& thunk) { s_run_next = thunk; }
+
   Tasks(std::size_t capacity, ModuleSystem* module_system);
 
   void runAt(unsigned long msec, const Thunk& thunk, unsigned id = 0);
@@ -31,6 +34,8 @@ class Tasks : public Module {
 
  private:
   bool getThunk(unsigned long now, Thunk* t);
+
+  static Thunk s_run_next;
 
   TaskQueue m_queue;
 };
