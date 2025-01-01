@@ -12,15 +12,13 @@
 namespace og3 {
 
 namespace {
-Tasks* s_tasks = nullptr;
-}
+Thunk s_motion_callback;
+}  // namespace
 
 bool Pir::s_interrupt_setup = false;
-std::function<void()> Pir::s_motion_callback;
 
-Pir::Pir(const char* module_name, const char* motion_name, ModuleSystem* module_system,
-         Tasks* tasks, uint8_t pin, const char* description, VariableGroup& vg, bool publish,
-         bool ha_discovery)
+Pir::Pir(const char* module_name, const char* motion_name, ModuleSystem* module_system, uint8_t pin,
+         const char* description, VariableGroup& vg, bool publish, bool ha_discovery)
     : Module(module_name, module_system),
       m_din(motion_name, module_system, pin, description, vg, publish) {
   setDependencies(&m_dependencies);
@@ -34,27 +32,25 @@ Pir::Pir(const char* module_name, const char* motion_name, ModuleSystem* module_
       }
     });
   }
-  if (!s_tasks) {
-    s_tasks = tasks;
-  }
 }
 
 // Interrupt routine causes onMotion to run in the main process
 #ifndef NATIVE
-IRAM_ATTR void Pir::_onMotion() {
-  if (s_tasks) {
-    s_tasks->runIn(0, s_motion_callback);
-  }
-}
+void IRAM_ATTR Pir::_onMotion() { Tasks::run_next(s_motion_callback); }
 #endif
 
 // static
-void Pir::callOnMotion(const Thunk& fn) {
-  s_motion_callback = fn;
+void Pir::callOnMotion(const Thunk& thunk) {
+  if (!thunk) {
+    return;
+  }
+  s_motion_callback = thunk;
+  if (!s_interrupt_setup) {
 #ifndef NATIVE
-  attachInterrupt(digitalPinToInterrupt(m_din.pin()), Pir::_onMotion, CHANGE);
+    attachInterrupt(digitalPinToInterrupt(m_din.pin()), Pir::_onMotion, CHANGE);
 #endif
-  s_interrupt_setup = true;
+    s_interrupt_setup = true;
+  }
 }
 
 void Pir::read() { m_din.read(); }
