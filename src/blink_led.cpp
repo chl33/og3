@@ -33,7 +33,10 @@ void BlinkLed::off() {
   digitalWrite(m_led, m_on_low ? HIGH : LOW);
 }
 void BlinkLed::blink(uint8_t num) {
-  m_num_blinks = num;
+  if (num < 1) {
+    return;
+  }
+  m_num_blinks = num - 1;
   on();
   m_scheduler.runIn(m_on_msec);
 }
