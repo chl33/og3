@@ -35,7 +35,7 @@ void WifiMonitor::statusUpdate() {
   if (!m_dependencies.mqtt_manager() || !m_wifi_manager) {
     return;
   }
-  log()->log("WifiMonitor::statusUpdate()");
+  log()->debug("WifiMonitor::statusUpdate()");
   m_wifi_manager->updateStatus();
   m_dependencies.mqtt_manager()->mqttSend(m_wifi_manager->variables());
 }
