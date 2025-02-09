@@ -29,9 +29,18 @@ class PacketReader {
   bool get_msg(std::size_t msg_index, const uint8_t** out_msg, uint16_t* out_msg_type,
                std::size_t* out_msg_size) const;
 
+  uint16_t buffer_size() const { return m_buffer_size; }
+  bool is_ok() const { return m_is_ok; }
+  uint8_t protocol_version_major() const { return m_protocol_version_major; }
+  uint8_t protocol_version_minor() const { return m_protocol_version_minor; }
+  uint16_t pkt_size() const { return m_pkt_size; }
+  uint16_t seq_id() const { return m_seq_id; }
+  uint16_t num_msgs() const { return m_num_msgs; }
+  uint16_t num_available_msgs() const { return m_num_available_msgs; }
+
  protected:
   const uint8_t* m_buffer;
-  uint16_t m_buffer_size;
+  const uint16_t m_buffer_size;
   bool m_is_ok = false;
   uint8_t m_protocol_version_major = 0xff;
   uint8_t m_protocol_version_minor = 0xff;
