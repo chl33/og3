@@ -185,8 +185,22 @@ bool HADiscovery::addEntry(JsonDocument* json, const HADiscovery::Entry& entry) 
     js["dev_cla"] = entry.device_class;
   }
   js["name"] = entry.var.name();
-  snprintf(value, sizeof(value), "%s_%s", entry.device_id ? entry.device_id : m_device_id,
-           entry.var.name());
+  {
+    const int len = snprintf(value, sizeof(value), "%s_%s",
+                             entry.device_id ? entry.device_id : m_device_id, entry.var.name());
+    for (int i = 0; i < len; i++) {
+      const char c = value[i];
+      if (c == 0) {
+        break;
+      }
+      // HA node_id and object_id can only have characters from [a-zA-Z0-9_-].
+      if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') ||
+          (c == '_') || (c == '-')) {
+        continue;
+      }
+      value[i] = '_';
+    }
+  }
   js["uniq_id"] = value;
   if (entry.icon) {
     js["ic"] = entry.icon;
