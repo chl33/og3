@@ -136,7 +136,7 @@ const String& HADiscovery::boardTopic() {
   return m_board_topic_;
 }
 
-void HADiscovery::addRoot(JsonDocument* json, const char* device_name) {
+void HADiscovery::addRoot(JsonDocument* json, const HADiscovery::Entry& entry) {
   if (!enabled()) {
     return;
   }
@@ -149,11 +149,11 @@ void HADiscovery::addRoot(JsonDocument* json, const char* device_name) {
   js["pl_not_avail"] = "offline";
 
   JsonObject device = js["device"].to<JsonObject>();
-  device["name"] = device_name ? device_name : m_device_name.c_str();
-  device["ids"] = m_device_id;
-  device["mf"] = m_options.manufacturer;
-  device["mdl"] = m_options.model;
-  device["sw"] = m_options.software;
+  device["name"] = entry.device_name ? entry.device_name : m_device_name.c_str();
+  device["ids"] = entry.device_id ? entry.device_id : m_device_id;
+  device["mf"] = entry.manufacturer ? entry.manufacturer : m_options.manufacturer;
+  device["mdl"] = entry.model ? entry.model : m_options.model;
+  device["sw"] = entry.software ? entry.software : m_options.software;
 #ifndef NATIVE
   device["cu"] = "http://" + WiFi.localIP().toString() + "/";
 #endif
@@ -165,7 +165,7 @@ bool HADiscovery::addEntry(JsonDocument* json, const HADiscovery::Entry& entry) 
   }
   auto& js = *json;
   js.clear();
-  addRoot(json, entry.device_name);
+  addRoot(json, entry);
 
   char value[128];
   if (strOk(entry.var.units())) {
@@ -185,7 +185,8 @@ bool HADiscovery::addEntry(JsonDocument* json, const HADiscovery::Entry& entry) 
     js["dev_cla"] = entry.device_class;
   }
   js["name"] = entry.var.name();
-  snprintf(value, sizeof(value), "%s_%s", m_device_id, entry.var.name());
+  snprintf(value, sizeof(value), "%s_%s", entry.device_id ? entry.device_id : m_device_id,
+           entry.var.name());
   js["uniq_id"] = value;
   if (entry.icon) {
     js["ic"] = entry.icon;

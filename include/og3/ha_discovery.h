@@ -73,8 +73,6 @@ class HADiscovery : public Module {
 
   HADiscovery(const Options& opts, ModuleSystem* module_system);
 
-  void addRoot(JsonDocument* json, const char* device_name);
-
   struct Entry {
     using ValueTemplateFn = std::function<String(const Entry&)>;
     Entry(const VariableBase& var_, const char* device_type_, const char* device_class_,
@@ -88,6 +86,10 @@ class HADiscovery : public Module {
     const char* device_class;
     const char* subject_topic = nullptr;
     const char* device_name = nullptr;
+    const char* device_id = nullptr;     // HADiscovery device_id is used if not set.
+    const char* manufacturer = nullptr;  // HADiscovery manufacturer is used if not set.
+    const char* software = nullptr;      // HADiscovery software is used if not set.
+    const char* model = nullptr;         // HADiscovery model is used if not set.
     const char* icon = nullptr;
     // Command subject, if applicable
     const char* command = nullptr;
@@ -115,17 +117,8 @@ class HADiscovery : public Module {
   bool addMotionSensor(JsonDocument* json, const VariableBase& var,
                        const char* subject_topic = nullptr, const char* device_name = nullptr);
 
-#if 0
-  void addTempC(const char* name, int decimals, JsonDocument* json);
-  void addTempF(const char* name, int decimals, JsonDocument* json);
-  void addHumidity(const char* name, int decimals, JsonDocument* json);
-  void addCountsMeas(const char* name, const char* device_class, JsonDocument* json);
-  void addCover(const char* name, const char* command_topic, const char* device_class,
-                JsonDocument* json);
-  void addCommand(const char* name, const char* cmd_atom, JsonDocument* json);
-  void addIcon(const char* icon_name, JsonDocument* json);
+  void addRoot(JsonDocument* json, const Entry& entry);
 
-#endif
   bool mqttSendConfig(const char* name, const char* device_class, JsonDocument* json);
   void mqttSubscribe(const char* name, const MqttManager::MqttMsgCallbackFn& fn);
 
