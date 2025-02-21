@@ -27,7 +27,7 @@ class Module {
   ModuleSystem* module_system() { return m_module_system; }
 
  protected:
-  Module(const char* name_, ModuleSystem* module_system) OG3_NONNULL();
+  Module(const char* name_, ModuleSystem* module_system);
   Logger* log() const;
 
   void add_link_fn(const LinkFn& link_fn);

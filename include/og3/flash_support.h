@@ -12,7 +12,7 @@ namespace og3 {
 //  already been setup previously (in a previous boot).
 class FlashSupport : public Module {
  public:
-  explicit FlashSupport(ModuleSystem* module_system) OG3_NONNULL();
+  explicit FlashSupport(ModuleSystem* module_system);
 
   static const char* kName;
 
