@@ -17,6 +17,25 @@ std::unique_ptr<String> variable_name(const char* var_name, const VariableGroup&
   *ret = String(group.name()) + "_" + var_name;
   return ret;
 }
+
+void legalize_chars(char* buffer, unsigned len) {
+  for (unsigned i = 0; i < len; i++) {
+    const char c = buffer[i];
+    if (c == 0) {
+      return;
+    }
+    if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || (c == '_') ||
+        (c == '-')) {
+      continue;
+    }
+    buffer[i] = '_';
+  }
+}
+void copy_and_legalize(char* buffer, unsigned len, const char* source) {
+  strncpy(buffer, source, len);
+  legalize_chars(buffer, len);
+}
+
 }  // namespace
 
 String VariableBase::formEntry() const {
@@ -125,7 +144,9 @@ bool EnumStrVariableBase::fromJson(const JsonVariant& json) {
 }
 void EnumStrVariableBase::toJson(JsonDocument* doc) {
   if (!failed()) {
-    (*doc)[name()] = string();
+    char lname[80];
+    copy_and_legalize(lname, sizeof(lname), name());
+    (*doc)[lname] = string();
   }
 }
 
@@ -151,10 +172,12 @@ String EnumStrVariableBase::formEntry() const {
 
 void BoolVariable::toJson(JsonDocument* doc) {
   if (!failed()) {
+    char lname[80];
+    copy_and_legalize(lname, sizeof(lname), name());
 #ifndef NATIVE
-    (*doc)[name()] = string();
+    (*doc)[lname] = string();
 #else
-    (*doc)[name()] = string().c_str();
+    (*doc)[lname] = string().c_str();
 #endif
   }
 }
@@ -167,10 +190,12 @@ BoolVariable& BoolVariable::operator=(bool value) {
 
 void BinarySensorVariable::toJson(JsonDocument* doc) {
   if (!failed()) {
+    char lname[80];
+    copy_and_legalize(lname, sizeof(lname), name());
 #ifndef NATIVE
-    (*doc)[name()] = string();
+    (*doc)[lname] = string();
 #else
-    (*doc)[name()] = string().c_str();
+    (*doc)[lname] = string().c_str();
 #endif
   }
 }

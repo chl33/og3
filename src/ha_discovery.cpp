@@ -34,10 +34,12 @@ void legalize_chars(char* buffer, unsigned len) {
   }
 }
 
+#ifndef NATIVE
 void copy_and_legalize(char* buffer, unsigned len, const char* source) {
   strncpy(buffer, source, len);
   legalize_chars(buffer, len);
 }
+#endif
 
 }  // namespace
 
@@ -85,8 +87,10 @@ HADiscovery::Entry::Entry(const FloatVariableBase& var_, const char* device_type
       device_type(device_type_),
       device_class(device_class_),
       value_template_fn([&var_](const Entry& entry) {
-        return String("{{value_json.") + entry.var.name() + "|float|round(" +
-               String(var_.decimals()) + ")}}";
+        String varname(entry.var.name());
+        varname.replace(" ", "_");
+        return String("{{value_json.") + varname + "|float|round(" + String(var_.decimals()) +
+               ")}}";
       }) {}
 
 HADiscovery::Entry::Entry(const BoolVariable& var_, const char* device_class_)
