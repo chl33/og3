@@ -3,6 +3,8 @@
 
 #include "og3/ha_discovery.h"
 
+#include <string.h>
+
 #include "og3/config_interface.h"
 #include "og3/logger.h"
 #include "og3/mqtt_manager.h"
@@ -17,6 +19,26 @@ bool strOk(const char* str) { return str && str[0]; }
 String default_value_template(const HADiscovery::Entry& entry) {
   return String("{{value_json.") + entry.var.name() + "}}";
 };
+
+void legalize_chars(char* buffer, unsigned len) {
+  for (unsigned i = 0; i < len; i++) {
+    const char c = buffer[i];
+    if (c == 0) {
+      return;
+    }
+    if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || (c == '_') ||
+        (c == '-')) {
+      continue;
+    }
+    buffer[i] = '_';
+  }
+}
+
+void copy_and_legalize(char* buffer, unsigned len, const char* source) {
+  strncpy(buffer, source, len);
+  legalize_chars(buffer, len);
+}
+
 }  // namespace
 
 namespace ha::device_type {
@@ -188,18 +210,7 @@ bool HADiscovery::addEntry(JsonDocument* json, const HADiscovery::Entry& entry) 
   {
     const int len = snprintf(value, sizeof(value), "%s_%s",
                              entry.device_id ? entry.device_id : m_device_id, entry.var.name());
-    for (int i = 0; i < len; i++) {
-      const char c = value[i];
-      if (c == 0) {
-        break;
-      }
-      // HA node_id and object_id can only have characters from [a-zA-Z0-9_-].
-      if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') ||
-          (c == '_') || (c == '-')) {
-        continue;
-      }
-      value[i] = '_';
-    }
+    legalize_chars(value, len);
   }
   js["uniq_id"] = value;
   if (entry.icon) {
@@ -218,6 +229,7 @@ bool HADiscovery::addEntry(JsonDocument* json, const HADiscovery::Entry& entry) 
       options.add(entry.options[i]);
     }
   }
+
   return mqttSendConfig(entry.var.name(), entry.device_type, json);
 }
 
@@ -318,9 +330,11 @@ bool HADiscovery::mqttSendConfig(const char* name, const char* device_type, Json
 #ifndef NATIVE
   String content;
   serializeJson(*json, content);
+  char lname[80];
+  copy_and_legalize(lname, sizeof(lname), name);
   char topic[256];
   snprintf(topic, sizeof(topic), "homeassistant/%s/%s/%s/config", device_type,
-           m_device_name.c_str(), name);
+           m_device_name.c_str(), lname);
   // log()->debugf("sendConfig: '%s'\n %s", topic, content.c_str());
   const int packetIdPub = m_mqtt_manager->client().publish(topic, 1, true, content.c_str());
   if (packetIdPub == 0) {
