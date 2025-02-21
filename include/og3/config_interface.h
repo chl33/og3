@@ -18,10 +18,9 @@ class ConfigInterface : public Module {
  public:
   static const char* kName;  // module name
 
-  explicit ConfigInterface(ModuleSystem* module_system) OG3_NONNULL();
-  bool read_config(VariableGroup& var_group, const char* filename = nullptr) OG3_NONNULL((1));
-  bool write_config(const VariableGroup& var_group, const char* filename = nullptr)
-      OG3_NONNULL((1));
+  explicit ConfigInterface(ModuleSystem* module_system);
+  bool read_config(VariableGroup& var_group, const char* filename = nullptr);
+  bool write_config(const VariableGroup& var_group, const char* filename = nullptr);
 
   Logger* log();
 

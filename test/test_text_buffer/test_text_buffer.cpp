@@ -31,7 +31,7 @@ void test1() {
   buffer.clear();
   TEST_ASSERT_TRUE(check("", buffer.text()));
 
-  buffer.add("aa bb cc dd");
+  buffer.addf("aa %s dd", "bb cc");
   buffer.split(0);
   TEST_ASSERT_TRUE(check("aa bb cc dd", buffer.text()));
 
@@ -39,7 +39,7 @@ void test1() {
   buffer.split(4);
   TEST_ASSERT_TRUE(check("aa\nbb\ncc\ndd", buffer.text()));
 
-  buffer.set("aaaa bbbb");
+  buffer.setf("aaaa %s", "bbbb");
   buffer.split(4);
   TEST_ASSERT_TRUE(check("aaaa\nbbbb", buffer.text()));
 
@@ -63,9 +63,9 @@ void test1() {
   buffer.split(8);
   TEST_ASSERT_TRUE(check("aaaa bb \nddee ff", buffer.text()));
 
-  buffer.set("aaaa %s", "bbb");
+  buffer.setf("aaaa %s", "bbb");
   TEST_ASSERT_TRUE(check("aaaa bbb", buffer.text()));
-  buffer.add(" cc %s", "dd");
+  buffer.addf(" cc %s", "dd");
   TEST_ASSERT_TRUE(check("aaaa bbb cc dd", buffer.text()));
   buffer.add(" ffffff");
   TEST_ASSERT_TRUE(check("aaaa bbb cc dd ffff", buffer.text()));

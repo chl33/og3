@@ -50,8 +50,7 @@ class WifiManager : public Module {
     }
   };
 
-  WifiManager(const char* default_board_name, Tasks* tasks, const Options& options = Options())
-      OG3_NONNULL();
+  WifiManager(const char* default_board_name, Tasks* tasks, const Options& options = Options());
 
   void set_enable(bool enable) { m_enable = enable; }
 

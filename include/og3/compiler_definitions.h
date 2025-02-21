@@ -6,9 +6,7 @@
 #if defined(__GNUC__) && (__GNUC__ > 2) || ((__GNUC__ == 2) && (__GNUC_MINOR__ > 4)) || \
     defined(__clang__)
 #define OG3_PRINTF_FORMAT(X) __attribute__((format(printf, (X), 1 + (X))))
-#define OG3_NONNULL(...) __attribute__((nonnull __VA_ARGS__))
 #else
 // No printf-style format checking for non-GCC compilers
 #define OG3_PRINTF_FORMAT(X)
-#define OG3_NONNULL(...)
 #endif
