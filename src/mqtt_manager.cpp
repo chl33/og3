@@ -205,7 +205,7 @@ bool MqttManager::mqttSend(const VariableGroup& variables, unsigned flags) {
       mqttOutput = String("value:") + values;
       break;
   }
-  mqttSend(topic(variables.name()).c_str(), mqttOutput.c_str());
+  mqttSend(topic(variables.id()).c_str(), mqttOutput.c_str());
   return true;
 }
 
