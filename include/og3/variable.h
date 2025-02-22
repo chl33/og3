@@ -7,7 +7,6 @@
 #include <ArduinoJson.h>
 
 #include <cstring>
-#include <memory>
 #include <vector>
 
 namespace og3 {
@@ -18,16 +17,11 @@ class VariableBase;
 // a configuration file, edited together in a web form, or written together to MQTT.
 class VariableGroup {
  public:
-  enum class VarNameType {
-    kBase,       // variables just use their own names
-    kWithGroup,  // prefix group name to name of variables
-  };
-  VariableGroup(const char* name, VarNameType varname = VarNameType::kBase,
-                size_t initial_size = 16);
+  VariableGroup(const char* name, const char* id = nullptr, size_t initial_size = 16);
   VariableGroup(const VariableGroup&) = delete;
   void add(VariableBase* variable);
   const char* name() const { return m_name; }
-  VarNameType varname_type() const { return m_varname_type; }
+  const char* id() const { return m_id; }
 
   const std::vector<VariableBase*>& variables() const { return m_variables; }
   std::vector<VariableBase*>& variables() { return m_variables; }
@@ -40,7 +34,7 @@ class VariableGroup {
 
  private:
   const char* m_name;
-  const VarNameType m_varname_type;
+  const char* m_id;
   unsigned m_num_config = 0;
   std::vector<VariableBase*> m_variables;
 };
@@ -88,7 +82,6 @@ class VariableBase {
  private:
   bool testFlag(Flags flag) const { return m_flags & static_cast<unsigned>(flag); }
 
-  std::unique_ptr<String> m_name_string;
   const char* m_name;
   const char* m_units;
   const char* m_description;

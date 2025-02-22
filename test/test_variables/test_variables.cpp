@@ -18,6 +18,7 @@ void test_int_vars() {
   TEST_ASSERT_EQUAL_STRING("ival", ival.name());
   TEST_ASSERT_EQUAL_STRING("test integer", ival.description());
   TEST_ASSERT_EQUAL_STRING("test1", ival.group().name());
+  TEST_ASSERT_EQUAL_STRING("test1", ival.group().id());
   TEST_ASSERT_EQUAL(10, ival.value());
   ival = -11;
   TEST_ASSERT_EQUAL(-11, ival.value());
@@ -28,7 +29,7 @@ void test_int_vars() {
 }
 
 void test_unsigned_vars() {
-  og3::VariableGroup vg("test2");
+  og3::VariableGroup vg("test 2", "test2");
   og3::Variable<unsigned> uval("uval", 10, "", "test integer", 0, vg);
   TEST_ASSERT_EQUAL(10, uval.value());
   uval = 11;
@@ -37,6 +38,8 @@ void test_unsigned_vars() {
   TEST_ASSERT_EQUAL(12, uval.value());
   uval = 13;
   TEST_ASSERT_EQUAL_STRING("13", uval.string().c_str());
+  TEST_ASSERT_EQUAL_STRING("test 2", uval.group().name());
+  TEST_ASSERT_EQUAL_STRING("test2", uval.group().id());
 }
 
 void test_float_vars() {
