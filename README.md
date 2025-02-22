@@ -1,6 +1,6 @@
 # og3 library
 
-[!NOTE]
+> [!NOTE]
 > The 0.3.x versions of this library are unstable.  Please use 0.2.x.
 
 The og3 library is designed to help write applications for ESP microprocessors using the Arduino environment.  It was written especially to support MQTT applications and interface with [Home Assistant](https://www.home-assistant.io/).  This library is designed to be used with the [Platformio](https://platformio.org/) development environment.

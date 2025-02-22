@@ -6,6 +6,8 @@
 #include <stdarg.h>
 #include <stdio.h>
 
+#include "og3/compiler_definitions.h"
+
 namespace og3 {
 
 // A utility for writing text into a buffer, and optionally splitting lines.
@@ -19,10 +21,10 @@ class TextBufferBase {
   unsigned size() const { return m_buffer_len; }
   const char* text() const { return m_buffer; }
   int add(const char* text);
-  int addf(const char* fmt, ...);
+  int addf(const char* fmt, ...) OG3_PRINTF_FORMAT(2);
   int addv(const char* fmt, va_list ap);
   int set(const char* text);
-  int setf(const char* fmt, ...);
+  int setf(const char* fmt, ...) OG3_PRINTF_FORMAT(2);
   void split(unsigned line_len);
 
  protected:
