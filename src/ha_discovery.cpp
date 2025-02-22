@@ -20,27 +20,6 @@ String default_value_template(const HADiscovery::Entry& entry) {
   return String("{{value_json.") + entry.var.name() + "}}";
 };
 
-void legalize_chars(char* buffer, unsigned len) {
-  for (unsigned i = 0; i < len; i++) {
-    const char c = buffer[i];
-    if (c == 0) {
-      return;
-    }
-    if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || (c == '_') ||
-        (c == '-')) {
-      continue;
-    }
-    buffer[i] = '_';
-  }
-}
-
-#ifndef NATIVE
-void copy_and_legalize(char* buffer, unsigned len, const char* source) {
-  strncpy(buffer, source, len);
-  legalize_chars(buffer, len);
-}
-#endif
-
 }  // namespace
 
 namespace ha::device_type {
@@ -87,10 +66,8 @@ HADiscovery::Entry::Entry(const FloatVariableBase& var_, const char* device_type
       device_type(device_type_),
       device_class(device_class_),
       value_template_fn([&var_](const Entry& entry) {
-        String varname(entry.var.name());
-        varname.replace(" ", "_");
-        return String("{{value_json.") + varname + "|float|round(" + String(var_.decimals()) +
-               ")}}";
+        return String("{{value_json.") + entry.var.name() + "|float|round(" +
+               String(var_.decimals()) + ")}}";
       }) {}
 
 HADiscovery::Entry::Entry(const BoolVariable& var_, const char* device_class_)
@@ -210,12 +187,9 @@ bool HADiscovery::addEntry(JsonDocument* json, const HADiscovery::Entry& entry) 
   if (entry.device_class) {
     js["dev_cla"] = entry.device_class;
   }
-  js["name"] = entry.var.name();
-  {
-    const int len = snprintf(value, sizeof(value), "%s_%s",
-                             entry.device_id ? entry.device_id : m_device_id, entry.var.name());
-    legalize_chars(value, len);
-  }
+  js["name"] = entry.var.description() ? entry.var.description() : entry.var.name();
+  snprintf(value, sizeof(value), "%s_%s", entry.device_id ? entry.device_id : m_device_id,
+           entry.var.name());
   js["uniq_id"] = value;
   if (entry.icon) {
     js["ic"] = entry.icon;
@@ -334,11 +308,9 @@ bool HADiscovery::mqttSendConfig(const char* name, const char* device_type, Json
 #ifndef NATIVE
   String content;
   serializeJson(*json, content);
-  char lname[80];
-  copy_and_legalize(lname, sizeof(lname), name);
   char topic[256];
   snprintf(topic, sizeof(topic), "homeassistant/%s/%s/%s/config", device_type,
-           m_device_name.c_str(), lname);
+           m_device_name.c_str(), name);
   // log()->debugf("sendConfig: '%s'\n %s", topic, content.c_str());
   const int packetIdPub = m_mqtt_manager->client().publish(topic, 1, true, content.c_str());
   if (packetIdPub == 0) {
