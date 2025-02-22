@@ -176,7 +176,7 @@ bool HADiscovery::addEntry(JsonDocument* json, const HADiscovery::Entry& entry) 
   }
   {
     const char* subject = entry.subject_topic ? entry.subject_topic : "~";
-    snprintf(value, sizeof(value), "%s/%s", subject, entry.var.group().name());
+    snprintf(value, sizeof(value), "%s/%s", subject, entry.var.group().id());
     js["stat_t"] = value;
   }
 #ifdef NATIVE
