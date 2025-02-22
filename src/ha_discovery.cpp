@@ -206,7 +206,7 @@ bool HADiscovery::addEntry(JsonDocument* json, const HADiscovery::Entry& entry) 
   if (entry.device_class) {
     js["dev_cla"] = entry.device_class;
   }
-  js["name"] = entry.var.name();
+  js["name"] = entry.var.description();
   {
     const int len = snprintf(value, sizeof(value), "%s_%s",
                              entry.device_id ? entry.device_id : m_device_id, entry.var.name());
