@@ -3,7 +3,9 @@
 
 #pragma once
 
+#include <array>
 #include <cmath>
+#include <cstring>
 #include <vector>
 
 #include "og3/module_system.h"
@@ -40,6 +42,42 @@ class KernelFilter {
   float computeValue(float time) const;
 
   const FloatVariable& valueVariable() const { return m_value; }
+
+  unsigned long numSamples() const { return m_num_samples; }
+
+  // The state of the filter can be saved and restored.
+  // This could be useful for restoring state after deep sleep etc...
+  template <int SZ>
+  struct State {
+    unsigned long num_samples = 0;
+    float sigma = 0;
+    std::array<float, SZ> values{0.0f};
+    std::array<float, SZ> times{0.0f};
+  };
+
+  template <int SZ>
+  bool saveState(State<SZ>& state) {
+    if (SZ != m_values.size()) {
+      return false;
+    }
+    memcpy(state.values.data(), m_values.data(), sizeof(state.values[0]) * state.values.size());
+    memcpy(state.times.data(), m_times.data(), sizeof(state.times[0]) * state.times.size());
+    state.num_samples = m_num_samples;
+    state.sigma = m_sigma;
+    return true;
+  }
+
+  template <int SZ>
+  bool restoreState(const State<SZ>& state) {
+    if (SZ != m_values.size()) {
+      return false;
+    }
+    memcpy(m_values.data(), state.values.data(), sizeof(state.values[0]) * state.values.size());
+    memcpy(m_times.data(), state.times.data(), sizeof(state.times[0]) * state.times.size());
+    m_num_samples = state.num_samples;
+    m_sigma = state.sigma;
+    return true;
+  }
 
 #if 0
   // Call in setup to suggest an icon for HomeAssistant discovery MQTT message.
