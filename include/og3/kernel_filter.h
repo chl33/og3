@@ -49,10 +49,10 @@ class KernelFilter {
   // This could be useful for restoring state after deep sleep etc...
   template <int SZ>
   struct State {
-    unsigned long num_samples = 0;
-    float sigma = 0;
-    std::array<float, SZ> values{0.0f};
-    std::array<float, SZ> times{0.0f};
+    unsigned long num_samples;
+    float sigma;
+    std::array<float, SZ> values;
+    std::array<float, SZ> times;
   };
 
   template <int SZ>
