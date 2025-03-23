@@ -209,7 +209,8 @@ bool HADiscovery::addEntry(JsonDocument* json, const HADiscovery::Entry& entry) 
     }
   }
 
-  return mqttSendConfig(entry.var.name(), entry.device_type, json);
+  const char* entry_name = entry.entry_name ? entry.entry_name : entry.var.name();
+  return mqttSendConfig(entry_name, entry.device_type, json);
 }
 
 bool HADiscovery::addEntry(JsonDocument* json, const VariableBase& var, const char* device_type,
