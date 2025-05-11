@@ -21,6 +21,7 @@ class PacketReader {
     kBadSize = 1,
     kBadPrefix = 2,
     kBadVersion = 3,
+    kBadCrc = 4,
   };
   static constexpr uint16_t kMaxAvailableMsgs = 16;
 
@@ -31,6 +32,7 @@ class PacketReader {
 
   uint16_t buffer_size() const { return m_buffer_size; }
   bool is_ok() const { return m_is_ok; }
+  bool has_crc() const { return m_has_crc; }
   uint8_t protocol_version_major() const { return m_protocol_version_major; }
   uint8_t protocol_version_minor() const { return m_protocol_version_minor; }
   uint16_t pkt_size() const { return m_pkt_size; }
@@ -42,6 +44,7 @@ class PacketReader {
   const uint8_t* m_buffer;
   const uint16_t m_buffer_size;
   bool m_is_ok = false;
+  bool m_has_crc = false;
   uint8_t m_protocol_version_major = 0xff;
   uint8_t m_protocol_version_minor = 0xff;
   uint16_t m_pkt_size = 0;
@@ -50,6 +53,7 @@ class PacketReader {
   uint16_t m_num_available_msgs = 0;
   uint16_t m_msg_sizes[kMaxAvailableMsgs];
   uint16_t m_msg_offsets[kMaxAvailableMsgs];
+  uint32_t m_crc = 0;
 };
 
 }  // namespace og3::pkt
