@@ -3,7 +3,12 @@
 
 #include "og3/packet_reader.h"
 
+#ifndef NATIVE
+#include <CRC32.h>
+#endif
+
 #include <algorithm>
+#include <cstring>
 
 namespace og3::pkt {
 namespace {
@@ -32,7 +37,25 @@ PacketReader::ParseResult PacketReader::parse() {
   }
   m_seq_id = getu16(m_buffer + 8);
   m_num_msgs = getu16(m_buffer + 10);
-  const int32_t msgs_size = static_cast<int32_t>(m_pkt_size) - kHeaderSize;
+  if (m_num_msgs & 0x8000) {
+    if (m_pkt_size < (kHeaderSize + sizeof(uint32_t))) {
+      return ParseResult::kBadSize;
+    }
+    m_has_crc = true;
+    m_num_msgs &= 0x3FFF;
+    const size_t crc_offset = m_pkt_size - sizeof(m_crc);
+    memcpy(&m_crc, m_buffer + crc_offset, sizeof(m_crc));
+#ifndef NATIVE
+    const uint32_t computed_crc = CRC32::calculate(m_buffer, crc_offset);
+#else
+    const uint32_t computed_crc = 0xdeadbeef;
+#endif
+    if (m_crc != computed_crc) {
+      return ParseResult::kBadCrc;
+    }
+  }
+  const int32_t msgs_size =
+      static_cast<int32_t>(m_pkt_size) - kHeaderSize - (m_has_crc ? sizeof(sizeof(uint32_t)) : 0);
   if (static_cast<int32_t>(kMsgHeaderSize * m_num_msgs) > msgs_size) {
     return ParseResult::kBadSize;
   }

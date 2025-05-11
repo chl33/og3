@@ -13,11 +13,12 @@ namespace og3::pkt {
 // ProtocolVersion    [2] major, minor
 // PktSize            [2] uint16le, includes header
 // SeqId              [2] uint16le
-// NumMsgs            [2] uint16le
+// NumMsgs            [2] uint16le (high-bit is whether there is a CRC32 at the end)
 // - Msg 0
 //   Sz               [2] uint16le, includes full msg
 //   Type             [2] uint16le: indicates kind of data.
 // -...
+// - (optional CRC32 at end) [4] uint32l3
 
 constexpr size_t kHeaderSize = 12;
 constexpr uint8_t kProtocolVersionMajor = 0x0;

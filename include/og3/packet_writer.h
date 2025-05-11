@@ -13,6 +13,10 @@ class PacketWriter {
   bool is_ok() const { return m_is_ok; }
   bool add_message(uint16_t type, const uint8_t* msg, uint16_t msg_size);
   uint16_t packet_size() const { return is_ok() ? m_pkt_size : 0; }
+  bool has_crc() { return 0x8000 & m_num_msgs; }
+  // Add a crc at the end of the packet.
+  // add_message() will not work on this packet after this.
+  bool add_crc();
 
  protected:
   uint8_t* m_buffer;

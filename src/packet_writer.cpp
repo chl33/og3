@@ -3,6 +3,11 @@
 
 #include "og3/packet_writer.h"
 
+#ifndef NATIVE
+#include <CRC32.h>
+#endif
+
+#include <cstdint>
 #include <cstring>
 
 namespace og3::pkt {
@@ -34,7 +39,7 @@ PacketWriter::PacketWriter(uint8_t* buffer, std::size_t nbytes, uint16_t seq_id)
 }
 
 bool PacketWriter::add_message(uint16_t type, const uint8_t* msg, uint16_t msg_size) {
-  if (!is_ok()) {
+  if (!is_ok() || has_crc()) {
     return false;
   }
   const uint32_t msg_end = m_pkt_size + kMsgHeaderSize + (msg_size + 3) / 4 * 4;
@@ -54,6 +59,28 @@ bool PacketWriter::add_message(uint16_t type, const uint8_t* msg, uint16_t msg_s
   m_pkt_size = msg_end;
   m_buffer[6] = byte1(m_pkt_size);
   m_buffer[7] = byte2(m_pkt_size);
+  return true;
+}
+
+bool PacketWriter::add_crc() {
+  if (has_crc() || !is_ok()) {
+    return false;  // alread added
+  }
+  if ((m_pkt_size + sizeof(uint32_t)) > m_buffer_size) {
+    return false;
+  }
+#ifndef NATIVE
+  const uint32_t crc = CRC32::calculate(m_buffer, m_pkt_size);
+#else
+  const uint32_t crc = 0xdeadbeef;
+#endif
+  memcpy(m_buffer + m_pkt_size, &crc, sizeof(crc));
+  m_pkt_size += sizeof(crc);
+  m_buffer[6] = byte1(m_pkt_size);
+  m_buffer[7] = byte2(m_pkt_size);
+  m_num_msgs |= 0x8000;
+  m_buffer[10] = byte1(m_num_msgs);
+  m_buffer[11] = byte2(m_num_msgs);
   return true;
 }
 
