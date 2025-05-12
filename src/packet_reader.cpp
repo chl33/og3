@@ -43,14 +43,17 @@ PacketReader::ParseResult PacketReader::parse() {
     }
     m_has_crc = true;
     m_num_msgs &= 0x3FFF;
-    const size_t crc_offset = m_pkt_size - sizeof(m_crc);
-    memcpy(&m_crc, m_buffer + crc_offset, sizeof(m_crc));
+    const size_t crc_offset = m_pkt_size - sizeof(m_packet_crc);
+    memcpy(&m_packet_crc, m_buffer + crc_offset, sizeof(m_packet_crc));
 #ifndef NATIVE
-    const uint32_t computed_crc = CRC32::calculate(m_buffer, crc_offset);
+    m_computed_crc = CRC32::calculate(m_buffer, crc_offset);
 #else
-    const uint32_t computed_crc = 0xdeadbeef;
+    m_computed_crc = 0;
+    for (size_t i = 0; i < crc_offset; i++) {
+      m_computed_crc = (m_computed_crc << 8) | (m_computed_crc ^ m_buffer[i]);
+    }
 #endif
-    if (m_crc != computed_crc) {
+    if (m_packet_crc != m_computed_crc) {
       return ParseResult::kBadCrc;
     }
   }

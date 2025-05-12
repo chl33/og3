@@ -145,7 +145,6 @@ void test_crc() {
   TEST_ASSERT_EQUAL(msg.size(), msg_size);
   TEST_ASSERT_TRUE(checkmsg(msg1fn, pmsg, msg_size));
 
-#ifndef NATIVE
   // CRC32 doesn't compile in native mode?
   // Check msg 2
   TEST_ASSERT_TRUE(reader.get_msg(1, &pmsg, &msg_type, &msg_size));
@@ -155,9 +154,8 @@ void test_crc() {
 
   og3::pkt::PacketReader reader2(buffer, sizeof(buffer));
   // Flip a bit in the message.
-  buffer[og3::pkt::kHeaderSize + 1] |= 0x3;
+  buffer[og3::pkt::kHeaderSize + 2] |= 0x4;
   TEST_ASSERT_EQUAL(og3::pkt::PacketReader::ParseResult::kBadCrc, reader2.parse());
-#endif
 }
 
 int main(int argc, char** argv) {
