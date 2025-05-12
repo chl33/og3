@@ -70,6 +70,7 @@ bool PacketWriter::add_crc() {
     return false;
   }
   // Need to update the header before computing the crc
+  const size_t orig_size = m_pkt_size;
   m_pkt_size += sizeof(m_crc);
   m_buffer[6] = byte1(m_pkt_size);
   m_buffer[7] = byte2(m_pkt_size);
@@ -77,14 +78,14 @@ bool PacketWriter::add_crc() {
   m_buffer[10] = byte1(m_num_msgs);
   m_buffer[11] = byte2(m_num_msgs);
 #ifndef NATIVE
-  m_crc = CRC32::calculate(m_buffer, m_pkt_size);
+  m_crc = CRC32::calculate(m_buffer, orig_size);
 #else
   m_crc = 0;
-  for (size_t i = 0; i < m_pkt_size; i++) {
+  for (size_t i = 0; i < orig_size; i++) {
     m_crc = (m_crc << 8) | (m_crc ^ m_buffer[i]);
   }
 #endif
-  memcpy(m_buffer + m_pkt_size - sizeof(m_crc), &m_crc, sizeof(m_crc));
+  memcpy(m_buffer + orig_size, &m_crc, sizeof(m_crc));
   return true;
 }
 
