@@ -17,6 +17,7 @@ class PacketWriter {
   // Add a crc at the end of the packet.
   // add_message() will not work on this packet after this.
   bool add_crc();
+  uint32_t crc() const { return m_crc; }
 
  protected:
   uint8_t* m_buffer;
@@ -24,6 +25,7 @@ class PacketWriter {
   bool m_is_ok = true;
   uint16_t m_pkt_size = 0;
   uint16_t m_num_msgs = 0;
+  uint32_t m_crc = 0;
 };
 
 }  // namespace og3::pkt

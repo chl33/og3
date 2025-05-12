@@ -39,6 +39,8 @@ class PacketReader {
   uint16_t seq_id() const { return m_seq_id; }
   uint16_t num_msgs() const { return m_num_msgs; }
   uint16_t num_available_msgs() const { return m_num_available_msgs; }
+  uint32_t packet_crc() const { return m_packet_crc; }
+  uint32_t computed_crc() const { return m_computed_crc; }
 
  protected:
   const uint8_t* m_buffer;
@@ -53,7 +55,8 @@ class PacketReader {
   uint16_t m_num_available_msgs = 0;
   uint16_t m_msg_sizes[kMaxAvailableMsgs];
   uint16_t m_msg_offsets[kMaxAvailableMsgs];
-  uint32_t m_crc = 0;
+  uint32_t m_packet_crc = 0;
+  uint32_t m_computed_crc = 0;
 };
 
 }  // namespace og3::pkt
