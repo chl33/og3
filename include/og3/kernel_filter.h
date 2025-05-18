@@ -4,6 +4,7 @@
 #pragma once
 
 #include <array>
+#include <cinttypes>
 #include <cmath>
 #include <cstring>
 #include <vector>
@@ -49,6 +50,8 @@ class KernelFilter {
   // This could be useful for restoring state after deep sleep etc...
   template <int SZ>
   struct State {
+    static constexpr uint32_t kHeader = 0x4321;
+    uint32_t header;
     unsigned long num_samples;
     float sigma;
     std::array<float, SZ> values;
@@ -60,6 +63,7 @@ class KernelFilter {
     if (SZ != m_values.size()) {
       return false;
     }
+    state.header = State<SZ>::kHeader;
     memcpy(state.values.data(), m_values.data(), sizeof(state.values[0]) * state.values.size());
     memcpy(state.times.data(), m_times.data(), sizeof(state.times[0]) * state.times.size());
     state.num_samples = m_num_samples;
@@ -71,6 +75,9 @@ class KernelFilter {
   bool restoreState(const State<SZ>& state) {
     if (SZ != m_values.size()) {
       return false;
+    }
+    if (state.header != State<SZ>::kHeader) {
+      return false;  // Doesn't look like a filter state.
     }
     memcpy(m_values.data(), state.values.data(), sizeof(state.values[0]) * state.values.size());
     memcpy(m_times.data(), state.times.data(), sizeof(state.times[0]) * state.times.size());

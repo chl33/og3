@@ -49,6 +49,10 @@ void test_filter() {
       TEST_ASSERT_EQUAL(val_i, copy_val_i);
     }
   }
+  // Mess-up the header, and make sure restoring the filter state fails.
+  state.header |= 0x2;
+  og3::KernelFilter filter_copy(filter_options, &app.module_system(), vg);
+  TEST_ASSERT_FALSE(filter_copy.restoreState(state));
 }
 
 int runUnityTests() {

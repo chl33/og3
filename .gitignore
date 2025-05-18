@@ -8,3 +8,5 @@
 /.dir-locals.el
 /data/wifi.json
 og3-*.tar.gz
+/.cache/
+/compile_commands.json
