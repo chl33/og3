@@ -118,7 +118,7 @@ String EnumStrVariableBase::formEntry() const {
   ret += name();
   ret += "\">\n";
   // ret += "<option value=\"\">--Please choose an option--</option>\n";
-  for (unsigned i = 0; i <= m_num_values; i += 1) {
+  for (unsigned i = 0; i < m_num_values; i += 1) {
     ret += "<option value=\"";
     ret += i;
     ret += "\"";

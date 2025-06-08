@@ -14,7 +14,6 @@ class WifiManager;
 class VariableBase;
 class VariableGroup;
 
-#ifndef NATIVE
 bool read(const AsyncWebServerRequest& request, VariableBase& var);
 bool read(const AsyncWebServerRequest& request, const VariableGroup& var_group);
 
@@ -23,14 +22,19 @@ class WebServer : public Module {
  public:
   explicit WebServer(ModuleSystem* module_system, uint16_t port = 80);
 
+  static WebServer* get(const NameToModule& n2m) { return GetModule<WebServer>(n2m, kName); }
+
   static const char* kName;
 
+#ifndef NATIVE
   AsyncWebServer& server() { return m_server; }
+#endif
 
  private:
+#ifndef NATIVE
   AsyncWebServer m_server;
+#endif
   WifiManager* m_wifi_manager = nullptr;
 };
-#endif
 
 }  // namespace og3

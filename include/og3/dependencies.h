@@ -22,12 +22,20 @@ class Dependencies {
 template <unsigned N>
 class DependenciesArray : public Dependencies {
  public:
-  explicit DependenciesArray(const std::array<const char*, N>& module_names)
-      : m_module_names(module_names) {}
-  size_t num_depends_on() const final { return m_modules.size(); }
-  const Module* depends_on(size_t idx) const final { return m_modules[idx]; }
+  explicit DependenciesArray(const std::array<const char*, N>& module_names,
+                             Dependencies* prev_dependencies = nullptr)
+      : m_prev(prev_dependencies),
+        m_prev_num(prev_dependencies ? prev_dependencies->num_depends_on() : 0),
+        m_module_names(module_names) {}
+  size_t num_depends_on() const final { return m_prev_num + m_modules.size(); }
+  const Module* depends_on(size_t idx) const final {
+    if (idx < m_prev_num) {
+      return m_prev->depends_on(idx);
+    }
+    return m_modules[idx - m_prev_num];
+  }
   bool resolve(const NameToModule& name_to_module) final {
-    m_ok = true;
+    m_ok = m_prev ? m_prev->resolve(name_to_module) : true;
     for (size_t i = 0; i < m_module_names.size(); i++) {
       const auto name = m_module_names[i];
       if (!name) {
@@ -47,6 +55,8 @@ class DependenciesArray : public Dependencies {
   bool is_ok() const { return m_ok; }
 
  private:
+  Dependencies* m_prev;
+  const size_t m_prev_num;
   const std::array<const char*, N> m_module_names;
   std::array<Module*, N> m_modules;
   bool m_ok = false;
@@ -55,11 +65,23 @@ class DependenciesArray : public Dependencies {
 // SingleDependcy specifies a single dependency with a static value.
 class SingleDependency : public Dependencies {
  public:
-  explicit SingleDependency(const char* name) : m_name(name) {}
-  size_t num_depends_on() const final { return 1; }
-  const Module* depends_on(size_t idx) const final { return m_module; }
+  explicit SingleDependency(const char* name, Dependencies* prev_dependencies = nullptr)
+      : m_name(name),
+        m_prev(prev_dependencies),
+        m_prev_num(prev_dependencies ? prev_dependencies->num_depends_on() : 0) {}
+  size_t num_depends_on() const final { return m_prev_num + 1; }
+  const Module* depends_on(size_t idx) const final {
+    if (idx < m_prev_num) {
+      return m_prev->depends_on(idx);
+    }
+    return m_module;
+  }
   bool resolve(const NameToModule& name_to_module) final {
+    if (m_prev) {
+      m_ok = m_prev->resolve(name_to_module);
+    }
     if (!m_name) {
+      m_ok = false;
       return true;
     }
     const auto iter = name_to_module.find(m_name);
@@ -75,6 +97,8 @@ class SingleDependency : public Dependencies {
 
  private:
   const char* m_name;
+  Dependencies* m_prev;
+  const size_t m_prev_num;
   Module* m_module = nullptr;
   bool m_ok = false;
 };
@@ -82,10 +106,19 @@ class SingleDependency : public Dependencies {
 // DependenciesArray specifies a set of dependencies via a vector of module names.
 class DependenciesVector : public Dependencies {
  public:
-  explicit DependenciesVector(const std::vector<const char*>& module_names)
-      : m_module_names(module_names), m_modules(module_names.size()) {}
-  size_t num_depends_on() const final { return m_modules.size(); }
-  const Module* depends_on(size_t idx) const final { return m_modules[idx]; }
+  explicit DependenciesVector(const std::vector<const char*>& module_names,
+                              Dependencies* prev_dependencies = nullptr)
+      : m_prev(prev_dependencies),
+        m_prev_num(prev_dependencies ? prev_dependencies->num_depends_on() : 0),
+        m_module_names(module_names),
+        m_modules(module_names.size()) {}
+  size_t num_depends_on() const final { return m_prev_num + m_modules.size(); }
+  const Module* depends_on(size_t idx) const final {
+    if (idx < m_prev_num) {
+      return m_prev->depends_on(idx);
+    }
+    return m_modules[idx - m_prev_num];
+  }
   bool resolve(const NameToModule& name_to_module) final {
     m_ok = true;
     for (size_t i = 0; i < m_module_names.size(); i++) {
@@ -107,6 +140,8 @@ class DependenciesVector : public Dependencies {
   bool is_ok() const { return m_ok; }
 
  private:
+  Dependencies* m_prev;
+  const size_t m_prev_num;
   std::vector<const char*> m_module_names;
   std::vector<Module*> m_modules;
   bool m_ok = false;

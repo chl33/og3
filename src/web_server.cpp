@@ -8,16 +8,20 @@
 
 namespace og3 {
 
-#ifndef NATIVE
 const char* WebServer::kName = "web_server";
 
 bool read(const AsyncWebServerRequest& request, VariableBase& var) {
+#ifndef NATIVE
   if (!request.hasParam(var.name(), true)) {
     return false;
   }
   return var.fromString(request.getParam(var.name(), true)->value());
+#else
+  return true;
+#endif
 }
 bool read(const AsyncWebServerRequest& request, const VariableGroup& var_group) {
+#ifndef NATIVE
   bool ret = true;
   for (auto* var : var_group.variables()) {
     if (var->settable()) {
@@ -25,22 +29,31 @@ bool read(const AsyncWebServerRequest& request, const VariableGroup& var_group) 
     }
   }
   return ret;
+#else
+  return true;
+#endif
 }
 
 WebServer::WebServer(ModuleSystem* module_system, uint16_t port)
-    : Module(WebServer::kName, module_system), m_server(port) {
+    : Module(WebServer::kName, module_system)
+#ifndef NATIVE
+      ,
+      m_server(port)
+#endif
+{
   add_link_fn([this](NameToModule& name_to_module) -> bool {
     m_wifi_manager = WifiManager::get(name_to_module);
     if (!m_wifi_manager) {
       return false;
     }
+#ifndef NATIVE
     m_wifi_manager->addConnectCallback([this]() {
       m_server.begin();
       log()->log("Web server started.");
     });
+#endif
     return true;
   });
 }
-#endif
 
 }  // namespace og3
