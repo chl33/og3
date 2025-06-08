@@ -7,9 +7,11 @@
 
 namespace og3 {
 
+// A module which represents an ADC voltage reading with some scaling factor.
+// This assumes that a reading of zero counts translates to zero volts.
 class AdcVoltage : public ConfigModule {
-  // voltage divider with 10k, 20k(mez) R.
  public:
+  // out_max is the voltage when the ADC returns its maximum count value.
   AdcVoltage(const char* name, WifiApp* app, uint8_t pin, const char* raw_desc, const char* desc,
              float out_max, VariableGroup& vg, VariableGroup& config_vg);
 
