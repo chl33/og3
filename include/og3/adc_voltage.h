@@ -1,3 +1,6 @@
+// Copyright (c) 2025 Chris Lee and contibuters.
+// Licensed under the MIT license. See LICENSE file in the project root for details.
+
 #pragma once
 #include <og3/config_module.h>
 #include <og3/mapped_analog_sensor.h>
