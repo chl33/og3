@@ -195,6 +195,9 @@ bool HADiscovery::addEntry(JsonDocument* json, const HADiscovery::Entry& entry) 
   if (entry.icon) {
     js["ic"] = entry.icon;
   }
+  if (entry.state_class) {
+    js["state_class"] = entry.state_class;
+  }
   if (entry.command) {
     snprintf(value, sizeof(value), "~/%s", entry.command);
     js["cmd_t"] = value;

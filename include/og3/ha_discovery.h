@@ -91,6 +91,7 @@ class HADiscovery : public Module {
     const char* software = nullptr;      // HADiscovery software is used if not set.
     const char* model = nullptr;         // HADiscovery model is used if not set.
     const char* icon = nullptr;
+    const char* state_class = nullptr;
     // Optionally overwrite var.name in discovery path: homeassistant/{device}/{entry_name|var.name}
     const char* entry_name = nullptr;
     // Command subject, if applicable
