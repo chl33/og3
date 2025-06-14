@@ -19,6 +19,7 @@ extern const char kKelvin[];
 extern const char kMicroseconds[];
 extern const char kMilliseconds[];
 extern const char kSeconds[];
+extern const char kMinutes[];
 extern const char kMillimeters[];
 extern const char kMeters[];
 extern const char kPascals[];

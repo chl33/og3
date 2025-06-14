@@ -20,6 +20,7 @@ const char kKelvin[] = "K";
 const char kMicroseconds[] = "μs";
 const char kMilliseconds[] = "ms";
 const char kSeconds[] = "s";
+const char kMinutes[] = "min";
 const char kMillimeters[] = "mm";
 const char kMeters[] = "m";
 const char kHPascals[] = "hPa";
