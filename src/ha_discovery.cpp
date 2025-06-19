@@ -184,7 +184,8 @@ bool HADiscovery::addEntry(JsonDocument* json, const HADiscovery::Entry& entry) 
 #else
   js["val_tpl"] = entry.value_template_fn(entry);
 #endif
-  if (entry.device_class) {
+  if (entry.device_class &&
+      entry.device_class[0]) {  // Empty-string as device class means don't send.
     js["dev_cla"] = entry.device_class;
   }
   js["name"] = entry.var.description() && entry.var.description()[0] ? entry.var.description()
@@ -264,47 +265,6 @@ bool HADiscovery::addMotionSensor(JsonDocument* json, const VariableBase& var,
   return addBinarySensor(json, var, ha::device_class::binary_sensor::kMotion, subject_topic,
                          device_name);
 }
-
-#if 0
-void HADiscovery::addCountsMeas(const char* name, const char* device_class, JsonDocument* json) {
-  char value[128];
-  // (*json)["unit_of_meas"] = "count";
-  (*json)["stat_t"] = "~";
-  snprintf(value, sizeof(value), "{{value_json.%s|int}}", name);
-  (*json)["val_tpl"] = value;
-  if (device_class) {
-    (*json)["dev_cla"] = device_class;
-  }
-  snprintf(value, sizeof(value), "%s %s", m_device_name(), name);
-  (*json)["name"] = value;
-  snprintf(value, sizeof(value), "%s_%s", m_device_id, name);
-  (*json)["uniq_id"] = value;
-}
-
-void HADiscovery::addCover(const char* name, const char* command_topic, const char* device_class,
-                           JsonDocument* json) {
-  char value[128];
-  if (device_class) {
-    (*json)["dev_cla"] = device_class;
-  }
-  (*json)["stat_t"] = "~";
-  snprintf(value, sizeof(value), "%s %s", m_device_name(), name);
-  (*json)["name"] = value;
-  snprintf(value, sizeof(value), "{{value_json.%s}}", name);
-  (*json)["val_tpl"] = value;
-  snprintf(value, sizeof(value), "%s_%s", m_device_id, name);
-  (*json)["uniq_id"] = value;
-  if (command_topic) {
-    (*json)["cmd_t"] = command_topic;
-  }
-}
-
-void HADiscovery::addCommand(const char* name, const char* cmd_atom, JsonDocument* json) {
-  char topic[128];
-  snprintf(topic, sizeof(topic), "~/%s/set", name);
-  (*json)[cmd_atom] = topic;
-}
-#endif
 
 bool HADiscovery::mqttSendConfig(const char* name, const char* device_type, JsonDocument* json) {
   if (!enabled()) {
