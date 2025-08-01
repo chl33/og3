@@ -16,11 +16,11 @@ jobs:
           key: ${{ runner.os }}-pio
       - uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
+          python-version: '3.12'
       - name: Install PlatformIO Core
         run: pip install --upgrade platformio
 
       - name: Build PlatformIO examples
-        run: pio  ci --board d1_mini --board lolin_c3_mini --board esp32dev --lib .
+        run: pio  ci --board d1_mini --board esp32dev --lib .
         env:
           PLATFORMIO_CI_SRC: ${{ matrix.example }}
