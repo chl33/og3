@@ -92,6 +92,7 @@ class HADiscovery : public Module {
     const char* model = nullptr;         // HADiscovery model is used if not set.
     const char* icon = nullptr;
     const char* state_class = nullptr;
+    const char* via_device = nullptr;
     // Optionally overwrite var.name in discovery path: homeassistant/{device}/{entry_name|var.name}
     const char* entry_name = nullptr;
     // Command subject, if applicable

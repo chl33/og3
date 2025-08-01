@@ -26,5 +26,7 @@ Example programs:
 - [Garage133](https://github.com/chl33/Garage133) is a DIY device for garage door automation.
 - [Room133](https://github.com/chl33/Room133) is a device for room monitoring, for use with Home Assistant
     - [Boiler](https://github.com/chl33/Boiler) is software for the Room133 board, which monitors the water level of a boiler.
+- [Garden133](https://github.com/chl33/Garden133) is a device that monitors soil moisture in your yard and garden, to help with watering automation.
+- [LoRa133](https://github.com/chl33/LoRa133) is a LoRa base-station for Garden133.
 
 chl33

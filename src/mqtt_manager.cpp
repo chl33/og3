@@ -87,7 +87,7 @@ MqttManager::MqttManager(const Options& opts, Tasks* tasks)
   m_mqttClient.onConnect([this](bool sessionPresent) { return onConnect(sessionPresent); });
   m_mqttClient.onDisconnect([this](AsyncMqttClientDisconnectReason reason) {
     m_connected = kNotConnected;
-    log()->log("Disconnected from MQTT.");
+    log()->logf("Disconnected from MQTT. Reason: %u.", static_cast<unsigned>(reason));
     if (WiFi.isConnected()) {
       // Try again in 10 seconds.
       m_connect_scheduler.runIn(10 * kMsecInSec);
