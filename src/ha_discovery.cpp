@@ -157,6 +157,9 @@ void HADiscovery::addRoot(JsonDocument* json, const HADiscovery::Entry& entry) {
   device["mf"] = entry.manufacturer ? entry.manufacturer : m_options.manufacturer;
   device["mdl"] = entry.model ? entry.model : m_options.model;
   device["sw"] = entry.software ? entry.software : m_options.software;
+  if (entry.via_device) {
+    device["via_device"] = entry.via_device;
+  }
 #ifndef NATIVE
   device["cu"] = "http://" + WiFi.localIP().toString() + "/";
 #endif
