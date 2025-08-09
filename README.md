@@ -2,6 +2,10 @@
 
 The og3 library is a C++ application framework for ESP microprocessors.  It was written especially to support MQTT applications and interface with [Home Assistant](https://www.home-assistant.io/).  This library is designed to be used with the [Platformio](https://platformio.org/) development environment.
 
+See a description of using this application framework in [Garden133 Firmware](https://selectiveappeal.org/posts/garden133-firmware/).
+
+> “og” stands for original gangsta because it is an old-school C++ library and application framework, not one of those trendy YAML-based frameworks like ESPHome that the kids these days are using. This is partly because I want the control that writing firmware directly in C++ provides, and partly because I’m a programmer so my hobby projects involve real programming, dammit!
+
 Note that this code is a work in progress and should be considered beta quality.  It is suitable for DIY projects at this point.  The APIs of this code are still slowly evolving over time.
 
 - [Modules and the ModuleSystem](docs/modules.md).  This system helps to break an application into a set of reusable modules which can work together.
@@ -10,7 +14,6 @@ Note that this code is a work in progress and should be considered beta quality.
 - [Variables](docs/variables.md). A `Variable` is a named container for a value, used with web forms, MQTT, and flash storage.
 - [Application framework](docs/apps.md).  An `App` is a package of modules, a system for running scheduled jobs, logging, and other utilities to help writing a firmware application.
 
-See a description of using this application framework in [Garden133 Firmware](https://selectiveappeal.org/posts/garden133-firmware/).
 
 Example programs:
 - [Blink](examples/blink/blink.cpp) is a simple application with a module that can blink an LED on and off.
