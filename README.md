@@ -10,13 +10,13 @@ Note that this code is a work in progress and should be considered beta quality.
 - [Variables](docs/variables.md). A `Variable` is a named container for a value, used with web forms, MQTT, and flash storage.
 - [Application framework](docs/apps.md).  An `App` is a package of modules, a system for running scheduled jobs, logging, and other utilities to help writing a firmware application.
 
+See a description of using this application framework in [Garden133 Firmware](https://selectiveappeal.org/posts/garden133-firmware/).
+
 Example programs:
 - [Blink](examples/blink/blink.cpp) is a simple application with a module that can blink an LED on and off.
 - [Wifi-app](examples/wifi-app/wifi-app.cpp) is like Blink, but adds a configurable Wifi connection and flash storage.
 - [Web-app](examples/web-app/web-app.cpp) adds to Wifi-app a web interface for configuring the Wifi options.
 - [HA-app](examples/ha-app/ha-app.cpp) is a simple application using MQTT, for talking to [Home Assistant](https://www.home-assistant.io/).  It builds on Web-app.
-
-See a description of using this application framework in [Garden133 Firmware](https://selectiveappeal.org/posts/garden133-firmware/).
 
 ## Projects which use og3
 
