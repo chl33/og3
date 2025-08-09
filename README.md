@@ -1,8 +1,5 @@
 # og3 library
 
-> [!NOTE]
-> The 0.3.x versions of this library are unstable.  Please use 0.2.x.
-
 The og3 library is designed to help write applications for ESP microprocessors using the Arduino environment.  It was written especially to support MQTT applications and interface with [Home Assistant](https://www.home-assistant.io/).  This library is designed to be used with the [Platformio](https://platformio.org/) development environment.
 
 Note that this code is a work in progress and should be considered alpha or beta quality.  It is suitable for DIY projects at this point.  The APIs of this code are still slowly evolving over time.
@@ -18,6 +15,8 @@ Example programs:
 - [Wifi-app](examples/wifi-app/wifi-app.cpp) is like Blink, but adds a configurable Wifi connection and flash storage.
 - [Web-app](examples/web-app/web-app.cpp) adds to Wifi-app a web interface for configuring the Wifi options.
 - [HA-app](examples/ha-app/ha-app.cpp) is a simple application using MQTT, for talking to [Home Assistant](https://www.home-assistant.io/).  It builds on Web-app.
+
+See a description of using this application framework in [Garden133 Firmware](https://selectiveappeal.org/posts/garden133-firmware/).
 
 ## Projects which use og3
 
