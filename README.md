@@ -4,9 +4,9 @@ The og3 library is a C++ application framework for ESP microprocessors.  It was 
 
 See a description of using this application framework in [Garden133 Firmware](https://selectiveappeal.org/posts/garden133-firmware/).
 
-> “og” stands for original gangsta because it is an old-school C++ library and application framework, not one of those trendy YAML-based frameworks like ESPHome that the kids these days are using. This is partly because I want the control that writing firmware directly in C++ provides, and partly because I’m a programmer so my hobby projects involve real programming, dammit!
+> ... "og" stands for [original gangsta](https://www.dictionary.com/e/slang/og/) because it is an old-school C++ library and application framework, not one of those trendy [YAML](https://en.wikipedia.org/wiki/YAML)-based frameworks like [ESPHome](https://esphome.io/index.html) that the kids these days are using. This is partly because I want the control that writing firmware directly in C++ provides, and  partly because I'm a programmer so my hobby projects involve real programming, dammit!
 
-Note that this code is a work in progress and should be considered beta quality.  It is suitable for DIY projects at this point.  The APIs of this code are still slowly evolving over time.
+Note that this code is a work in progress and should be considered beta quality.  It is suitable for DIY projects at this point.  The APIs of thinis code are still slowly evolving over time.
 
 - [Modules and the ModuleSystem](docs/modules.md).  This system helps to break an application into a set of reusable modules which can work together.
 - [Tasks](docs/scheduled-tasks.md).  This is a utility for running scheduled tasks.
