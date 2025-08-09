@@ -27,8 +27,16 @@ Example programs:
 - [Dough133](https://github.com/chl33/Dough133) is a temperature-controlled container for proofing and fermenting soughdough.
 - [Garage133](https://github.com/chl33/Garage133) is a DIY device for garage door automation.
 - [Room133](https://github.com/chl33/Room133) is a device for room monitoring, for use with Home Assistant
-    - [Boiler](https://github.com/chl33/Boiler) is software for the Room133 board, which monitors the water level of a boiler.
+    - [Boiler](https://github.com/chl33/Boiler) is specialized software for the Room133 board for monitor the water level of a boiler.
 - [Garden133](https://github.com/chl33/Garden133) is a device that monitors soil moisture in your yard and garden, to help with watering automation.
 - [LoRa133](https://github.com/chl33/LoRa133) is a LoRa base-station for Garden133.
+
+## Special-purpose libraries designed to work with og3
+
+- [og3x-shtc3](https://github.com/chl33/og3x-shtc3). Support for SHTC3 temperature/humidity sensors
+- [og3x-bme280](https://github.com/chl33/og3x-bme280). Support for BME280 temperature/humidity/pressure sensors
+- [og3x-lora](https://github.com/chl33/og3x-lora). Support for LoRa radio modules
+- [og3x-oled](https://github.com/chl33/og3x-oled). Support for small .91" OLED displays
+- [og3x-satellite](https://github.com/chl33/og3x-satellite). Support for base-station / satellite systems. Initially developed for LoRa-based system. Uses a protobuf-based protocol.
 
 chl33
