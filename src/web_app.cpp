@@ -30,7 +30,7 @@ void WebApp::handleWifiConfigRequest(AsyncWebServerRequest* request) {
   ::og3::read(*request, wifi_manager().mutableVariables());
   m_web_page.clear();
   html::writeFormTableInto(&m_web_page, wifi_manager().variables());
-  m_web_page += F(HTML_BUTTON("/", "Back"));
+  m_web_page += HTML_BUTTON("/", "Back");
   sendWrappedHTML(request, board_cname(), software_name(), m_web_page.c_str());
   config().write_config(wifi_manager().variables());
 #endif

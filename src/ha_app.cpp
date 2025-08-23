@@ -20,7 +20,7 @@ void HAApp::handleMqttConfigRequest(AsyncWebServerRequest* request) {
   ::og3::read(*request, mqtt_manager().mutableVariables());
   m_web_page.clear();
   html::writeFormTableInto(&m_web_page, mqtt_manager().variables());
-  m_web_page += F(HTML_BUTTON("/", "Back"));
+  m_web_page += HTML_BUTTON("/", "Back");
   sendWrappedHTML(request, board_cname(), software_name(), m_web_page.c_str());
   config().write_config(mqtt_manager().variables());
 #endif
@@ -37,7 +37,7 @@ void HAApp::handleAppStatusRequest(AsyncWebServerRequest* request) {
 #ifndef NATIVE
   m_web_page.clear();
   html::writeTableInto(&m_web_page, app_status().variables());
-  m_web_page += F(HTML_BUTTON("/", "Back"));
+  m_web_page += HTML_BUTTON("/", "Back");
   sendWrappedHTML(request, board_cname(), software_name(), m_web_page.c_str());
   config().write_config(app_status().variables());
 #endif

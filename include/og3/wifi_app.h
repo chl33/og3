@@ -61,8 +61,7 @@ class WifiApp : public App {
   const WifiManager& wifi_manager() const { return m_wifi_manager; }
   ConfigInterface& config() { return m_config; }
 
-  const String& board_name() const { return wifi_manager().board(); }
-  const char* board_cname() const { return board_name().c_str(); }
+  const std::string& board_name() const override { return wifi_manager().board(); }
   const char* software_name() const { return m_software_name; }
 
  protected:

@@ -1,8 +1,8 @@
 // Copyright (c) 2025 Chris Lee and contibuters.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
-
 #pragma once
-#include <Arduino.h>
+
+#include <string>
 
 #include "og3/compiler_definitions.h"
 #include "og3/dependencies.h"
@@ -34,7 +34,7 @@ class Module {
   void add_init_fn(const Thunk& thunk);
   void add_start_fn(const Thunk& thunk);
   void add_update_fn(const Thunk& thunk);
-  void add_html_button(String* body, const char* title, const char* url) const;
+  void add_html_button(std::string* body, const char* title, const char* url) const;
   unsigned sorted_index() const { return m_sorted_idx; }
 
  protected:

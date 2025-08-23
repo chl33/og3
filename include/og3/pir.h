@@ -38,7 +38,7 @@ class Pir : public Module {
   static bool s_interrupt_setup;
 
   HADependencies m_dependencies;
-  const String m_din_name;
+  const std::string m_din_name;
   DIn m_din;
 };
 

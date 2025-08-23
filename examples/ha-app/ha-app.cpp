@@ -98,7 +98,7 @@ void handleWebRoot(AsyncWebServerRequest* request) {
   // The send of the web page happens asynchronously after this function exits, so we need to
   // make sure the storage for the page remains.  I don't know how to handle the case where
   // multiple clients are being served data at once.
-  static String s_body;
+  static std::string s_body;
   s_body.clear();
   og3::html::writeTableInto(&s_body, s_blink.variables());
   og3::html::writeTableInto(&s_body, s_app.wifi_manager().variables());

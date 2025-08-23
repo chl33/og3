@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include <Arduino.h>
+
 #include "og3/dout.h"
 #include "og3/tasks.h"
 

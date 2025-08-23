@@ -3,8 +3,9 @@
 
 #pragma once
 
-#include <Arduino.h>
 #include <stdarg.h>
+
+#include <string>
 
 #include "og3/compiler_definitions.h"
 
@@ -18,9 +19,9 @@ class Logger {
  public:
   virtual void log(const char* msg) = 0;
 
-  void log(const String& str) {
+  void log(const std::string& str) {
 #ifndef LOG_DISABLE
-    log(str.c_str());
+    this->log(str.c_str());
 #endif
   }
 
@@ -28,7 +29,7 @@ class Logger {
 #ifndef LOG_DISABLE
     char buffer[512];
     vsnprintf(buffer, sizeof(buffer), format, ap);
-    log(buffer);
+    this->log(buffer);
 #endif
   }
   void logf(const char* format, ...) OG3_PRINTF_FORMAT(2) {

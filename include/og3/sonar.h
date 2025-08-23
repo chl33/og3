@@ -37,7 +37,7 @@ class Sonar : public Module {
 
   const uint8_t m_trigPin;
   const uint8_t m_echoPin;
-  const String m_delay_name;
+  const std::string m_delay_name;
   // Ignore readings if they are more than this amount.
   float m_max_distance = 8.0;
   // If last ping was invalid, this is false.

@@ -54,13 +54,13 @@ class WifiManager : public Module {
 
   void set_enable(bool enable) { m_enable = enable; }
 
-  const String& board() const { return m_board.value(); }
-  const String& essid() const { return m_essid.value(); }
-  const String& password() const { return m_password.value(); }
+  const std::string& board() const { return m_board.value(); }
+  const std::string& essid() const { return m_essid.value(); }
+  const std::string& password() const { return m_password.value(); }
   bool apMode() const { return m_ap_mode; }
 
-  const Variable<String>& ipAddressVariable() const { return m_ip_addr; }
-  const String& ipAddress() const { return m_ip_addr.value(); }
+  const Variable<std::string>& ipAddressVariable() const { return m_ip_addr; }
+  const std::string& ipAddress() const { return m_ip_addr.value(); }
   bool wasConnected() const { return m_was_connected; }
 
   const VariableGroup& variables() const { return m_vg; }
@@ -99,11 +99,11 @@ class WifiManager : public Module {
   const char* m_ap_password;
   VariableGroup m_vg;
   // Config varibles
-  Variable<String> m_board;
-  Variable<String> m_essid;
-  Variable<String> m_password;
+  Variable<std::string> m_board;
+  Variable<std::string> m_essid;
+  Variable<std::string> m_password;
   // Output variables
-  Variable<String> m_ip_addr;
+  Variable<std::string> m_ip_addr;
   Variable<int> m_rssi;
   bool m_was_connected = false;
   unsigned long m_start_connect_msec = 0;

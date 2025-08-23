@@ -83,7 +83,7 @@ WebButton::WebButton(AsyncWebServer* server, const char* label, const char* path
   server->on(path, action);
 }
 
-void WebButton::add_button(String* html) {
+void WebButton::add_button(std::string* html) {
   *html += "<p><form action='";
   *html += m_path;
   *html += "' method='get'><button>";

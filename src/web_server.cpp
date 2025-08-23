@@ -15,7 +15,7 @@ bool read(const AsyncWebServerRequest& request, VariableBase& var) {
   if (!request.hasParam(var.name(), true)) {
     return false;
   }
-  return var.fromString(request.getParam(var.name(), true)->value());
+  return var.fromString(request.getParam(var.name(), true)->value().c_str());
 #else
   return true;
 #endif

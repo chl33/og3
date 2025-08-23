@@ -3,10 +3,10 @@
 
 #pragma once
 
-#include <Arduino.h>
 #include <ArduinoJson.h>
 
 #include <cstring>
+#include <string>
 #include <vector>
 
 namespace og3 {
@@ -29,7 +29,7 @@ class VariableGroup {
   unsigned num_config() const { return m_num_config; }
 
   void toJson(JsonDocument* out_json, unsigned flags) const;
-  void toJson(String* out_str, unsigned flags) const;
+  void toJson(std::string* out_str, unsigned flags) const;
   void toJson(std::ostream* out_str, unsigned flags) const;
 
  private:
@@ -48,13 +48,13 @@ class VariableBase {
   VariableBase(const char* name_, const char* units_, const char* description_, unsigned flags_,
                VariableGroup& group);
 
-  virtual String string() const = 0;
-  virtual bool fromString(const String&) = 0;
+  virtual std::string string() const = 0;
+  virtual bool fromString(const std::string&) = 0;
 
   virtual void toJson(JsonDocument* doc) = 0;
   virtual bool fromJson(const JsonVariant& doc) = 0;
 
-  virtual String formEntry() const;
+  virtual std::string formEntry() const;
 
   enum Flags {
     kSettable = 0x01,  // may be set via web form
@@ -108,8 +108,8 @@ class Variable : public VariableBase {
   Variable(const char* name_, const T& value, const char* units_, const char* description_,
            unsigned flags_, VariableGroup& group)
       : VariableBase(name_, units_, description_, flags_, group), m_value(value) {}
-  String string() const override;
-  bool fromString(const String&) override;
+  std::string string() const override;
+  bool fromString(const std::string&) override;
   void toJson(JsonDocument* doc) override;
   bool fromJson(const JsonVariant& json) override;
 
@@ -132,8 +132,14 @@ class FloatingPointVariable : public FloatVariableBase {
                         const char* description_, unsigned flags_, unsigned decimals_,
                         VariableGroup& group)
       : FloatVariableBase(name_, units_, description_, flags_, decimals_, group), m_value(value) {}
-  String string() const override;
-  bool fromString(const String&) override;
+  std::string string() const override {
+    char fmt[8];
+    char buf[40];
+    snprintf(fmt, sizeof(fmt), "%%.%df", decimals());
+    snprintf(buf, sizeof(buf), fmt, m_value);
+    return std::string(buf);
+  }
+  bool fromString(const std::string&) override;
   void toJson(JsonDocument* doc) override;
   bool fromJson(const JsonVariant& json) override;
 
@@ -161,11 +167,11 @@ class EnumStrVariableBase : public EnumVariableBase {
   EnumStrVariableBase(const char* name_, int value, const char* description_, unsigned num_values,
                       const char* value_names[], unsigned flags_, VariableGroup& group);
 
-  String string() const override;
-  bool fromString(const String& value) override;
+  std::string string() const override;
+  bool fromString(const std::string& value) override;
   bool fromJson(const JsonVariant& json) override;
   void toJson(JsonDocument* doc) override;
-  String formEntry() const override;
+  std::string formEntry() const override;
 
   unsigned num_values() const { return m_num_values; }
   const char** value_names() const { return m_value_names; }
@@ -182,8 +188,8 @@ class EnumVariable : public EnumVariableBase {
   EnumVariable(const char* name_, const T& value, const char* description_, unsigned flags_,
                VariableGroup& group)
       : EnumVariableBase(name_, description_, flags_, group), m_value(value) {}
-  String string() const override { return String(static_cast<int>(value())); }
-  bool fromString(const String& value) override {
+  std::string string() const override { return std::string(static_cast<int>(value())); }
+  bool fromString(const std::string& value) override {
     int ival = -1;
     setFailed(1 != sscanf(value.c_str(), "%d", &ival));
     if (failed()) {
@@ -235,49 +241,41 @@ class EnumStrVariable : public EnumStrVariableBase {
 };
 
 template <>
-inline String FloatingPointVariable<float>::string() const {
-  return String(m_value, decimals());
-}
-template <>
-inline String FloatingPointVariable<double>::string() const {
-  return String(m_value, decimals());
-}
-template <>
-inline String Variable<String>::string() const {
+inline std::string Variable<std::string>::string() const {
   return m_value;
 }
 template <typename T>
-inline String Variable<T>::string() const {
-  return String(m_value);
+inline std::string Variable<T>::string() const {
+  return std::to_string(m_value);
 }
 
 template <>
-inline bool FloatingPointVariable<float>::fromString(const String& value) {
+inline bool FloatingPointVariable<float>::fromString(const std::string& value) {
   setFailed(1 != sscanf(value.c_str(), "%g", &m_value));
   return !failed();
 }
 template <>
-inline bool FloatingPointVariable<double>::fromString(const String& value) {
+inline bool FloatingPointVariable<double>::fromString(const std::string& value) {
   setFailed(1 != sscanf(value.c_str(), "%lg", &m_value));
   return !failed();
 }
 template <>
-inline bool Variable<int>::fromString(const String& value) {
+inline bool Variable<int>::fromString(const std::string& value) {
   setFailed(1 != sscanf(value.c_str(), "%d", &m_value));
   return !failed();
 }
 template <>
-inline bool Variable<unsigned>::fromString(const String& value) {
+inline bool Variable<unsigned>::fromString(const std::string& value) {
   setFailed(1 != sscanf(value.c_str(), "%u", &m_value));
   return !failed();
 }
 template <>
-inline bool Variable<String>::fromString(const String& value) {
+inline bool Variable<std::string>::fromString(const std::string& value) {
   m_value = value;
   return true;
 }
 template <>
-inline bool Variable<bool>::fromString(const String& value) {
+inline bool Variable<bool>::fromString(const std::string& value) {
   setFailed(false);
   if (value.length() == 0 || value == "0"       // 0 vs 1
       || value[0] == 'f' || value[0] == 'F'     // false vs true
@@ -303,7 +301,7 @@ inline bool Variable<bool>::fromJson(const JsonVariant& json) {
 }
 
 template <>
-inline void Variable<String>::toJson(JsonDocument* doc) {
+inline void Variable<std::string>::toJson(JsonDocument* doc) {
   if (!failed()) {
     (*doc)[name()] = value().c_str();
   }
@@ -324,7 +322,7 @@ inline void FloatingPointVariable<T>::toJson(JsonDocument* doc) {
 }
 
 template <>
-inline bool Variable<String>::fromJson(const JsonVariant& json) {
+inline bool Variable<std::string>::fromJson(const JsonVariant& json) {
   if (!json.is<const char*>()) {
     return false;
   }
@@ -359,10 +357,10 @@ class BoolVariable : public Variable<bool> {
   BoolVariable(const char* name_, const bool value, const char* description_, unsigned flags_,
                VariableGroup& group)
       : Variable<bool>(name_, value, "", description_, flags_, group) {}
-  String string() const final { return value() ? "true" : "false"; }
+  std::string string() const final { return value() ? "true" : "false"; }
   void toJson(JsonDocument* doc);
   BoolVariable& operator=(bool value);
-  String formEntry() const override;
+  std::string formEntry() const override;
 };
 
 class BinarySensorVariable : public Variable<bool> {
@@ -370,7 +368,7 @@ class BinarySensorVariable : public Variable<bool> {
   BinarySensorVariable(const char* name_, const bool value, const char* description_,
                        VariableGroup& group, bool publish = true)
       : Variable<bool>(name_, value, "", description_, publish ? 0 : kNoPublish, group) {}
-  String string() const override { return value() ? "ON" : "OFF"; }
+  std::string string() const override { return value() ? "ON" : "OFF"; }
   void toJson(JsonDocument* doc);
   bool fromJson(const JsonVariant& json);
   BinarySensorVariable& operator=(bool value);
@@ -381,7 +379,7 @@ class BinaryCoverSensorVariable : public BinarySensorVariable {
   BinaryCoverSensorVariable(const char* name_, const bool value, const char* description_,
                             VariableGroup& group, bool publish = true)
       : BinarySensorVariable(name_, value, description_, group, publish) {}
-  String string() const final { return value() ? "open" : "closed"; }
+  std::string string() const final { return value() ? "open" : "closed"; }
   BinaryCoverSensorVariable& operator=(bool value);
 };
 

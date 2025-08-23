@@ -7,7 +7,7 @@
 
 namespace og3 {
 
-ConfigModule::ConfigModule(const char* name, WifiApp* app)
+ConfigModule::ConfigModule(const char* name, App* app)
     : Module(name, &app->module_system()),
       m_app(app),
       m_config_module_deps({ConfigInterface::kName, WebServer::kName}),
@@ -33,7 +33,7 @@ ConfigModule::ConfigModule(const char* name, WifiApp* app)
   });
 }
 
-void ConfigModule::add_html_button(String* body) const {
+void ConfigModule::add_html_button(std::string* body) const {
   Module::add_html_button(body, name(), cfg_url());
 }
 

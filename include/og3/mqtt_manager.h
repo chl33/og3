@@ -79,11 +79,11 @@ class MqttManager : public Module {
   bool mqttSend(const VariableGroup& variables, unsigned flags = VariableBase::kNoPublish);
   // arguments: (const char* topic, const char* payload, size_t len) {
   using MqttMsgCallbackFn = std::function<void(const char*, const char*, size_t)>;
-  void subscribe(const String& topic, const MqttMsgCallbackFn& fn);
+  void subscribe(const std::string& topic, const MqttMsgCallbackFn& fn);
 
-  String boardTopic(const char* device_name = nullptr) const;
-  String topic(const char* name, const char* device_name = nullptr) const;
-  String willTopic(const char* device_name = nullptr) const;
+  std::string boardTopic(const char* device_name = nullptr) const;
+  std::string topic(const char* name, const char* device_name = nullptr) const;
+  std::string willTopic(const char* device_name = nullptr) const;
 
   // Accessors.
   const char* board() const {
@@ -110,20 +110,20 @@ class MqttManager : public Module {
   SingleDependency m_dependency;
 
   VariableGroup m_vg;
-  Variable<String> m_host_addr;
+  Variable<std::string> m_host_addr;
   // Variable<uint16_t> m_port;
-  Variable<String> m_auth_user;
-  Variable<String> m_auth_password;
+  Variable<std::string> m_auth_user;
+  Variable<std::string> m_auth_password;
   EnumStrVariable<Mode> m_mode;
   EnumStrVariable<ConnectionStatus> m_connected;
 
-  String m_will_topic;
+  std::string m_will_topic;
 
   std::vector<std::function<void()>> m_connectCallbacks;
   std::vector<std::function<void()>> m_disconnectCallbacks;
 
   struct MqttMsgCallback {
-    String topic;
+    std::string topic;
     MqttMsgCallbackFn callback_fn;
   };
   std::vector<MqttMsgCallback> m_mqtt_callbacks;

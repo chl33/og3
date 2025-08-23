@@ -8,7 +8,7 @@
 #include "og3/variable.h"
 
 namespace og3::html {
-void escape(String* out_str, const char* in_str) {
+void escape(std::string* out_str, const char* in_str) {
   if (!in_str) {
     return;
   }
@@ -36,7 +36,7 @@ void escape(String* out_str, const char* in_str) {
   }
 }
 
-void writeRowInto(String* out_str, const VariableBase& var, const char* name) {
+void writeRowInto(std::string* out_str, const VariableBase& var, const char* name) {
   *out_str += "<tr><td>";
   escape(out_str, name ? name : var.human_str());
   *out_str += "</td><td>";
@@ -50,7 +50,7 @@ void writeRowInto(String* out_str, const VariableBase& var, const char* name) {
   *out_str += "</td></tr>\n";
 }
 
-void writeRowsInto(String* out_str, const VariableGroup& vars) {
+void writeRowsInto(std::string* out_str, const VariableGroup& vars) {
   for (const VariableBase* var : vars.variables()) {
     if (!var->noDisplay()) {
       writeRowInto(out_str, *var);
@@ -58,7 +58,7 @@ void writeRowsInto(String* out_str, const VariableGroup& vars) {
   }
 }
 
-void writeTableStart(String* out_str, const char* title, const char* css_class) {
+void writeTableStart(std::string* out_str, const char* title, const char* css_class) {
   *out_str += "<table class=\"";
   *out_str += css_class ? css_class : "readings";
   *out_str +=
@@ -70,20 +70,20 @@ void writeTableStart(String* out_str, const char* title, const char* css_class) 
       "<tbody>\n";
 }
 
-void writeTableEnd(String* out_str) {
+void writeTableEnd(std::string* out_str) {
   *out_str +=
       "</tbody>\n"
       "</table>\n";
 }
 
-void writeTableInto(String* out_str, const VariableGroup& vars, const char* title,
+void writeTableInto(std::string* out_str, const VariableGroup& vars, const char* title,
                     const char* css_class) {
   writeTableStart(out_str, title ? title : vars.name(), css_class);
   writeRowsInto(out_str, vars);
   writeTableEnd(out_str);
 }
 
-void writeFormRowInto(String* out_str, const VariableBase& var) {
+void writeFormRowInto(std::string* out_str, const VariableBase& var) {
   *out_str += "  <p><b>";
   *out_str += var.human_str();
   if (var.units() && var.units()[0]) {
@@ -96,14 +96,14 @@ void writeFormRowInto(String* out_str, const VariableBase& var) {
   *out_str += "</p>";
 }
 
-void writeFormRowsInto(String* out_str, const VariableGroup& vars) {
+void writeFormRowsInto(std::string* out_str, const VariableGroup& vars) {
   for (const VariableBase* var : vars.variables()) {
     if (var->settable()) {
       writeFormRowInto(out_str, *var);
     }
   }
 }
-void writeFormTableInto(String* out_str, const VariableGroup& vars, const char* title,
+void writeFormTableInto(std::string* out_str, const VariableGroup& vars, const char* title,
                         const char* css_class) {
   *out_str += "<div id='l1' name='l1'>\n<fieldset>\n<legend><b>&nbsp; ";
   escape(out_str, title ? title : vars.name());

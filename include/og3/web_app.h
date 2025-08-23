@@ -27,7 +27,7 @@ class WebApp : public WifiApp {
  protected:
 #ifndef NATIVE
   WebServer m_web_server;
-  String m_web_page;  // Stores html while asyncwebserver sends the data.
+  std::string m_web_page;  // Stores html while asyncwebserver sends the data.
 #endif
 };
 

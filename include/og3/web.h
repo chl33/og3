@@ -39,7 +39,7 @@ class WebButton {
   using Action = std::function<void(AsyncWebServerRequest*)>;
 
   WebButton(AsyncWebServer* server, const char* label, const char* path, const Action& action);
-  void add_button(String* html);
+  void add_button(std::string* html);
 
   WebButton& operator=(const WebButton&) = default;
 

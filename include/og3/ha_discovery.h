@@ -74,7 +74,7 @@ class HADiscovery : public Module {
   HADiscovery(const Options& opts, ModuleSystem* module_system);
 
   struct Entry {
-    using ValueTemplateFn = std::function<String(const Entry&)>;
+    using ValueTemplateFn = std::function<std::string(const Entry&)>;
     Entry(const VariableBase& var_, const char* device_type_, const char* device_class_,
           const ValueTemplateFn& value_template = nullptr);
     Entry(const FloatVariableBase& var_, const char* device_type_, const char* device_class_);
@@ -141,15 +141,15 @@ class HADiscovery : public Module {
   bool enabled() const {
     return m_mqtt_manager && m_mqtt_manager->mode() == MqttManager::Mode::kHomeAssistant;
   }
-  const String& boardTopic();
+  const std::string& boardTopic();
 
  private:
   void onMqttConnect();
 
   const Options m_options;
-  String m_mac_address;
-  String m_device_name;
-  String m_board_topic_;
+  std::string m_mac_address;
+  std::string m_device_name;
+  std::string m_board_topic_;
   Tasks* m_tasks = nullptr;
   ConfigInterface* m_config = nullptr;
   WifiManager* m_wifi_manager = nullptr;

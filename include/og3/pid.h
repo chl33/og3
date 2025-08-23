@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include <Arduino.h>
+
 #include "og3/variable.h"
 
 namespace og3 {

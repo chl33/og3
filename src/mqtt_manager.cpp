@@ -23,24 +23,24 @@ namespace og3 {
 const char MqttManager::kName[] = "mqtt";
 const char MqttManager::kConfigUrl[] = "/mqtt/update";
 
-String MqttManager::boardTopic(const char* device_name) const {
+std::string MqttManager::boardTopic(const char* device_name) const {
   log()->debugf("board(): %s", board() ? board() : "nullptr");
   const char* device = device_name ? device_name : board();
-  return String(m_opts.app_domain ? m_opts.app_domain : "app") + "/" + device;
+  return std::string(m_opts.app_domain ? m_opts.app_domain : "app") + "/" + device;
 }
 
-String MqttManager::topic(const char* name, const char* device_name) const {
+std::string MqttManager::topic(const char* name, const char* device_name) const {
   const char* device = device_name ? device_name : board();
   switch (mode()) {
     case Mode::kHomeAssistant:
-      return String(m_opts.app_domain ? m_opts.app_domain : "app") + "/" + device + "/" + name;
+      return std::string(m_opts.app_domain ? m_opts.app_domain : "app") + "/" + device + "/" + name;
     case Mode::kAdafruitIO:
       return m_auth_user.value() + "/feeds/" + device + "_" + name;
   }
   return "";
 }
 
-String MqttManager::willTopic(const char* device_name) const {
+std::string MqttManager::willTopic(const char* device_name) const {
   return topic("connection", device_name);
 }
 
@@ -119,14 +119,14 @@ void MqttManager::connect() {
     log()->log("Skipping MQTT connect: in access-point mode.");
     return;
   }
-  const auto& host = m_host_addr.value();
-  const auto& user = m_auth_user.value();
+  const auto host = m_host_addr.value();
+  const auto user = m_auth_user.value();
   if (host.length() == 0 || user.length() == 0) {
     log()->log("Skipping MQTT connect: no hostname/user");
     return;
   }
   IPAddress host_ip;
-  if (!host_ip.fromString(host)) {
+  if (!host_ip.fromString(host.c_str())) {
     log()->logf("Failed to convert %s to IP address.", host.c_str());
     return;
   }
@@ -170,7 +170,7 @@ void MqttManager::onConnect(bool sessionPresent) {
 #endif
 }
 
-void MqttManager::subscribe(const String& topic, const MqttMsgCallbackFn& fn) {
+void MqttManager::subscribe(const std::string& topic, const MqttMsgCallbackFn& fn) {
 #ifndef NATIVE
   m_mqtt_callbacks.push_back({topic, fn});
   const uint16_t packetIdSub = client().subscribe(topic.c_str(), 2);
@@ -193,16 +193,16 @@ bool MqttManager::mqttSend(const VariableGroup& variables, unsigned flags) {
   if (!connected()) {
     return false;
   }
-  String mqttOutput;
+  std::string mqttOutput;
   switch (mode()) {
     case Mode::kHomeAssistant: {
       variables.toJson(&mqttOutput, flags);
       break;
     }
     case Mode::kAdafruitIO:
-      String values;
+      std::string values;
       variables.toJson(&values, flags);
-      mqttOutput = String("value:") + values;
+      mqttOutput = std::string("value:") + values;
       break;
   }
   mqttSend(topic(variables.id()).c_str(), mqttOutput.c_str());

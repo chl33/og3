@@ -16,8 +16,8 @@ namespace og3 {
 namespace {
 bool strOk(const char* str) { return str && str[0]; }
 
-String default_value_template(const HADiscovery::Entry& entry) {
-  return String("{{value_json.") + entry.var.name() + "}}";
+std::string default_value_template(const HADiscovery::Entry& entry) {
+  return std::string("{{value_json.") + entry.var.name() + "}}";
 };
 
 }  // namespace
@@ -66,8 +66,8 @@ HADiscovery::Entry::Entry(const FloatVariableBase& var_, const char* device_type
       device_type(device_type_),
       device_class(device_class_),
       value_template_fn([&var_](const Entry& entry) {
-        return String("{{value_json.") + entry.var.name() + "|float|round(" +
-               String(var_.decimals()) + ")}}";
+        return std::string("{{value_json.") + entry.var.name() + "|float|round(" +
+               std::to_string(var_.decimals()) + ")}}";
       }) {}
 
 HADiscovery::Entry::Entry(const BoolVariable& var_, const char* device_class_)
@@ -103,7 +103,7 @@ HADiscovery::HADiscovery(const Options& opts, ModuleSystem* module_system)
   }
 
 #ifndef NATIVE
-  m_mac_address = WiFi.macAddress();
+  m_mac_address = WiFi.macAddress().c_str();
 #endif
 
   add_link_fn([this](NameToModule& name_to_module) -> bool {
@@ -131,7 +131,7 @@ HADiscovery::HADiscovery(const Options& opts, ModuleSystem* module_system)
   snprintf(m_device_id + i, sizeof(m_device_id) - i, "_%s", m_options.model);
 }
 
-const String& HADiscovery::boardTopic() {
+const std::string& HADiscovery::boardTopic() {
   const bool empty = m_board_topic_.length() == 0;
   if (empty) {
     m_board_topic_ = m_mqtt_manager->boardTopic();
@@ -241,8 +241,9 @@ bool HADiscovery::addMeas(JsonDocument* json, const VariableBase& var, const cha
 bool HADiscovery::addMeas(JsonDocument* json, const FloatVariableBase& var, const char* device_type,
                           const char* device_class, const char* subject_topic,
                           const char* device_name) {
-  const auto value_template = [&var](const Entry& entry) -> String {
-    return String("{{value_json.") + var.name() + "|float|round(" + String(var.decimals()) + ")}}";
+  const auto value_template = [&var](const Entry& entry) -> std::string {
+    return std::string("{{value_json.") + var.name() + "|float|round(" +
+           std::to_string(var.decimals()) + ")}}";
   };
   return addEntry(json, var, device_type, device_class, value_template, subject_topic, device_name);
 }
@@ -274,7 +275,7 @@ bool HADiscovery::mqttSendConfig(const char* name, const char* device_type, Json
     return true;
   }
 #ifndef NATIVE
-  String content;
+  std::string content;
   serializeJson(*json, content);
   char topic[256];
   snprintf(topic, sizeof(topic), "homeassistant/%s/%s/%s/config", device_type,

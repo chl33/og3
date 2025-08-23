@@ -9,8 +9,8 @@
 
 namespace og3 {
 
-String VariableBase::formEntry() const {
-  String ret = "<input id='";
+std::string VariableBase::formEntry() const {
+  std::string ret = "<input id='";
   ret += name();
   ret += "' name='";
   ret += name();
@@ -46,7 +46,7 @@ void VariableGroup::toJson(JsonDocument* out_json, unsigned flags) const {
   }
 }
 
-void VariableGroup::toJson(String* out_str, unsigned flags) const {
+void VariableGroup::toJson(std::string* out_str, unsigned flags) const {
 #ifndef NATIVE
   JsonDocument doc;
   toJson(&doc, flags);
@@ -74,13 +74,13 @@ EnumStrVariableBase::EnumStrVariableBase(const char* name_, int value, const cha
       m_value_names(value_names),
       m_value(value) {}
 
-String EnumStrVariableBase::string() const {
+std::string EnumStrVariableBase::string() const {
   if (m_value < 0 || m_value >= static_cast<int>(m_num_values)) {
     return "??";
   }
-  return String(m_value_names[m_value]);
+  return std::string(m_value_names[m_value]);
 }
-bool EnumStrVariableBase::fromString(const String& value) {
+bool EnumStrVariableBase::fromString(const std::string& value) {
   for (unsigned i = 0; i < m_num_values; i += 1) {
     if (0 == strcmp(m_value_names[i], value.c_str())) {
       m_value = i;
@@ -113,8 +113,8 @@ void EnumStrVariableBase::toJson(JsonDocument* doc) {
   }
 }
 
-String EnumStrVariableBase::formEntry() const {
-  String ret = "<select name=\"";
+std::string EnumStrVariableBase::formEntry() const {
+  std::string ret = "<select name=\"";
   ret += name();
   ret += "\">\n";
   // ret += "<option value=\"\">--Please choose an option--</option>\n";
@@ -177,16 +177,16 @@ BinarySensorVariable& BinarySensorVariable::operator=(bool value) {
   return *this;
 }
 
-String BoolVariable::formEntry() const {
-  auto radio = [this](const String& val, bool checked) -> String {
-    String id_val;
+std::string BoolVariable::formEntry() const {
+  auto radio = [this](const std::string& val, bool checked) -> std::string {
+    std::string id_val;
     html::escape(&id_val, name());
     id_val += "_" + val;
     return "<input id='" + id_val + "' name='" + name() + "' type='radio' value='" + val + "'" +
            (checked ? " checked" : "") + "><label for='" + id_val + "'>" + val + "</label>";
   };
-  return String("<p>") + human_str() + radio("true", value()) + "\n" + radio("false", !value()) +
-         "</p>\n";
+  return std::string("<p>") + human_str() + radio("true", value()) + "\n" +
+         radio("false", !value()) + "</p>\n";
 }
 
 BinaryCoverSensorVariable& BinaryCoverSensorVariable::operator=(bool value) {

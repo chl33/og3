@@ -3,6 +3,8 @@
 
 #include <ArduinoFake.h>
 
+#include <string>
+
 #include "og3/html_table.h"
 #include "og3/units.h"
 #include "og3/variable.h"
@@ -68,7 +70,7 @@ void test_double_vars() {
 
 void test_string_vars() {
   og3::VariableGroup vg("test5");
-  og3::Variable<String> sval("sval", "default", "", "test string", 0, vg);
+  og3::Variable<std::string> sval("sval", "default", "", "test string", 0, vg);
   TEST_ASSERT_EQUAL_STRING("default", sval.value().c_str());
   sval = "11";
   TEST_ASSERT_EQUAL_STRING("11", sval.value().c_str());
@@ -110,12 +112,12 @@ void test_bool_vars() {
 
 void test_html_table() {
   og3::VariableGroup vg("climate");
-  og3::Variable<String> loc("loc", String("home"), "", "location", 0, vg);
+  og3::Variable<std::string> loc("loc", std::string("home"), "", "location", 0, vg);
   og3::FloatVariable tempC("tempC", 20.22, og3::units::kCelsius, "temperature", 0, 2, vg);
   og3::FloatVariable tempF("tempF", tempC.value() + 9 / 5 + 32, og3::units::kFahrenheit,
                            "temperatureF", 0, 1, vg);
   og3::DoubleVariable humidtiy("humidity", 60.1, og3::units::kPercentage, "humidity", 0, 1, vg);
-  String html;
+  std::string html;
   og3::html::writeTableInto(&html, vg);
 #if 0
   printf("%s\n", html.c_str());

@@ -24,7 +24,8 @@ void tearDown() {}
 
 void test_config() {
   og3::VariableGroup vg("climate");
-  og3::Variable<String> loc("loc", String("home"), "", "location", og3::VariableBase::kConfig, vg);
+  og3::Variable<std::string> loc("loc", std::string("home"), "", "location",
+                                 og3::VariableBase::kConfig, vg);
   og3::FloatVariable tempC("tempC", 20.22, og3::units::kCelsius, "temperature",
                            og3::VariableBase::kConfig, 2, vg);
   og3::FloatVariable tempF("tempF", tempC.value() + 9 / 5 + 32, og3::units::kFahrenheit,

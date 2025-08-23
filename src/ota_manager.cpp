@@ -47,7 +47,7 @@ void OtaManager::setup() {
   }
   ArduinoOTA.setPassword(m_password.value().c_str());
   ArduinoOTA.onStart([this]() {
-    String type;
+    std::string type;
     if (ArduinoOTA.getCommand() == U_FLASH) {
       type = "sketch";
     } else {  // U_FS
@@ -91,7 +91,7 @@ void OtaManager::setup() {
 
 void OtaManager::enable() {
 #ifndef NATIVE
-  const String hostname = m_wifi_manager->board() + ".local";
+  const std::string hostname = m_wifi_manager->board() + ".local";
   ArduinoOTA.setHostname(hostname.c_str());
   ArduinoOTA.begin();
   log()->log("OTA ready");

@@ -27,7 +27,7 @@ class OtaManager : public Module {
   const Options m_opts;
   DependenciesArray<2> m_dependencies;
   VariableGroup m_vg;
-  Variable<String> m_password;
+  Variable<std::string> m_password;
   ConfigInterface* m_config = nullptr;
   WifiManager* m_wifi_manager = nullptr;
 

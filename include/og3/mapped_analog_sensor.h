@@ -58,12 +58,12 @@ class MappedAnalogSensor {
  private:
   const unsigned m_valid_in_min;
   const unsigned m_valid_in_max;
-  String m_name;
-  String m_raw_name;
-  String m_in_max_name;
-  String m_in_min_name;
-  String m_out_max_name;
-  String m_out_min_name;
+  std::string m_name;
+  std::string m_raw_name;
+  std::string m_in_max_name;
+  std::string m_in_min_name;
+  std::string m_out_max_name;
+  std::string m_out_min_name;
   Adc m_adc;
   Variable<int> m_in_min;
   Variable<int> m_in_max;

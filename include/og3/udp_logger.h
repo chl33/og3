@@ -3,9 +3,11 @@
 
 #pragma once
 
+#include <Arduino.h>
 #ifndef NATIVE
 #include <WiFiUdp.h>
 #endif
+#include <cstdint>
 
 #include "og3/logger.h"
 #include "og3/wifi.h"
