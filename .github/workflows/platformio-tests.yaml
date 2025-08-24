@@ -15,7 +15,7 @@ jobs:
         with:
           python-version: '3.12'
       - name: Install PlatformIO Core
-        run: pip install --upgrade platformio
+        run: pip install --upgrade platformio intelhex
 
       - name: Run PlatformIO tests
         run: pio test -e native

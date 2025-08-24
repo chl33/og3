@@ -18,7 +18,7 @@ jobs:
         with:
           python-version: '3.12'
       - name: Install PlatformIO Core
-        run: pip install --upgrade platformio
+        run: pip install --upgrade platformio intelhex
 
       - name: Build PlatformIO examples
         run: pio  ci --board d1_mini --board esp32dev --lib .
