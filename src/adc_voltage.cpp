@@ -7,7 +7,7 @@
 
 namespace og3 {
 
-AdcVoltage::AdcVoltage(const char* name, WifiApp* app, uint8_t pin, const char* raw_desc,
+AdcVoltage::AdcVoltage(const char* name, App* app, uint8_t pin, const char* raw_desc,
                        const char* desc, float out_max, VariableGroup& vg, VariableGroup& config_vg)
     : ConfigModule(name, app),
       m_mapped_adc(

@@ -1,9 +1,11 @@
 // Copyright (c) 2025 Chris Lee and contibuters.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
-
 #pragma once
+
+#include <og3/app.h>
 #include <og3/config_module.h>
 #include <og3/mapped_analog_sensor.h>
+#include <og3/variable.h>
 
 namespace og3 {
 
@@ -12,7 +14,7 @@ namespace og3 {
 class AdcVoltage : public ConfigModule {
  public:
   // out_max is the voltage when the ADC returns its maximum count value.
-  AdcVoltage(const char* name, WifiApp* app, uint8_t pin, const char* raw_desc, const char* desc,
+  AdcVoltage(const char* name, App* app, uint8_t pin, const char* raw_desc, const char* desc,
              float out_max, VariableGroup& vg, VariableGroup& config_vg);
 
   float read() { return m_mapped_adc.read(); }

@@ -4,6 +4,7 @@
 #pragma once
 
 #include <array>
+#include <cstddef>
 #include <vector>
 
 #include "og3/util.h"
@@ -62,7 +63,7 @@ class DependenciesArray : public Dependencies {
   bool m_ok = false;
 };
 
-// SingleDependcy specifies a single dependency with a static value.
+// SingleDependency specifies a single dependency with a static value.
 class SingleDependency : public Dependencies {
  public:
   explicit SingleDependency(const char* name, Dependencies* prev_dependencies = nullptr)

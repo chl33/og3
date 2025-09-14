@@ -7,7 +7,7 @@
 
 namespace og3 {
 
-ConfigModule::ConfigModule(const char* name, WifiApp* app)
+ConfigModule::ConfigModule(const char* name, App* app)
     : Module(name, &app->module_system()),
       m_app(app),
       m_config_module_deps({ConfigInterface::kName, WebServer::kName}),
