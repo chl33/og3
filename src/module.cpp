@@ -20,11 +20,11 @@ void Module::add_start_fn(const Thunk& thunk) { m_module_system->add_start_fn(th
 void Module::add_update_fn(const Thunk& thunk) { m_module_system->add_update_fn(thunk, this); }
 
 void Module::add_html_button(String* body, const char* title, const char* url) const {
-  *body += F("<p><form action='");
+  *body += "<p><form action='";
   *body += url;
-  *body += F("' method='get'><button>");
+  *body += "' method='get'><button>";
   *body += title;
-  *body += F("</button></form></p>\n");
+  *body += "</button></form></p>\n";
 }
 
 }  // namespace og3
