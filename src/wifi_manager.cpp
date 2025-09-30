@@ -227,13 +227,17 @@ void WifiManager::sanityCheck() {
   };
 
   if (!m_ap_mode && WiFi.status() != WL_CONNECTED && disconnect_timeout()) {
+    log()->log("Wifi: sanity check -- restarting connection");
     trySetup();
+  } else {
+    log()->debug("Wifi: sanity check -- no action");
   }
   scheduleSanityCheck();
 }
 
 // This is a function to call to startup the board in AP mode.
 void WifiManager::startAp() {
+#ifndef NATIVE
   const char* essid = (board().length() > 0) ? board().c_str() : "og3board";
   log()->logf("Wifi: starting in AP mode (%s).", essid);
   WiFi.mode(WIFI_AP);
@@ -265,10 +269,12 @@ void WifiManager::startAp() {
   // Allow time to setup maybe??
   m_scheduler.runIn(100, [this]() { onConnect(); });
   m_start_connect_msec = millis();
+#endif
 }
 
 // This is a function to startup the board as a Wifi client (if configured).
 void WifiManager::startClient() {
+#ifndef NATIVE
   // If we don't have a configured ESSID then startup in AP mode instead.
   const bool have_essid = essid().length() > 0;
   if (!have_essid) {
@@ -281,6 +287,7 @@ void WifiManager::startClient() {
   log()->logf("Wifi: connecting to essid %s (%s)", essid().c_str(), strWifiStatus());
   WiFi.mode(WIFI_STA);
   WiFi.begin(essid().c_str(), password().c_str());
+#endif
 }
 
 #ifdef ARDUINO_ARCH_ESP32
