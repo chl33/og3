@@ -78,6 +78,7 @@ WifiManager::WifiManager(const char* default_board_name, Tasks* tasks,
     : Module(WifiManager::kName, tasks->module_system()),
       m_dependencies(ConfigInterface::kName),
       m_scheduler(tasks),
+      m_sanity_scheduler(tasks),
       m_ap_password(options.ap_password),
       m_vg(kName, nullptr, 4),
       m_board("board", default_board_name, "", "Device name",
@@ -127,10 +128,12 @@ WifiManager::WifiManager(const char* default_board_name, Tasks* tasks,
     }
   });
 #endif
+  scheduleSanityCheck();
 }
 
 void WifiManager::onConnect() {
   m_start_connect_msec = 0;
+  m_disconnect_msec = 0;
 #ifndef NATIVE
   const IPAddress ip = m_ap_mode ? WiFi.softAPIP() : WiFi.localIP();
   m_ip_addr = ip.toString().c_str();
@@ -155,6 +158,7 @@ void WifiManager::onDisconnect() {
     }
     // Try to reconnect after 1 minute.
     m_scheduler.runIn(kMsecInMin, [this]() { trySetup(); });
+    m_disconnect_msec = millis();
   } else {
 #ifndef NATIVE
     log()->debugf("Wifi: onDisconnect(%s): was not connected.", strWifiStatus());
@@ -170,7 +174,7 @@ void WifiManager::trySetup() {
   if (m_start_connect_msec != 0) {
     const auto now_msec = millis();
     const auto wait_end_msec = m_start_connect_msec + 30 * 1000;
-    if (wait_end_msec > now_msec) {
+    if (wait_end_msec > now_msec && m_start_connect_msec < now_msec /*integer wraparound*/) {
       const auto wait_secs = 1e-3 * (wait_end_msec - now_msec);
       log()->debugf("Wifi setup -- waiting %.1f more seconds", wait_secs);
       m_scheduler.runIn(wait_end_msec - now_msec, [this]() { trySetup(); });
@@ -179,62 +183,11 @@ void WifiManager::trySetup() {
   }
   log()->debugf("Wifi: setup (%s)", strWifiStatus());
 
-  // This is a function to call to startup the board in AP mode.
-  auto start_ap = [this]() {
-    const char* essid = (board().length() > 0) ? board().c_str() : "og3board";
-    log()->logf("Wifi: starting in AP mode (%s).", essid);
-    WiFi.mode(WIFI_AP);
-    m_ap_mode = true;
-    if (!WiFi.softAPConfig(apSoftIP, apSoftIP, IPAddress(255, 255, 255, 0))) {
-      log()->log("Failed to setup soft-AP config");
-      return;
-    }
-    if (m_ap_password) {
-      if (!WiFi.softAP(essid, m_ap_password)) {
-        log()->log("Failed to setup SoftAP mode (with password).");
-        return;
-      }
-    } else {
-      if (!WiFi.softAP(essid)) {
-        log()->log("Failed to setup SoftAP mode.");
-        return;
-      }
-    }
-    log()->debugf("Started AP mode as %s", essid);
-    if (!m_dns_server) {
-      m_dns_server.reset(new DNSServer());
-    }
-    m_dns_server->setErrorReplyCode(DNSReplyCode::NoError);
-    m_dns_server->start(DNS_PORT, "*", apSoftIP);
-    for (const auto& callback : m_softAPCallbacks) {
-      callback();
-    }
-    // Allow time to setup maybe??
-    m_scheduler.runIn(100, [this]() { onConnect(); });
-    m_start_connect_msec = millis();
-  };
-
-  // This is a function to startup the board as a Wifi client (if configured).
-  auto start_client = [this, &start_ap]() {
-    // If we don't have a configured ESSID then startup in AP mode instead.
-    const bool have_essid = essid().length() > 0;
-    if (!have_essid) {
-      start_ap();
-      return;
-    }
-    // If we have a configured ESSID, try to connect to it.
-    m_ap_mode = false;
-    m_start_connect_msec = millis();
-    log()->logf("Wifi: connecting to essid %s (%s)", essid().c_str(), strWifiStatus());
-    WiFi.mode(WIFI_STA);
-    WiFi.begin(essid().c_str(), password().c_str());
-  };
-
   // Take some action based on the current status.
   switch (WiFi.status()) {
     case WL_NO_SHIELD:
       // My esp32 module returns no_shield even though it supports WiFi.
-      start_client();
+      startClient();
       return;
     case WL_CONNECTED:  // Already connected.
       return;
@@ -242,17 +195,92 @@ void WifiManager::trySetup() {
     case WL_SCAN_COMPLETED:
     case WL_CONNECTION_LOST:
     case WL_DISCONNECTED:
-      start_client();
+      startClient();
       return;
     case WL_NO_SSID_AVAIL:
     case WL_CONNECT_FAILED:
 #ifndef ARDUINO_ARCH_ESP32
     case WL_WRONG_PASSWORD:
 #endif
-      start_ap();
+      startAp();
       return;
   }
 #endif
+}
+
+void WifiManager::scheduleSanityCheck() {
+  m_sanity_scheduler.runIn(kMsecInHour, [this]() { this->sanityCheck(); });
+}
+
+// Every hour, see whether WiFi is off and we should retry.
+void WifiManager::sanityCheck() {
+  // Has it been an hour since we last disconnected?
+  auto disconnect_timeout = [this]() {
+    const auto now = millis();
+    if (m_disconnect_msec == 0) {
+      return false;  // not disconnected??
+    }
+    if (now < m_disconnect_msec) {
+      return true;  // millis() wrapped-around since last disconnection.
+    }
+    return (now - m_disconnect_msec) >= kMsecInHour;
+  };
+
+  if (!m_ap_mode && WiFi.status() != WL_CONNECTED && disconnect_timeout()) {
+    trySetup();
+  }
+  scheduleSanityCheck();
+}
+
+// This is a function to call to startup the board in AP mode.
+void WifiManager::startAp() {
+  const char* essid = (board().length() > 0) ? board().c_str() : "og3board";
+  log()->logf("Wifi: starting in AP mode (%s).", essid);
+  WiFi.mode(WIFI_AP);
+  m_ap_mode = true;
+  if (!WiFi.softAPConfig(apSoftIP, apSoftIP, IPAddress(255, 255, 255, 0))) {
+    log()->log("Failed to setup soft-AP config");
+    return;
+  }
+  if (m_ap_password) {
+    if (!WiFi.softAP(essid, m_ap_password)) {
+      log()->log("Failed to setup SoftAP mode (with password).");
+      return;
+    }
+  } else {
+    if (!WiFi.softAP(essid)) {
+      log()->log("Failed to setup SoftAP mode.");
+      return;
+    }
+  }
+  log()->debugf("Started AP mode as %s", essid);
+  if (!m_dns_server) {
+    m_dns_server.reset(new DNSServer());
+  }
+  m_dns_server->setErrorReplyCode(DNSReplyCode::NoError);
+  m_dns_server->start(DNS_PORT, "*", apSoftIP);
+  for (const auto& callback : m_softAPCallbacks) {
+    callback();
+  }
+  // Allow time to setup maybe??
+  m_scheduler.runIn(100, [this]() { onConnect(); });
+  m_start_connect_msec = millis();
+}
+
+// This is a function to startup the board as a Wifi client (if configured).
+void WifiManager::startClient() {
+  // If we don't have a configured ESSID then startup in AP mode instead.
+  const bool have_essid = essid().length() > 0;
+  if (!have_essid) {
+    startAp();
+    return;
+  }
+  // If we have a configured ESSID, try to connect to it.
+  m_ap_mode = false;
+  m_start_connect_msec = millis();
+  log()->logf("Wifi: connecting to essid %s (%s)", essid().c_str(), strWifiStatus());
+  WiFi.mode(WIFI_STA);
+  WiFi.begin(essid().c_str(), password().c_str());
 }
 
 #ifdef ARDUINO_ARCH_ESP32

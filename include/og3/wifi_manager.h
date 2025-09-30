@@ -84,8 +84,13 @@ class WifiManager : public Module {
 
  private:
   void trySetup();
+  void startAp();
+  void startClient();
   void onConnect();
   void onDisconnect();
+  // Last-ditch attempt to re-connect every hour as a backup.
+  void scheduleSanityCheck();
+  void sanityCheck();
 
 #ifdef ARDUINO_ARCH_ESP32
   void onWifiEvent(arduino_event_id_t task, arduino_event_info_t info);
@@ -96,6 +101,7 @@ class WifiManager : public Module {
 #endif
   SingleDependency m_dependencies;
   TaskIdScheduler m_scheduler;
+  TaskIdScheduler m_sanity_scheduler;
   const char* m_ap_password;
   VariableGroup m_vg;
   // Config varibles
@@ -107,6 +113,7 @@ class WifiManager : public Module {
   Variable<int> m_rssi;
   bool m_was_connected = false;
   unsigned long m_start_connect_msec = 0;
+  unsigned long m_disconnect_msec = 0;
   ConfigInterface* m_config = nullptr;
   bool m_enable = true;
 
