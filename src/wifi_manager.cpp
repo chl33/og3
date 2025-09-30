@@ -214,6 +214,7 @@ void WifiManager::scheduleSanityCheck() {
 
 // Every hour, see whether WiFi is off and we should retry.
 void WifiManager::sanityCheck() {
+#ifndef NATIVE
   // Has it been an hour since we last disconnected?
   auto disconnect_timeout = [this]() {
     const auto now = millis();
@@ -233,6 +234,7 @@ void WifiManager::sanityCheck() {
     log()->debug("Wifi: sanity check -- no action");
   }
   scheduleSanityCheck();
+#endif
 }
 
 // This is a function to call to startup the board in AP mode.
