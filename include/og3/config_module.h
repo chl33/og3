@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 #pragma once
 
+#include "og3/app.h"
 #include "og3/config_interface.h"
 #include "og3/dependencies.h"
 #include "og3/module.h"
@@ -16,12 +17,12 @@ namespace og3 {
 //  variable values.
 class ConfigModule : public Module {
  public:
-  ConfigModule(const char* name, WifiApp* app);
+  ConfigModule(const char* name, App* app);
   const char* cfg_url() const { return m_cfg_url.c_str(); }
   void add_html_button(String* body) const;
 
  protected:
-  const WifiApp* m_app;
+  const App* m_app;
   DependenciesArray<2> m_config_module_deps;
   VariableGroup m_cvg;
   ConfigInterface* m_config = nullptr;

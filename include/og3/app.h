@@ -21,6 +21,7 @@ class App {
     unsigned reserve_num_modules = 8;
     unsigned reserve_tasks = 16;
     LogType log_type = LogType::kNone;
+    String board_name;
 
     Options& withReserveNumModules(unsigned val) {
       this->reserve_num_modules = val;
@@ -51,6 +52,8 @@ class App {
   const Options& options() const { return m_options; }
   NullLogger& nullLogger() { return m_null_logger; }
   SerialLogger& serialLogger() { return m_serial_logger; }
+  virtual const String& board_name() const { return m_options.board_name; }
+  const char* board_cname() const { return board_name().c_str(); }
 
  private:
   const Options m_options;
