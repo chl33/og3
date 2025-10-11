@@ -154,14 +154,15 @@ bool ConfigInterface::write_config(const VariableGroup& var_group, const char* f
     return false;
   }
   // Allocate a buffer to store contents of the file.
-  JsonDocument doc;
+  JsonDocument jsondoc;
+  JsonObject json = jsondoc.to<JsonObject>();
   for (auto* var : var_group.variables()) {
     if (!var->config()) {
       continue;
     }
-    var->toJson(&doc);
+    var->toJson(json);
   }
-  serializeJson(doc, config_file);
+  serializeJson(jsondoc, config_file);
   config_file.close();
   return true;
 }

@@ -34,7 +34,7 @@ void VariableGroup::add(VariableBase* variable) {
   }
 }
 
-void VariableGroup::toJson(JsonDocument* out_json, unsigned flags) const {
+void VariableGroup::toJson(JsonObject out_json, unsigned flags) const {
   for (auto* var : variables()) {
     if (flags & var->flags() & VariableBase::kNoPublish) {
       continue;
@@ -48,16 +48,18 @@ void VariableGroup::toJson(JsonDocument* out_json, unsigned flags) const {
 
 void VariableGroup::toJson(String* out_str, unsigned flags) const {
 #ifndef NATIVE
-  JsonDocument doc;
-  toJson(&doc, flags);
-  serializeJson(doc, *out_str);
+  JsonDocument jsondoc;
+  JsonObject json = jsondoc.to<JsonObject>();
+  toJson(json, flags);
+  serializeJson(jsondoc, *out_str);
 #endif
 }
 
 void VariableGroup::toJson(std::ostream* out_str, unsigned flags) const {
-  JsonDocument doc;
-  toJson(&doc, flags);
-  serializeJson(doc, *out_str);
+  JsonDocument jsondoc;
+  JsonObject json = jsondoc.to<JsonObject>();
+  toJson(json, flags);
+  serializeJson(jsondoc, *out_str);
 }
 
 VariableBase::VariableBase(const char* name_, const char* units_, const char* description_,
@@ -107,9 +109,9 @@ bool EnumStrVariableBase::fromJson(const JsonVariant& json) {
   }
   return false;
 }
-void EnumStrVariableBase::toJson(JsonDocument* doc) {
+void EnumStrVariableBase::toJson(JsonObject json) {
   if (!failed()) {
-    (*doc)[name()] = string();
+    json[name()] = string();
   }
 }
 
@@ -133,12 +135,12 @@ String EnumStrVariableBase::formEntry() const {
   return ret;
 }
 
-void BoolVariable::toJson(JsonDocument* doc) {
+void BoolVariable::toJson(JsonObject json) {
   if (!failed()) {
 #ifndef NATIVE
-    (*doc)[name()] = string();
+    json[name()] = string();
 #else
-    (*doc)[name()] = string().c_str();
+    json[name()] = string().c_str();
 #endif
   }
 }
@@ -149,12 +151,12 @@ BoolVariable& BoolVariable::operator=(bool value) {
   return *this;
 }
 
-void BinarySensorVariable::toJson(JsonDocument* doc) {
+void BinarySensorVariable::toJson(JsonObject json) {
   if (!failed()) {
 #ifndef NATIVE
-    (*doc)[name()] = string();
+    json[name()] = string();
 #else
-    (*doc)[name()] = string().c_str();
+    json[name()] = string().c_str();
 #endif
   }
 }

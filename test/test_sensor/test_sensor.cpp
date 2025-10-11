@@ -83,11 +83,12 @@ void test2() {
   using namespace fakeit;
   When(Method(ArduinoFake(), analogRead)).Return(1024, 2048, (1024 + 2048) / 2, 0, 2050, 4000);
 
-  JsonDocument json;
+  JsonDocument jsondoc;
+  JsonObject json = jsondoc.to<JsonObject>();
   TEST_ASSERT_EQUAL_FLOAT(0.0f, mas.read());
   TEST_ASSERT_EQUAL_FLOAT(0.0f, mas.value());
   TEST_ASSERT_FALSE(mas.readingIsFailed());
-  mas.mapped_value().toJson(&json);
+  mas.mapped_value().toJson(json);
   {
     og3::VariableGroup tvg("tmp");
     og3::FloatVariable out("out", 1.0f, "", "", 0, 0, tvg);

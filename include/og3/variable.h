@@ -28,7 +28,7 @@ class VariableGroup {
 
   unsigned num_config() const { return m_num_config; }
 
-  void toJson(JsonDocument* out_json, unsigned flags) const;
+  void toJson(JsonObject out_json, unsigned flags) const;
   void toJson(String* out_str, unsigned flags) const;
   void toJson(std::ostream* out_str, unsigned flags) const;
 
@@ -51,7 +51,7 @@ class VariableBase {
   virtual String string() const = 0;
   virtual bool fromString(const String&) = 0;
 
-  virtual void toJson(JsonDocument* doc) = 0;
+  virtual void toJson(JsonObject doc) = 0;
   virtual bool fromJson(const JsonVariant& doc) = 0;
 
   virtual String formEntry() const;
@@ -110,7 +110,7 @@ class Variable : public VariableBase {
       : VariableBase(name_, units_, description_, flags_, group), m_value(value) {}
   String string() const override;
   bool fromString(const String&) override;
-  void toJson(JsonDocument* doc) override;
+  void toJson(JsonObject doc) override;
   bool fromJson(const JsonVariant& json) override;
 
   const T& value() const { return m_value; }
@@ -134,7 +134,7 @@ class FloatingPointVariable : public FloatVariableBase {
       : FloatVariableBase(name_, units_, description_, flags_, decimals_, group), m_value(value) {}
   String string() const override;
   bool fromString(const String&) override;
-  void toJson(JsonDocument* doc) override;
+  void toJson(JsonObject doc) override;
   bool fromJson(const JsonVariant& json) override;
 
   const T& value() const { return m_value; }
@@ -164,7 +164,7 @@ class EnumStrVariableBase : public EnumVariableBase {
   String string() const override;
   bool fromString(const String& value) override;
   bool fromJson(const JsonVariant& json) override;
-  void toJson(JsonDocument* doc) override;
+  void toJson(JsonObject doc) override;
   String formEntry() const override;
 
   unsigned num_values() const { return m_num_values; }
@@ -192,9 +192,9 @@ class EnumVariable : public EnumVariableBase {
     m_value = static_cast<T>(ival);
     return true;
   }
-  void toJson(JsonDocument* doc) override {
+  void toJson(JsonObject json) override {
     if (!failed()) {
-      (*doc)[name()] = static_cast<int>(value());
+      json[name()] = static_cast<int>(value());
     }
   }
   bool fromJson(const JsonVariant& json) override {
@@ -303,23 +303,23 @@ inline bool Variable<bool>::fromJson(const JsonVariant& json) {
 }
 
 template <>
-inline void Variable<String>::toJson(JsonDocument* doc) {
+inline void Variable<String>::toJson(JsonObject json) {
   if (!failed()) {
-    (*doc)[name()] = value().c_str();
+    json[name()] = value().c_str();
   }
 }
 
 template <typename T>
-inline void Variable<T>::toJson(JsonDocument* doc) {
+inline void Variable<T>::toJson(JsonObject json) {
   if (!failed()) {
-    (*doc)[name()] = value();
+    json[name()] = value();
   }
 }
 
 template <typename T>
-inline void FloatingPointVariable<T>::toJson(JsonDocument* doc) {
+inline void FloatingPointVariable<T>::toJson(JsonObject json) {
   if (!failed()) {
-    (*doc)[name()] = value();
+    json[name()] = value();
   }
 }
 
@@ -360,7 +360,7 @@ class BoolVariable : public Variable<bool> {
                VariableGroup& group)
       : Variable<bool>(name_, value, "", description_, flags_, group) {}
   String string() const final { return value() ? "true" : "false"; }
-  void toJson(JsonDocument* doc);
+  void toJson(JsonObject json);
   BoolVariable& operator=(bool value);
   String formEntry() const override;
 };
@@ -371,7 +371,7 @@ class BinarySensorVariable : public Variable<bool> {
                        VariableGroup& group, bool publish = true)
       : Variable<bool>(name_, value, "", description_, publish ? 0 : kNoPublish, group) {}
   String string() const override { return value() ? "ON" : "OFF"; }
-  void toJson(JsonDocument* doc);
+  void toJson(JsonObject json);
   bool fromJson(const JsonVariant& json);
   BinarySensorVariable& operator=(bool value);
 };

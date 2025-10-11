@@ -33,7 +33,7 @@ class Sonar : public Module {
   void ping();
 
  private:
-  bool haDeclare(HADiscovery* had, JsonDocument* json);
+  bool haDeclare(HADiscovery* had, JsonObject json);
 
   const uint8_t m_trigPin;
   const uint8_t m_echoPin;

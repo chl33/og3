@@ -29,7 +29,7 @@ class Pir : public Module {
   void callOnMotion(const Thunk& fn);
 
  private:
-  bool haDeclare(HADiscovery* had, JsonDocument* json);
+  bool haDeclare(HADiscovery* had, JsonObject json);
 
 #ifndef NATIVE
   static void IRAM_ATTR _onMotion();
