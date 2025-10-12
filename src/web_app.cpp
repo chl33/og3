@@ -27,7 +27,7 @@ WebApp::WebApp(const WifiApp::Options& options) : WifiApp(options), m_web_server
 
 void WebApp::handleWifiConfigRequest(AsyncWebServerRequest* request) {
 #ifndef NATIVE
-  ::og3::read(*request, wifi_manager().mutableVariables());
+  ::og3::read(*request, wifi_manager().variables());
   m_web_page.clear();
   html::writeFormTableInto(&m_web_page, wifi_manager().variables());
   m_web_page += HTML_BUTTON("/", "Back");

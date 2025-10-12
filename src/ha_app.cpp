@@ -17,7 +17,7 @@ void HAApp::setup() { WebApp::setup(); }
 
 void HAApp::handleMqttConfigRequest(AsyncWebServerRequest* request) {
 #ifndef NATIVE
-  ::og3::read(*request, mqtt_manager().mutableVariables());
+  ::og3::read(*request, mqtt_manager().variables());
   m_web_page.clear();
   html::writeFormTableInto(&m_web_page, mqtt_manager().variables());
   m_web_page += HTML_BUTTON("/", "Back");

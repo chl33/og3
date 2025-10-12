@@ -64,7 +64,7 @@ class WifiManager : public Module {
   bool wasConnected() const { return m_was_connected; }
 
   const VariableGroup& variables() const { return m_vg; }
-  VariableGroup& mutableVariables() { return m_vg; }
+  VariableGroup& variables() { return m_vg; }
   const Variable<int>& rssi() const { return m_rssi; }
   const char* ap_password() const { return m_ap_password; }
 

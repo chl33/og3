@@ -93,7 +93,7 @@ class MqttManager : public Module {
   // const Options& options() const { return m_opts; }
 
   const VariableGroup& variables() const { return m_vg; }
-  VariableGroup& mutableVariables() { return m_vg; }
+  VariableGroup& variables() { return m_vg; }
   enum ConnectionStatus { kNotConnected, kConnected };
   const EnumStrVariable<ConnectionStatus>& connectionStatusVariable() const { return m_connected; }
 

@@ -46,8 +46,13 @@ class MappedAnalogSensor {
   bool readingIsFailed() const { return readingIsBad(m_adc.counts()); }
   void set_in_min(int in_min) { m_in_min = in_min; }
   void set_in_max(int in_max) { m_in_max = in_max; }
-  void set_out_min(int out_min) { m_out_min = out_min; }
-  void set_out_max(int out_max) { m_out_max = out_max; }
+  void set_out_min(float out_min) { m_out_min = out_min; }
+  void set_out_max(float out_max) { m_out_max = out_max; }
+
+  int in_min() const { return m_in_min.value(); }
+  int in_max() const { return m_in_max.value(); }
+  float out_min() const { return m_out_min.value(); }
+  float out_max() const { return m_out_max.value(); }
 
   Variable<unsigned>& raw_value() { return m_adc.countsVar(); }
   const Variable<unsigned>& raw_value() const { return m_adc.countsVar(); }
