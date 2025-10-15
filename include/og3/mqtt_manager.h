@@ -4,6 +4,8 @@
 #pragma once
 
 #include <Arduino.h>
+
+#include <cstdint>
 #ifndef NATIVE
 #include <AsyncMqttClient.h>
 #endif
@@ -18,6 +20,8 @@
 #include "og3/wifi_manager.h"
 
 namespace og3 {
+
+// TODO: Why can broker port not be set?
 
 // MqttManager works with a WiFiManager to establish and maintain a connection to a remote
 //  MQTT server.
@@ -89,6 +93,10 @@ class MqttManager : public Module {
   const char* board() const {
     return m_wifi_manager ? m_wifi_manager->board().c_str() : "og3board";
   }
+  const String& host() const { return m_host_addr.value(); }
+  uint16_t port() const { return m_opts.port; }
+  const String& auth_user() const { return m_auth_user.value(); }
+  const String& auth_password() const { return m_auth_password.value(); }
   Mode mode() const { return m_mode.value(); }
   // const Options& options() const { return m_opts; }
 
@@ -96,6 +104,7 @@ class MqttManager : public Module {
   VariableGroup& variables() { return m_vg; }
   enum ConnectionStatus { kNotConnected, kConnected };
   const EnumStrVariable<ConnectionStatus>& connectionStatusVariable() const { return m_connected; }
+  bool isConnected() const { return m_connected.value() == kConnected; }
 
  private:
   void onConnect(bool sessionPresent);
