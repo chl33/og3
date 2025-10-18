@@ -14,7 +14,7 @@
     "dependencies": {
 	"bakercp/CRC32": "~2.0.0",
 	"bblanchon/ArduinoJson": "7.0.0",
-	"ESP32Async/ESPAsyncWebServer": "~3.8.1",
+	"ESP32Async/ESPAsyncWebServer": "3.6.0",
 	"heman/AsyncMqttClient-esphome": "~1.0.0"
     },
     "export": {
