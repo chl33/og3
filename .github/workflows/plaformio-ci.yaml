@@ -38,18 +38,6 @@ jobs:
       - name: Build d1_mini_ha_app
         run: pio run -e d1_mini_ha_app
 
-      - name: Build lolin_c3_mini_blink
-        run: pio run -e lolin_c3_mini_blink
-
-      - name: Build lolin_c3_mini_wifi_app
-        run: pio run -e lolin_c3_mini_wifi_app
-
-      - name: Build lolin_c3_mini_web_app
-        run: pio run -e lolin_c3_mini_web_app
-
-      - name: Build lolin_c3_mini_ha_app
-        run: pio run -e lolin_c3_mini_ha_app
-
       - name: Build esp32dev_blink
         run: pio run -e esp32dev_blink
 
