@@ -20,7 +20,32 @@ jobs:
       - name: Install PlatformIO Core
         run: pip install --upgrade platformio intelhex
 
-      - name: Build PlatformIO examples
-        run: pio  ci --board d1_mini --board esp32dev --lib .
-        env:
-          PLATFORMIO_CI_SRC: ${{ matrix.example }}
+      # This is failing due to strange depedencies.
+      # - name: Build PlatformIO examples
+      #   run: pio  ci --board d1_mini --board esp32dev --lib .
+      #   env:
+      #     PLATFORMIO_CI_SRC: ${{ matrix.example }}
+
+      - name: Build d1_mini_blink
+        run: pio run -e d1_mini_blink
+
+      - name: Build d1_mini_wifi_app
+        run: pio run -e d1_mini_wifi_app
+
+      - name: Build d1_mini_web_app
+        run: pio run -e d1_mini_web_app
+
+      - name: Build d1_mini_ha_app
+        run: pio run -e d1_mini_ha_app
+
+      - name: Build esp32dev_blink
+        run: pio run -e esp32dev_blink
+
+      - name: Build esp32dev_wifi_app
+        run: pio run -e esp32dev_wifi_app
+
+      - name: Build esp32dev_web_app
+        run: pio run -e esp32dev_web_app
+
+      - name: Build esp32dev_ha_app
+        run: pio run -e esp32dev_ha_app
