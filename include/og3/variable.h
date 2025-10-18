@@ -31,6 +31,7 @@ class VariableGroup {
   void toJson(JsonObject out_json, unsigned flags) const;
   void toJson(String* out_str, unsigned flags) const;
   void toJson(std::ostream* out_str, unsigned flags) const;
+  unsigned updateFromJson(JsonObjectConst obj);
 
  private:
   const char* m_name;
@@ -52,7 +53,7 @@ class VariableBase {
   virtual bool fromString(const String&) = 0;
 
   virtual void toJson(JsonObject doc) = 0;
-  virtual bool fromJson(const JsonVariant& doc) = 0;
+  virtual bool fromJson(JsonVariantConst val) = 0;
 
   virtual String formEntry() const;
 
@@ -111,7 +112,7 @@ class Variable : public VariableBase {
   String string() const override;
   bool fromString(const String&) override;
   void toJson(JsonObject doc) override;
-  bool fromJson(const JsonVariant& json) override;
+  bool fromJson(JsonVariantConst json) override;
 
   const T& value() const { return m_value; }
   T& value() { return m_value; }
@@ -135,7 +136,7 @@ class FloatingPointVariable : public FloatVariableBase {
   String string() const override;
   bool fromString(const String&) override;
   void toJson(JsonObject doc) override;
-  bool fromJson(const JsonVariant& json) override;
+  bool fromJson(JsonVariantConst json) override;
 
   const T& value() const { return m_value; }
   T& value() { return m_value; }
@@ -163,7 +164,7 @@ class EnumStrVariableBase : public EnumVariableBase {
 
   String string() const override;
   bool fromString(const String& value) override;
-  bool fromJson(const JsonVariant& json) override;
+  bool fromJson(JsonVariantConst json) override;
   void toJson(JsonObject doc) override;
   String formEntry() const override;
 
@@ -197,7 +198,7 @@ class EnumVariable : public EnumVariableBase {
       json[name()] = static_cast<int>(value());
     }
   }
-  bool fromJson(const JsonVariant& json) override {
+  bool fromJson(JsonVariantConst json) override {
     if (!json.is<int>()) {
       return false;
     }
@@ -290,7 +291,7 @@ inline bool Variable<bool>::fromString(const String& value) {
   return true;
 }
 template <>
-inline bool Variable<bool>::fromJson(const JsonVariant& json) {
+inline bool Variable<bool>::fromJson(JsonVariantConst json) {
   if (json.is<const char*>()) {
     return this->fromString(json.as<const char*>());
   }
@@ -324,7 +325,7 @@ inline void FloatingPointVariable<T>::toJson(JsonObject json) {
 }
 
 template <>
-inline bool Variable<String>::fromJson(const JsonVariant& json) {
+inline bool Variable<String>::fromJson(JsonVariantConst json) {
   if (!json.is<const char*>()) {
     return false;
   }
@@ -333,7 +334,7 @@ inline bool Variable<String>::fromJson(const JsonVariant& json) {
 }
 
 template <typename T>
-inline bool Variable<T>::fromJson(const JsonVariant& json) {
+inline bool Variable<T>::fromJson(JsonVariantConst json) {
   if (!json.is<T>()) {
     return false;
   }
@@ -342,7 +343,7 @@ inline bool Variable<T>::fromJson(const JsonVariant& json) {
 }
 
 template <typename T>
-inline bool FloatingPointVariable<T>::fromJson(const JsonVariant& json) {
+inline bool FloatingPointVariable<T>::fromJson(JsonVariantConst json) {
   if (!json.is<T>()) {
     setFailed();
     return false;
@@ -372,7 +373,7 @@ class BinarySensorVariable : public Variable<bool> {
       : Variable<bool>(name_, value, "", description_, publish ? 0 : kNoPublish, group) {}
   String string() const override { return value() ? "ON" : "OFF"; }
   void toJson(JsonObject json);
-  bool fromJson(const JsonVariant& json);
+  bool fromJson(JsonVariantConst json);
   BinarySensorVariable& operator=(bool value);
 };
 

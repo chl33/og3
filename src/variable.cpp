@@ -5,6 +5,8 @@
 
 #include <memory>
 
+#include "ArduinoJson/Object/JsonObject.hpp"
+#include "ArduinoJson/Object/JsonObjectConst.hpp"
 #include "og3/html_table.h"
 
 namespace og3 {
@@ -62,6 +64,23 @@ void VariableGroup::toJson(std::ostream* out_str, unsigned flags) const {
   serializeJson(jsondoc, *out_str);
 }
 
+unsigned VariableGroup::updateFromJson(JsonObjectConst obj) {
+  unsigned num_updated = 0;
+  for (auto* var : variables()) {
+    if (!var->settable()) {
+      continue;
+    }
+    JsonVariantConst val = obj[var->name()];
+    if (val.isNull()) {
+      continue;
+    }
+    if (var->fromJson(val)) {
+      num_updated += 1;
+    }
+  }
+  return num_updated;
+}
+
 VariableBase::VariableBase(const char* name_, const char* units_, const char* description_,
                            unsigned flags_, VariableGroup& group)
     : m_name(name_), m_units(units_), m_description(description_), m_flags(flags_), m_group(group) {
@@ -93,7 +112,7 @@ bool EnumStrVariableBase::fromString(const String& value) {
   setFailed(1 != sscanf(value.c_str(), "%d", &m_value));
   return !failed();
 }
-bool EnumStrVariableBase::fromJson(const JsonVariant& json) {
+bool EnumStrVariableBase::fromJson(JsonVariantConst json) {
   if (json.is<int>()) {
     m_value = json.as<int>();
     return true;
@@ -161,7 +180,7 @@ void BinarySensorVariable::toJson(JsonObject json) {
   }
 }
 
-bool BinarySensorVariable::fromJson(const JsonVariant& json) {
+bool BinarySensorVariable::fromJson(JsonVariantConst json) {
   if (json.is<const char*>()) {
     m_value = fromString(json.as<const char*>());
     return true;
