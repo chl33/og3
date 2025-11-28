@@ -134,6 +134,7 @@ WifiManager::WifiManager(const char* default_board_name, Tasks* tasks,
 void WifiManager::onConnect() {
   m_start_connect_msec = 0;
   m_disconnect_msec = 0;
+  m_retry_delay_ms = kInitialRetryDelayMs;
 #ifndef NATIVE
   const IPAddress ip = m_ap_mode ? WiFi.softAPIP() : WiFi.localIP();
   m_ip_addr = ip.toString().c_str();
@@ -156,8 +157,13 @@ void WifiManager::onDisconnect() {
     for (const auto& callback : m_disconnectCallbacks) {
       callback();
     }
-    // Try to reconnect after 1 minute.
-    m_scheduler.runIn(kMsecInMin, [this]() { trySetup(); });
+    // Try to reconnect.
+    log()->logf("Wifi: Retry connection in %lu ms", m_retry_delay_ms);
+    m_scheduler.runIn(m_retry_delay_ms, [this]() { trySetup(); });
+    m_retry_delay_ms = m_retry_delay_ms * kBackoffMultiplier;
+    if (m_retry_delay_ms > kMaxRetryDelayMs) {
+      m_retry_delay_ms = kMaxRetryDelayMs;
+    }
     m_disconnect_msec = millis();
   } else {
 #ifndef NATIVE

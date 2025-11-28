@@ -39,6 +39,10 @@ class WifiManager : public Module {
   static const char kName[];
   static const char kConfigUrl[];
 
+  static constexpr unsigned long kInitialRetryDelayMs = 5000;
+  static constexpr unsigned long kMaxRetryDelayMs = 60000;
+  static constexpr unsigned long kBackoffMultiplier = 2;
+
   struct Options {
     Options() {}
     const char* default_essid = nullptr;
@@ -82,12 +86,15 @@ class WifiManager : public Module {
 
   void updateStatus();
 
+ protected:
+  void onConnect();
+  void onDisconnect();
+  unsigned long m_retry_delay_ms = kInitialRetryDelayMs;
+
  private:
   void trySetup();
   void startAp();
   void startClient();
-  void onConnect();
-  void onDisconnect();
   // Last-ditch attempt to re-connect every hour as a backup.
   void scheduleSanityCheck();
   void sanityCheck();

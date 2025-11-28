@@ -25,9 +25,13 @@ Tasks::Tasks(std::size_t capacity, ModuleSystem* module_system)
 
 void Tasks::runAt(unsigned long msec, const Thunk& thunk, unsigned id) {
   bool ok = false;
+#ifndef NATIVE
   noInterrupts();
+#endif
   ok = m_queue.insert(msec, thunk, id);
+#ifndef NATIVE
   interrupts();
+#endif
   if (!ok) {
     log()->logf("Failed to schedule task callback (full!) id=%u", id);
   }
@@ -50,7 +54,9 @@ int Tasks::loop() {
 
 bool Tasks::getThunk(unsigned long now, Thunk* t) {
   bool ret = false;
+#ifndef NATIVE
   noInterrupts();
+#endif
   if (s_run_next) {
     *t = s_run_next;
     s_run_next = nullptr;
@@ -60,7 +66,9 @@ bool Tasks::getThunk(unsigned long now, Thunk* t) {
     m_queue.popFirst();
     ret = true;
   }
+#ifndef NATIVE
   interrupts();
+#endif
   return ret;
 }
 
