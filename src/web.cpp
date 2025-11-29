@@ -22,7 +22,7 @@ void sendWrappedHTML(AsyncWebServerRequest* request, const char* title, const ch
     }
     return "";
   };
-  request->send_P(200, "text/html", html_page_template, processor);
+  request->send(200, "text/html", html_page_template, processor);
 }
 
 void htmlRestartPage(AsyncWebServerRequest* request, Tasks* tasks) {
