@@ -15,9 +15,9 @@ Sonar::Sonar(const char* name, int trigPin, int echoPin, ModuleSystem* module_sy
       m_echoPin(echoPin),
       m_delay_name(String(name) + "_usec"),
       m_delay_usec(m_delay_name.c_str(), 0.0f, units::kMicroseconds, "sonar ping time", 0, 0, vg),
-      m_distance_m(name, 0.0f, units::kMeters, "measured distance", 0, 2, vg),
-      m_depend(ha_discovery ? HADiscovery::kName : nullptr) {
+      m_distance_m(name, 0.0f, units::kMeters, "measured distance", 0, 2, vg) {
   if (ha_discovery) {
+    setDependencies(HADiscovery::kName);
     add_link_fn([this](NameToModule& name_to_module) -> bool {
       m_ha_discovery = HADiscovery::get(name_to_module);
       return true;

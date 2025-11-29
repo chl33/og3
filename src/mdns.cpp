@@ -16,9 +16,8 @@ namespace og3 {
 const char Mdns::kName[] = "mdns";
 
 // Wrapper for digital input.
-Mdns::Mdns(Tasks* tasks)
-    : Module(kName, tasks->module_system()), m_tasks(tasks), m_dependency(WifiManager::kName) {
-  setDependencies(&m_dependency);
+Mdns::Mdns(Tasks* tasks) : Module(kName, tasks->module_system()), m_tasks(tasks) {
+  setDependencies(WifiManager::kName);
 #ifndef NATIVE
   // Module callbacks
   add_link_fn([this](NameToModule& name_to_module) -> bool {

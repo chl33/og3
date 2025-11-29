@@ -40,7 +40,6 @@ class TempHumidity : public Module {
   FloatVariable m_temperature;
   FloatVariable m_humidity;
   HADiscovery* m_ha_discovery = nullptr;
-  SingleDependency m_depend;
 };
 
 }  // namespace og3

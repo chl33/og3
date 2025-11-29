@@ -46,7 +46,6 @@ class Sonar : public Module {
   FloatVariable m_delay_usec;
   FloatVariable m_distance_m;
   HADiscovery* m_ha_discovery = nullptr;
-  SingleDependency m_depend;
 };
 
 }  // namespace og3

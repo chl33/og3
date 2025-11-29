@@ -48,7 +48,6 @@ MqttManager::MqttManager(const Options& opts, Tasks* tasks)
     : Module(kName, tasks->module_system()),
       m_opts(opts),
       m_connect_scheduler([this]() { connect(); }, tasks),
-      m_dependency(WifiManager::kName),
       m_vg(kName, nullptr, 4),
       m_host_addr("host", opts.default_server, "", "MQTT server",
                   VariableBase::kConfig | VariableBase::kSettable, m_vg),
@@ -67,7 +66,7 @@ MqttManager::MqttManager(const Options& opts, Tasks* tasks)
       m_connected("connection", kNotConnected, "connection", kConnected, s_str_connected,
                   VariableBase::kNoPublish, m_vg) {
   // Module callbacks
-  setDependencies(&m_dependency);
+  setDependencies(WifiManager::kName);
   add_link_fn([this](NameToModule& name_to_module) -> bool {
     m_config = ConfigInterface::get(name_to_module);
     m_wifi_manager = WifiManager::get(name_to_module);
