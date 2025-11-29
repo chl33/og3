@@ -4,7 +4,7 @@
 
 The `og3` library allows application to be built as arrangements of interdependent [`Module`s](../include/og3/module.h).  Modules are units of code that perform a specific function, and which have a defined life-cycle.
 
-Here is an example Arduino program which binks an LED connected to an output pin:
+Here is an example Arduino program which blinks an LED connected to an output pin:
 ```C++
 void setup() { pinMode(kLEDPin, OUTPUT); }
 void loop() {
@@ -47,7 +47,7 @@ Blink s_blink(&s_app);
 void setup() { s_app.setup(); }
 void loop() { s_app.loop(); }
 ```
-For this simple example, the module-based version is longer and more complicated.  However, it would be easy to put the `Blink` class in a separate reusable file, and add it with the single line `Bink s_blink(&s_app)` in the main application file.  It is automatically started and run by the `App` in via the `setup()` and `loop()` methods.  Any number of modules could be added to the application in the same way, and this enables a complicated application to be built from simplier components.
+For this simple example, the module-based version is longer and more complicated.  However, it would be easy to put the `Blink` class in a separate reusable file, and add it with the single line `Blink s_blink(&s_app)` in the main application file.  It is automatically started and run by the `App` in via the `setup()` and `loop()` methods.  Any number of modules could be added to the application in the same way, and this enables a complicated application to be built from simpler components.
 
 Components can use other components.  For example, a web-server component or MQTT component could depend on a Wifi component to manage the wifi connection it needs.  Modules can get pointers to one another for this purpose, and they can declare dependencies on one another to ensure they are initialized in an order which will work.  The [`ModuleSystem`](../include/og3/module_system.h) is the object which organizes the modules: it helps them obtain pointers to one another by name, manages their dependencies, and manages their execution.
 
