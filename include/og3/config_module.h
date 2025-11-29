@@ -23,7 +23,6 @@ class ConfigModule : public Module {
 
  protected:
   const App* m_app;
-  DependenciesArray<2> m_config_module_deps;
   VariableGroup m_cvg;
   ConfigInterface* m_config = nullptr;
   WebServer* m_web_server = nullptr;

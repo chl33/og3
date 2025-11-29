@@ -30,7 +30,6 @@ class ConfigInterface : public Module {
 
  private:
   FlashSupport* m_fs = nullptr;
-  SingleDependency m_dependency;
 };
 
 }  // namespace og3

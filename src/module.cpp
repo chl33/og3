@@ -27,4 +27,14 @@ void Module::add_html_button(String* body, const char* title, const char* url) c
   *body += "</button></form></p>\n";
 }
 
+void Module::setDependencies(const std::vector<const char*>& dependencies) {
+  m_internal_dependencies.reset(new DependenciesVector(dependencies));
+  setDependencies(m_internal_dependencies.get());
+}
+
+void Module::setDependencies(const char* dependency) {
+  m_internal_dependencies.reset(new SingleDependency(dependency));
+  setDependencies(m_internal_dependencies.get());
+}
+
 }  // namespace og3

@@ -4,6 +4,9 @@
 #pragma once
 #include <Arduino.h>
 
+#include <memory>
+#include <vector>
+
 #include "og3/compiler_definitions.h"
 #include "og3/dependencies.h"
 #include "og3/util.h"
@@ -50,6 +53,8 @@ class Module {
   void set_sorted_idx(unsigned idx) { m_sorted_idx = idx; }
 
   void setDependencies(Dependencies* dependencies) { m_dependencies_ptr = dependencies; }
+  void setDependencies(const std::vector<const char*>& dependencies);
+  void setDependencies(const char* dependency);
 
  private:
   friend ModuleSystem;
@@ -58,6 +63,7 @@ class Module {
 
   const char* m_name;
   Dependencies* m_dependencies_ptr = nullptr;
+  std::unique_ptr<Dependencies> m_internal_dependencies;
   ModuleSystem* m_module_system;
   bool m_is_ok = false;
   unsigned m_sorted_idx = 0;

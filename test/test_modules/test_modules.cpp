@@ -42,8 +42,8 @@ class TestModule : public Module {
  public:
   TestModule(const char* name, const std::vector<const char*> predecessors,
              ModuleSystem* module_system)
-      : Module(name, module_system), m_dependencies(predecessors) {
-    setDependencies(&m_dependencies);
+      : Module(name, module_system) {
+    setDependencies(predecessors);
     add_init_fn([this]() { log()->logf("Init %s", this->name()); });
     if (0 != strcmp("test2", name)) {
       add_start_fn([this]() { log()->logf("Start %s", this->name()); });
@@ -54,8 +54,6 @@ class TestModule : public Module {
   }
 
  private:
-  DependenciesVector m_dependencies;
-
   const char* m_name;
 };
 

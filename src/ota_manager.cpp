@@ -18,11 +18,10 @@ const char OtaManager::kName[] = "ota";
 OtaManager::OtaManager(const Options& opts, ModuleSystem* module_system)
     : Module(kName, module_system),
       m_opts(opts),
-      m_dependencies({WifiManager::kName, ConfigInterface::kName}),
       m_vg(kName),
       m_password("password", opts.default_password, "", "password",
                  VariableBase::kConfig | VariableBase::kSettable, m_vg) {
-  setDependencies(&m_dependencies);
+  setDependencies({WifiManager::kName, ConfigInterface::kName});
   add_link_fn([this](NameToModule& name_to_module) -> bool {
     m_config = ConfigInterface::get(name_to_module);
     m_wifi_manager = WifiManager::get(name_to_module);

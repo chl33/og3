@@ -10,10 +10,9 @@ namespace og3 {
 ConfigModule::ConfigModule(const char* name, App* app)
     : Module(name, &app->module_system()),
       m_app(app),
-      m_config_module_deps({ConfigInterface::kName, WebServer::kName}),
       m_cvg(name),
       m_cfg_url(std::string("/config/") + name) {
-  setDependencies(&m_config_module_deps);
+  setDependencies({ConfigInterface::kName, WebServer::kName});
   add_link_fn([this](og3::NameToModule& name_to_module) -> bool {
     m_config = ConfigInterface::get(name_to_module);
     m_web_server = WebServer::get(name_to_module);

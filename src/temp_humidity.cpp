@@ -14,12 +14,11 @@ TempHumidity::TempHumidity(const char* temp_name, const char* humidity_name,
       m_temperature(temp_name, 0.0f, units::kCelsius, description,
                     publish ? 0 : VariableBase::kNoPublish, 1, vg),
       m_humidity(humidity_name, 0.0f, units::kPercentage, humidity_name,
-                 publish ? 0 : VariableBase::kNoPublish, 0, vg),
-      m_depend(ha_discovery ? HADiscovery::kName : nullptr) {
+                 publish ? 0 : VariableBase::kNoPublish, 0, vg) {
   m_temperature.setFailed();
   m_humidity.setFailed();
-  setDependencies(&m_depend);
   if (ha_discovery) {
+    setDependencies(HADiscovery::kName);
     add_link_fn([this](NameToModule& name_to_module) -> bool {
       m_ha_discovery = HADiscovery::get(name_to_module);
       return true;

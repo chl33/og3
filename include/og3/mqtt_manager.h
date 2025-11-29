@@ -116,7 +116,6 @@ class MqttManager : public Module {
 #ifndef NATIVE
   AsyncMqttClient m_mqttClient;
 #endif
-  SingleDependency m_dependency;
 
   VariableGroup m_vg;
   Variable<String> m_host_addr;

@@ -106,7 +106,6 @@ class WifiManager : public Module {
 #ifndef NATIVE
   std::unique_ptr<DNSServer> m_dns_server;
 #endif
-  SingleDependency m_dependencies;
   TaskIdScheduler m_scheduler;
   TaskIdScheduler m_sanity_scheduler;
   const char* m_ap_password;

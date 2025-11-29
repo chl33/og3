@@ -154,7 +154,6 @@ class HADiscovery : public Module {
   ConfigInterface* m_config = nullptr;
   WifiManager* m_wifi_manager = nullptr;
   MqttManager* m_mqtt_manager = nullptr;
-  SingleDependency m_dependency;
 
   bool m_config_sent = false;
   char m_device_id[32];

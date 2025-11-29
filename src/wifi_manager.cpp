@@ -76,7 +76,6 @@ const char WifiManager::kConfigUrl[] = "/wifi/update";
 WifiManager::WifiManager(const char* default_board_name, Tasks* tasks,
                          const WifiManager::Options& options)
     : Module(WifiManager::kName, tasks->module_system()),
-      m_dependencies(ConfigInterface::kName),
       m_scheduler(tasks),
       m_sanity_scheduler(tasks),
       m_ap_password(options.ap_password),
@@ -91,7 +90,7 @@ WifiManager::WifiManager(const char* default_board_name, Tasks* tasks,
                  m_vg),
       m_ip_addr("ip", "", "", "", 0, m_vg),
       m_rssi("rssi", 0, units::kDecibel, "", 0, m_vg) {
-  setDependencies(&m_dependencies);
+  setDependencies(ConfigInterface::kName);
   add_link_fn([this](og3::NameToModule& name_to_module) -> bool {
     m_config = ConfigInterface::get(name_to_module);
     return m_config != nullptr;

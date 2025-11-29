@@ -80,8 +80,8 @@ namespace og3 {
 const char* ConfigInterface::kName = "config";
 
 ConfigInterface::ConfigInterface(ModuleSystem* module_system)
-    : Module(ConfigInterface::kName, module_system), m_dependency(FlashSupport::kName) {
-  setDependencies(&m_dependency);
+    : Module(ConfigInterface::kName, module_system) {
+  setDependencies(FlashSupport::kName);
   add_link_fn([this](NameToModule& name_to_module) -> bool {
     m_fs = FlashSupport::get(name_to_module);
     return m_fs != nullptr;

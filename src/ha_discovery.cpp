@@ -84,8 +84,8 @@ HADiscovery::Entry::Entry(const EnumStrVariableBase& var_, const char* device_ty
 const char* HADiscovery::kName = "ha_discovery";
 
 HADiscovery::HADiscovery(const Options& opts, ModuleSystem* module_system)
-    : Module(kName, module_system), m_options(opts), m_dependency(MqttManager::kName) {
-  setDependencies(&m_dependency);
+    : Module(kName, module_system), m_options(opts) {
+  setDependencies(MqttManager::kName);
   if (!opts.manufacturer) {
     log()->logf("%s: manufacturer not set", kName);
     delay(10000);

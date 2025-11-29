@@ -1,42 +1,101 @@
 # og3 library
 
-The og3 library is a C++ application framework for ESP microprocessors.  It was written especially to support MQTT applications and interface with [Home Assistant](https://www.home-assistant.io/).  This library is designed to be used with the [Platformio](https://platformio.org/) development environment.
+The **og3** library is a robust C++ application framework for ESP32 and ESP8266 microprocessors. It is designed to simplify the development of MQTT-based IoT applications, particularly those integrating with [Home Assistant](https://www.home-assistant.io/).
 
-I wrote-up a description of using this application framework in [Garden133 Firmware](https://selectiveappeal.org/posts/garden133-firmware/).
+This library is built for the [PlatformIO](https://platformio.org/) development environment.
 
-> ... "og" stands for [original gangsta](https://www.dictionary.com/e/slang/og/) because it is an old-school C++ library and application framework, not one of those trendy [YAML](https://en.wikipedia.org/wiki/YAML)-based frameworks like [ESPHome](https://esphome.io/index.html) that the kids these days are using. This is partly because I want the control that writing firmware directly in C++ provides, and  partly because I'm a programmer so my hobby projects involve real programming, dammit!
+Why "og" ([Garden133 Firmware](https://selectiveappeal.org/posts/garden133-firmware/))?
 
-Note that this code is a work in progress and should be considered beta quality.  It is suitable for DIY projects at this point.  The APIs of thinis code are still slowly evolving over time.
+> "og" stands for [original gangsta](https://www.dictionary.com/e/slang/og/) because it is an old-school C++ library and application framework, not one of those trendy [YAML](https://en.wikipedia.org/wiki/YAML)-based frameworks like [ESPHome](https://esphome.io/index.html) that the kids these days are using. This is partly because I want the control that writing firmware directly in C++ provides, and partly because I'm a programmer so my hobby projects involve real programming, dammit!
 
-- [Modules and the ModuleSystem](docs/modules.md).  This system helps to break an application into a set of reusable modules which can work together.
-- [Tasks](docs/scheduled-tasks.md).  This is a utility for running scheduled tasks.
-- [Logging](docs/logging.md).  This is a very simple text-logging system for monitoring and debugging.
-- [Variables](docs/variables.md). A `Variable` is a named container for a value, used with web forms, MQTT, and flash storage.
-- [Application framework](docs/apps.md).  An `App` is a package of modules, a system for running scheduled jobs, logging, and other utilities to help writing a firmware application.
+*Note: This code is a work in progress and should be considered beta quality. It is suitable for DIY projects, but APIs are still evolving.*
 
+## Key Features
 
-Example programs:
-- [Blink](examples/blink/blink.cpp) is a simple application with a module that can blink an LED on and off.
-- [Wifi-app](examples/wifi-app/wifi-app.cpp) is like Blink, but adds a configurable Wifi connection and flash storage.
-- [Web-app](examples/web-app/web-app.cpp) adds to Wifi-app a web interface for configuring the Wifi options.
-- [HA-app](examples/ha-app/ha-app.cpp) is a simple application using MQTT, for talking to [Home Assistant](https://www.home-assistant.io/).  It builds on Web-app.
+*   **Module System**: Break your application into reusable, independent [`Module`s](docs/modules.md) with managed life-cycles and dependencies.
+*   **Home Assistant Integration**: Native support for MQTT discovery, making it easy to expose sensors, switches, and other entities to Home Assistant.
+*   **Configuration Management**: Built-in support for saving/loading variables from flash storage and configuring them via a web interface.
+*   **Task Scheduling**: Efficient [scheduler](docs/scheduled-tasks.md) for running timed tasks without blocking the main loop.
+*   **Web Interface**: Automatic generation of configuration web pages.
+*   **Logging**: Simple [logging system](docs/logging.md) supporting Serial and UDP logging.
 
-## Projects which use og3
+## Getting Started
 
-- [Plant133](https://github.com/chl33/Plant133) is a device that can monitor and water up to 4 plants at a time.
-- [Dough133](https://github.com/chl33/Dough133) is a temperature-controlled container for proofing and fermenting soughdough.
-- [Garage133](https://github.com/chl33/Garage133) is a DIY device for garage door automation.
-- [Room133](https://github.com/chl33/Room133) is a device for room monitoring, for use with Home Assistant
-    - [Boiler](https://github.com/chl33/Boiler) is specialized software for the Room133 board for monitor the water level of a boiler.
-- [Garden133](https://github.com/chl33/Garden133) is a device that monitors soil moisture in your yard and garden, to help with watering automation.
-- [LoRa133](https://github.com/chl33/LoRa133) is a LoRa base-station for Garden133.
+To use og3 in your PlatformIO project, add it to your `platformio.ini` `lib_deps`:
 
-## Special-purpose libraries designed to work with og3
+```ini
+lib_deps =
+    chl33/og3
+    # Add other dependencies as needed
+```
 
-- [og3x-shtc3](https://github.com/chl33/og3x-shtc3). Support for SHTC3 temperature/humidity sensors
-- [og3x-bme280](https://github.com/chl33/og3x-bme280). Support for BME280 temperature/humidity/pressure sensors
-- [og3x-lora](https://github.com/chl33/og3x-lora). Support for LoRa radio modules
-- [og3x-oled](https://github.com/chl33/og3x-oled). Support for small .91" OLED displays
-- [og3x-satellite](https://github.com/chl33/og3x-satellite). Support for base-station / satellite systems. Initially developed for LoRa-based system. Uses a protobuf-based protocol.
+### Minimal Example
 
-chl33
+Here is a snippet showing how to define a simple module. See the [examples](examples/) folder for complete projects.
+
+```cpp
+#include <og3/app.h>
+#include <og3/module.h>
+
+class MyModule : public og3::Module {
+public:
+  MyModule(og3::App* app) : og3::Module("my_module", &app->module_system()) {
+    add_init_fn([this]() {
+        // Initialization code (e.g., pinMode)
+        log()->log("MyModule Initialized");
+    });
+    add_start_fn([this]() {
+        // Startup code
+    });
+  }
+};
+
+og3::App app(og3::App::Options().withLogType(og3::App::LogType::kSerial));
+MyModule myModule(&app);
+
+void setup() { app.setup(); }
+void loop() { app.loop(); }
+```
+
+## Documentation
+
+Detailed documentation for core components:
+
+- [Modules and the ModuleSystem](docs/modules.md)
+- [Application Framework (App)](docs/apps.md)
+- [Variables](docs/variables.md)
+- [Scheduled Tasks](docs/scheduled-tasks.md)
+- [Logging](docs/logging.md)
+
+## Examples
+
+Check the `examples/` directory for ready-to-run projects:
+
+- **[Blink](examples/blink/blink.cpp)**: A simple module that blinks an LED.
+- **[Wifi-app](examples/wifi-app/wifi-app.cpp)**: Adds configurable WiFi and flash storage.
+- **[Web-app](examples/web-app/web-app.cpp)**: Adds a web interface for WiFi configuration.
+- **[HA-app](examples/ha-app/ha-app.cpp)**: A complete MQTT application for Home Assistant.
+
+## Projects using og3
+
+- **[Plant133](https://github.com/chl33/Plant133)**: Plant monitoring and watering system.
+- **[Dough133](https://github.com/chl33/Dough133)**: Temperature-controlled sourdough proofing box.
+- **[Garage133](https://github.com/chl33/Garage133)**: Garage door automation.
+- **[Room133](https://github.com/chl33/Room133)**: Room monitoring sensor node.
+    - [Boiler](https://github.com/chl33/Boiler): Specialized boiler water level monitor.
+- **[Garden133](https://github.com/chl33/Garden133)**: Soil moisture monitoring for gardens.
+- **[LoRa133](https://github.com/chl33/LoRa133)**: LoRa base station for Garden133.
+
+## Ecosystem
+
+Special-purpose libraries designed to work with og3:
+
+- **[og3x-shtc3](https://github.com/chl33/og3x-shtc3)**: SHTC3 temperature/humidity sensors.
+- **[og3x-bme280](https://github.com/chl33/og3x-bme280)**: BME280 environmental sensors.
+- **[og3x-lora](https://github.com/chl33/og3x-lora)**: LoRa radio modules.
+- **[og3x-oled](https://github.com/chl33/og3x-oled)**: 0.91" OLED displays.
+- **[og3x-satellite](https://github.com/chl33/og3x-satellite)**: Base-station/satellite protocol support.
+
+## Author
+
+**chl33** (https://selectiveappeal.org/)

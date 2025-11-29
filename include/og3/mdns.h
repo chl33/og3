@@ -22,7 +22,6 @@ class Mdns : public Module {
 
   Tasks* const m_tasks;
   WifiManager* m_wifi_manager = nullptr;
-  SingleDependency m_dependency;
   bool m_ok = false;
   bool m_connected = false;
 };
