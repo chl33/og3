@@ -71,29 +71,8 @@ class SingleDependency : public Dependencies {
         m_prev(prev_dependencies),
         m_prev_num(prev_dependencies ? prev_dependencies->num_depends_on() : 0) {}
   size_t num_depends_on() const final { return m_prev_num + 1; }
-  const Module* depends_on(size_t idx) const final {
-    if (idx < m_prev_num) {
-      return m_prev->depends_on(idx);
-    }
-    return m_module;
-  }
-  bool resolve(const NameToModule& name_to_module) final {
-    if (m_prev) {
-      m_ok = m_prev->resolve(name_to_module);
-    }
-    if (!m_name) {
-      m_ok = false;
-      return true;
-    }
-    const auto iter = name_to_module.find(m_name);
-    if (iter == name_to_module.end()) {
-      m_ok = false;
-      m_module = nullptr;
-    } else {
-      m_module = iter->second;
-    }
-    return m_ok;
-  }
+  const Module* depends_on(size_t idx) const final;
+  bool resolve(const NameToModule& name_to_module) final;
   bool is_ok() const { return m_ok; }
 
  private:
@@ -114,30 +93,8 @@ class DependenciesVector : public Dependencies {
         m_module_names(module_names),
         m_modules(module_names.size()) {}
   size_t num_depends_on() const final { return m_prev_num + m_modules.size(); }
-  const Module* depends_on(size_t idx) const final {
-    if (idx < m_prev_num) {
-      return m_prev->depends_on(idx);
-    }
-    return m_modules[idx - m_prev_num];
-  }
-  bool resolve(const NameToModule& name_to_module) final {
-    m_ok = true;
-    for (size_t i = 0; i < m_module_names.size(); i++) {
-      const auto name = m_module_names[i];
-      if (!name) {
-        m_modules[i] = nullptr;
-        continue;
-      }
-      auto iter = name_to_module.find(name);
-      if (iter == name_to_module.end()) {
-        m_ok = false;
-        m_modules[i] = nullptr;
-      } else {
-        m_modules[i] = iter->second;
-      }
-    }
-    return m_ok;
-  }
+  const Module* depends_on(size_t idx) const final;
+  bool resolve(const NameToModule& name_to_module) final;
   bool is_ok() const { return m_ok; }
 
  private:
