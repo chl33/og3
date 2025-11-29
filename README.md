@@ -4,7 +4,7 @@ The **og3** library is a robust C++ application framework for ESP32 and ESP8266 
 
 This library is built for the [PlatformIO](https://platformio.org/) development environment.
 
-Why "og" ([Garden133 Firmware Post](https://selectiveappeal.org/posts/garden133-firmware/))?
+Why "og" ([Garden133 Firmware](https://selectiveappeal.org/posts/garden133-firmware/))?
 
 > "og" stands for [original gangsta](https://www.dictionary.com/e/slang/og/) because it is an old-school C++ library and application framework, not one of those trendy [YAML](https://en.wikipedia.org/wiki/YAML)-based frameworks like [ESPHome](https://esphome.io/index.html) that the kids these days are using. This is partly because I want the control that writing firmware directly in C++ provides, and partly because I'm a programmer so my hobby projects involve real programming, dammit!
 
@@ -25,7 +25,7 @@ To use og3 in your PlatformIO project, add it to your `platformio.ini` `lib_deps
 
 ```ini
 lib_deps =
-    https://github.com/chl33/og3.git
+    chl33/og3
     # Add other dependencies as needed
 ```
 
