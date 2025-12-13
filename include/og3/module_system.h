@@ -177,5 +177,6 @@ class ModuleSystem {
   std::vector<ThunkRec> m_init_fns;    ///< @brief List of all registered init functions.
   std::vector<ThunkRec> m_start_fns;   ///< @brief List of all registered start functions.
   std::vector<ThunkRec> m_update_fns;  ///< @brief List of all registered update functions.};
+};
 
 }  // namespace og3

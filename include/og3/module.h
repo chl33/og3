@@ -175,3 +175,6 @@ class Module {
   ModuleSystem* m_module_system;  ///< @brief The ModuleSystem this module is part of.
   bool m_is_ok = false;           ///< @brief Indicates if the module is in a healthy state.
   unsigned m_sorted_idx = 0;      ///< @brief The topological sort index assigned by ModuleSystem.
+};
+
+}  // namespace og3
