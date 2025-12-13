@@ -29,7 +29,7 @@
 	"url": "https://github.com/chl33/og3"
     },
     "build": {
-     "libLDFMode": "deep+",
+     "libLDFMode": "chain+",
      "libCompatMode": "strict"
   }
 }
