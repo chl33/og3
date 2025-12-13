@@ -6,7 +6,9 @@
 #include <chrono>
 
 #ifndef NATIVE
+#ifdef ARDUINO_ARCH_ESP32
 #include <esp_task_wdt.h>
+#endif
 #endif
 
 namespace og3 {
@@ -14,6 +16,7 @@ namespace og3 {
 Watchdog::Watchdog(App* app, std::chrono::seconds timeout, std::chrono::milliseconds update)
     : Module("watchdog", &app->module_system()), m_app(app), m_update(update) {
 #ifndef NATIVE
+#ifdef ARDUINO_ARCH_ESP32
   add_init_fn([timeout, this]() {
     // Initialize Watchdog Timer
     esp_task_wdt_init(timeout.count(), true);
@@ -21,25 +24,32 @@ Watchdog::Watchdog(App* app, std::chrono::seconds timeout, std::chrono::millisec
   });
   add_start_fn([this]() { this->update(); });
 #endif
+#endif
 }
 
 void Watchdog::enable() {
 #ifndef NATIVE
+#ifdef ARDUINO_ARCH_ESP32
   esp_task_wdt_add(NULL);
+#endif
 #endif
 }
 
 void Watchdog::disable() {
 #ifndef NATIVE
+#ifdef ARDUINO_ARCH_ESP32
   esp_task_wdt_delete(NULL);
+#endif
 #endif
 }
 
 void Watchdog::update() {
 #ifndef NATIVE
+#ifdef ARDUINO_ARCH_ESP32
   esp_task_wdt_reset();  // Reset watchdog timer
   // Update again in one second.
   m_app->tasks().runIn(m_update.count(), [this]() { update(); });
+#endif
 #endif
 }
 
