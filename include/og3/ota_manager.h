@@ -20,6 +20,18 @@ class OtaManager : public Module {
 
   OtaManager(const Options& opts, ModuleSystem* module_system);
 
+  void addOtaStartCallback(const std::function<void()>& callback) {
+    m_startCallbacks.push_back(callback);
+  }
+  void addOtaEndCallback(const std::function<void()>& callback) {
+    m_endCallbacks.push_back(callback);
+  }
+  void addOtaErrorCallback(const std::function<void(int)>& callback) {
+    m_errorCallbacks.push_back(callback);
+  }
+
+  static OtaManager* get(const NameToModule& n2m) { return GetModule<OtaManager>(n2m, kName); }
+
  private:
   void setup();
   void enable();
@@ -29,6 +41,10 @@ class OtaManager : public Module {
   Variable<String> m_password;
   ConfigInterface* m_config = nullptr;
   WifiManager* m_wifi_manager = nullptr;
+
+  std::vector<std::function<void()>> m_startCallbacks;
+  std::vector<std::function<void()>> m_endCallbacks;
+  std::vector<std::function<void(int)>> m_errorCallbacks;
 
   unsigned long m_last_progress_msec = 0;
 };

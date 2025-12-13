@@ -46,6 +46,9 @@ void OtaManager::setup() {
   }
   ArduinoOTA.setPassword(m_password.value().c_str());
   ArduinoOTA.onStart([this]() {
+    for (const auto& callback : m_startCallbacks) {
+      callback();
+    }
     String type;
     if (ArduinoOTA.getCommand() == U_FLASH) {
       type = "sketch";
@@ -55,7 +58,12 @@ void OtaManager::setup() {
     // NOTE: if updating FS this would be the place to unmount FS using FS.end()
     log()->logf("OTA: Start updating %s", type.c_str());
   });
-  ArduinoOTA.onEnd([&]() { log()->log("End"); });
+  ArduinoOTA.onEnd([this]() {
+    for (const auto& callback : m_endCallbacks) {
+      callback();
+    }
+    log()->log("End");
+  });
   ArduinoOTA.onProgress([&](unsigned int progress, unsigned int total) {
     unsigned long now = millis();
     if (now - m_last_progress_msec >= 1000) {
@@ -64,7 +72,10 @@ void OtaManager::setup() {
       m_last_progress_msec = now;
     }
   });
-  ArduinoOTA.onError([&](ota_error_t error) {
+  ArduinoOTA.onError([this](ota_error_t error) {
+    for (const auto& callback : m_errorCallbacks) {
+      callback(static_cast<int>(error));
+    }
     Serial.printf("OTA: Error[%u]: ", error);
     switch (error) {
       case OTA_AUTH_ERROR:
