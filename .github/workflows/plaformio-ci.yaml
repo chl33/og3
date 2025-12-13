@@ -3,9 +3,6 @@ on: [push]
 jobs:
   build:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        example: [examples/blink/blink.cpp, examples/wifi-app/wifi-app.cpp, examples/web-app/web-app.cpp, examples/ha-app/ha-app.cpp]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/cache@v4
@@ -20,12 +17,35 @@ jobs:
       - name: Install PlatformIO Core
         run: pip install --upgrade platformio intelhex
 
-      - name: Build PlatformIO examples (d1_mini)
-        run: pio ci --board d1_mini --lib . --project-option="lib_ignore=AsyncTCP_RP2040W,AsyncTCP"
-        env:
-          PLATFORMIO_CI_SRC: ${{ matrix.example }}
+      # --- d1_mini builds using pio ci for all examples ---
+      - name: Build d1_mini blink example
+        run: pio ci --board d1_mini --lib . --project-option="lib_ldf_mode=chain" --project-option="lib_compat_mode=strict" examples/blink/blink.cpp
 
-      - name: Build PlatformIO examples (esp32dev)
-        run: pio ci --board esp32dev --lib . --project-option="lib_ignore=AsyncTCP_RP2040W"
-        env:
-          PLATFORMIO_CI_SRC: ${{ matrix.example }}
+      - name: Build d1_mini wifi-app example
+        run: pio ci --board d1_mini --lib . --project-option="lib_ldf_mode=chain" --project-option="lib_compat_mode=strict" examples/wifi-app/wifi-app.cpp
+
+      - name: Build d1_mini web-app example
+        run: pio ci --board d1_mini --lib . --project-option="lib_ldf_mode=chain" --project-option="lib_compat_mode=strict" examples/web-app/web-app.cpp
+
+      - name: Build d1_mini ha-app example
+        run: pio ci --board d1_mini --lib . --project-option="lib_ldf_mode=chain" --project-option="lib_compat_mode=strict" examples/ha-app/ha-app.cpp
+
+      # --- esp32dev builds using pio run for all examples (leveraging platformio.ini) ---
+      - name: Build esp32dev blink example
+        run: pio run -e esp32dev_blink
+      - name: Build esp32dev wifi-app example
+        run: pio run -e esp32dev_wifi_app
+      - name: Build esp32dev web-app example
+        run: pio run -e esp32dev_web_app
+      - name: Build esp32dev ha-app example
+        run: pio run -e esp32dev_ha_app
+
+      # --- lolin_c3_mini builds using pio run for all examples (leveraging platformio.ini) ---
+      - name: Build lolin_c3_mini blink example
+        run: pio run -e lolin_c3_mini_blink
+      - name: Build lolin_c3_mini wifi-app example
+        run: pio run -e lolin_c3_mini_wifi_app
+      - name: Build lolin_c3_mini web-app example
+        run: pio run -e lolin_c3_mini_web_app
+      - name: Build lolin_c3_mini ha-app example
+        run: pio run -e lolin_c3_mini_ha_app
