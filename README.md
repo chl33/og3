@@ -8,7 +8,7 @@ Why "og" ([Garden133 Firmware](https://selectiveappeal.org/posts/garden133-firmw
 
 > "og" stands for [original gangsta](https://www.dictionary.com/e/slang/og/) because it is an old-school C++ library and application framework, not one of those trendy [YAML](https://en.wikipedia.org/wiki/YAML)-based frameworks like [ESPHome](https://esphome.io/index.html) that the kids these days are using. This is partly because I want the control that writing firmware directly in C++ provides, and partly because I'm a programmer so my hobby projects involve real programming, dammit!
 
-*Note: This code is a work in progress and should be considered beta quality. It is suitable for DIY projects, but APIs are still evolving.*
+Version 0.4.0 and later should be considered stable.
 
 ## Key Features
 

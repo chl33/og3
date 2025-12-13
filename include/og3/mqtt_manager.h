@@ -21,8 +21,6 @@
 
 namespace og3 {
 
-// TODO: Why can broker port not be set?
-
 // MqttManager works with a WiFiManager to establish and maintain a connection to a remote
 //  MQTT server.
 // When the WiFi connection is established, MqttManager attempts to connect to the MQTT server.

@@ -14,90 +14,169 @@ namespace og3 {
 class Logger;
 class Module;
 
-// ModuleSystem allows an application to be created from a set of modules.
-//
-// Modules map depend upon other modules, and declare these dependencies by name.
-//
-// Application setup:
-//
-// 1. Add modules to the ModuleSystem.
-//    Upon their construction, modules add themselves to the ModuleSystem.
-//
-// 2. Start.
-//    When all modules are added, call setup() on the depend system to prepare
-//     the modules to run:
-//    This would be done in the Arduino setup() function for example.
-//    a. First, a map of {name -> Module} is passed to all modules so they can
-//       get pointers to other modules in the application.
-//    b. Next, the modules are sorted so that each module runs after all the
-//       modules they depend on.
-//    c. Any module which has registered an 'init()' function now has these
-//        called in sorted-module order.
-//    c. Any module which has registered a 'start()' function now has these
-//        called in sorted-module order.
-//
-// 3. Run.
-//    In the main loop of the application, call the ModuleSystem's update()
-//     function.
-//    On update(), each module which has registered an update() function will
-//     have this called, in the sorted-module order.
-//
+/**
+ * @brief Manages a collection of Modules, orchestrating their lifecycle, dependencies, and
+ * execution order.
+ *
+ * The ModuleSystem is central to the og3 application framework, enabling applications to be built
+ * from a set of modular, interdependent components. It handles the registration, linking,
+ * sorting, and execution of module-defined callbacks across the application's lifecycle.
+ */
 class ModuleSystem {
  public:
-  // This uses a Logger** because this gets initialized from a logger pointer
-  //  in App which can get later overridden in subclasses.
+  /**
+   * @brief Constructs a ModuleSystem instance.
+   *
+   * @param logger A pointer-to-pointer to the Logger. This allows the logger to be dynamically
+   *               swapped (e.g., from Serial to UDP) by the App during its initialization.
+   * @param reserve_num_modules Initial capacity for the internal module storage.
+   */
   ModuleSystem(Logger** logger, unsigned reserve_num_modules = 16);
 
+  /**
+   * @brief Adds a Module to the ModuleSystem.
+   *
+   * Modules typically call this method from their constructors to register themselves.
+   * @param module A pointer to the Module to add.
+   */
   void add_module(Module* module);
 
+  /**
+   * @brief Prepares the ModuleSystem and all its registered Modules for execution.
+   *
+   * This function performs the linking, dependency resolution, sorting, initialization,
+   * and starting phases of the module lifecycle. It should be called once after all
+   * modules have been constructed, typically in the Arduino `setup()` function.
+   * @return `true` if setup was successful, `false` otherwise (e.g., due to circular dependencies).
+   */
   bool setup();
+
+  /**
+   * @brief Executes the update callbacks for all registered modules.
+   *
+   * This function should be called repeatedly in the main application loop (e.g., Arduino
+   * `loop()`). Module update callbacks are invoked in a topologically sorted order.
+   * @return The number of update callbacks executed, or -1 if the system is not initialized
+   * (`!ok()`).
+   */
   int update();
 
-  // These are called by setup().
+  /**
+   * @brief Performs the linking phase of the module lifecycle.
+   *
+   * This allows modules to discover and store pointers to other modules and declare their
+   * dependencies. Called internally by `setup()`.
+   * @return `true` if linking was successful, `false` otherwise.
+   */
   bool link();
+
+  /**
+   * @brief Checks if the ModuleSystem is in a good operational state.
+   * @return `true` if the system is initialized and ready, `false` otherwise.
+   */
   bool ok() const { return m_is_ok; }
+
+  /**
+   * @brief Executes the initialization callbacks for all registered modules.
+   *
+   * Callbacks are invoked in a topologically sorted order. Called internally by `setup()`.
+   */
   void init();
+
+  /**
+   * @brief Executes the start callbacks for all registered modules.
+   *
+   * Callbacks are invoked in a topologically sorted order. Called internally by `setup()`.
+   */
   void start();
 
+  /**
+   * @brief Gets the logger instance used by the ModuleSystem.
+   * @return Pointer to the Logger.
+   */
   Logger* log() { return *m_logger; }
+
+  /**
+   * @brief Returns the number of modules currently registered.
+   * @return The count of registered modules.
+   */
   size_t num_modules() const { return m_modules.size(); }
+
+  /**
+   * @brief Returns the allocated capacity for modules.
+   * @return The module capacity.
+   */
   size_t module_capacity() const { return m_modules.capacity(); }
 
  private:
-  friend class Module;
-  // These are called by Modules during add_module().
+  friend class Module;  ///< @brief Module is a friend to allow it to add callbacks.
+
+  /**
+   * @brief Adds a linking callback. Called by Modules during their construction.
+   * @param link_fn The callback function.
+   * @param mod The module registering the callback.
+   */
   void add_link_fn(const LinkFn& link_fn, Module* mod);
+
+  /**
+   * @brief Adds an initialization callback. Called by Modules during their construction.
+   * @param thunk The callback function.
+   * @param mod The module registering the callback.
+   */
   void add_init_fn(const Thunk& thunk, Module* mod);
+
+  /**
+   * @brief Adds a start callback. Called by Modules during their construction.
+   * @param thunk The callback function.
+   * @param mod The module registering the callback.
+   */
   void add_start_fn(const Thunk& thunk, Module* mod);
+
+  /**
+   * @brief Adds an update callback. Called by Modules during their construction.
+   * @param thunk The callback function.
+   * @param mod The module registering the callback.
+   */
   void add_update_fn(const Thunk& thunk, Module* mod);
 
-  // Internal-only, used by link().
+  /**
+   * @brief Allows modules to resolve pointers to other modules by name.
+   * @return `true` if all link functions execute successfully.
+   */
   bool link_modules_by_name();
+
+  /**
+   * @brief Performs a topological sort of modules based on their declared dependencies.
+   * @param sorted_module_indexes An output array to store the sorted indices of modules.
+   * @return `true` if sorting was successful, `false` if a circular dependency was detected.
+   */
   bool topological_sort(size_t* sorted_module_indexes);
 
-  Logger** m_logger;
-  bool m_is_ok = false;
-  std::vector<Module*> m_modules;
+  Logger** m_logger;     ///< @brief Pointer to the application's Logger pointer.
+  bool m_is_ok = false;  ///< @brief Flag indicating the operational status of the ModuleSystem.
+  std::vector<Module*> m_modules;  ///< @brief Collection of all registered modules.
 
+  /// @brief Helper struct to pair a LinkFn with its owning Module.
   struct LinkFnRec {
     LinkFnRec(const LinkFn& f, Module* m) : fn(f), mod(m) {}
     LinkFnRec(const LinkFnRec&) = default;
-    LinkFn fn;
-    Module* mod;
+    LinkFn fn;    ///< The link callback function.
+    Module* mod;  ///< The module that owns this callback.
     bool operator<(const LinkFnRec& o) const;
   };
+  /// @brief Helper struct to pair a Thunk (init, start, update callback) with its owning Module.
   struct ThunkRec {
     ThunkRec(const Thunk& f, Module* m) : fn(f), mod(m) {}
     ThunkRec(const ThunkRec&) = default;
-    Thunk fn;
-    Module* mod;
+    Thunk fn;     ///< The callback function.
+    Module* mod;  ///< The module that owns this callback.
     bool operator<(const ThunkRec& o) const;
   };
 
-  std::vector<LinkFnRec> m_link_fns;
-  std::vector<ThunkRec> m_init_fns;
-  std::vector<ThunkRec> m_start_fns;
-  std::vector<ThunkRec> m_update_fns;
+  std::vector<LinkFnRec> m_link_fns;   ///< @brief List of all registered link functions.
+  std::vector<ThunkRec> m_init_fns;    ///< @brief List of all registered init functions.
+  std::vector<ThunkRec> m_start_fns;   ///< @brief List of all registered start functions.
+  std::vector<ThunkRec> m_update_fns;  ///< @brief List of all registered update functions.};
 };
 
 }  // namespace og3

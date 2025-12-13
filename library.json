@@ -1,6 +1,6 @@
 {
     "name": "og3",
-    "version": "0.3.99",
+    "version": "0.4.0",
     "description": "A library for esp projects",
     "keywords": "esp32, esp8266, modules, tasks, mqtt",
     "authors": [
@@ -29,7 +29,7 @@
 	"url": "https://github.com/chl33/og3"
     },
     "build": {
-     "libLDFMode": "deep+",
+     "libLDFMode": "chain+",
      "libCompatMode": "strict"
   }
 }
