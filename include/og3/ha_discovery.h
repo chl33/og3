@@ -37,7 +37,7 @@ extern const char* kAqi;
 // Area in m², cm², km², mm², in², ft², yd², mi², ac, ha
 extern const char* kArea;
 // Atmospheric pressure in cbar, bar, hPa, mmHg, inHg, kPa, mbar, Pa or psi
-extern const char* kAtmospheric_pressure;
+extern const char* kAtmosphericPressure;
 // Percentage of battery that is left in %
 extern const char* kBattery;
 // Blood glucose concentration in mg/dL, mmol/L
