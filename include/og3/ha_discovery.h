@@ -26,6 +26,36 @@ extern const char* kSwitch;
 }  // namespace ha::device_type
 
 namespace ha::device_class {
+
+namespace cover {
+//  Control of an awning, such as an exterior retractable window, door, or patio cover.
+extern const char* kAwning;
+//  Control of blinds, which are linked slats that expand or collapse to cover an opening or may be
+//  tilted to partially covering an opening, such as window blinds.
+extern const char* kBlind;
+//  Control of curtains or drapes, which is often fabric hung above a window or door that can be
+//  drawn open.
+extern const char* kCurtain;
+//  Control of a mechanical damper that reduces airflow, sound, or light.
+extern const char* kDamper;
+//  Control of a door or gate that provides access to an area.
+extern const char* kDoor;
+//  Control of a garage door that provides access to a garage.
+extern const char* kGarage;
+//  Control of a gate. Gates are found outside of a structure and are typically part of a fence.";
+extern const char* kGate;
+//  Control of shades, which are a continuous plane of material or connected cells that expanded or
+//  collapsed over an opening, such as window shades.
+extern const char* kShade;
+//  Control of shutters. Shutters are linked slats that can be raised or lowered to cover an
+//  opening, such as window or door roller shutters. Some shutters (for example, some indoor or
+//  exterior window shutters) swing out/in to cover an opening or may be tilted to provide partial
+//  cover.
+extern const char* kShutter;
+//  Control of a physical window that opens and closes or may tilt.
+extern const char* kWindow;
+}  // namespace cover
+
 // Sensors https://www.home-assistant.io/integrations/sensor
 namespace sensor {
 // Absolute humidity in g/m³, mg/m³.
