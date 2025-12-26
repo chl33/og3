@@ -31,6 +31,20 @@ const char* kSwitch = "switch";
 }  // namespace ha::device_type
 
 namespace ha::device_class {
+
+namespace cover {
+const char* kAwning = "awning";
+const char* kBlind = "blind";
+const char* kCurtain = "curtain";
+const char* kDamper = "damp";
+const char* kDoor = "door";
+const char* kGarage = "garage";
+const char* kGate = "gate";
+const char* kShade = "shade";
+const char* kShutter = "shutter";
+const char* kWindow = "window";
+}  // namespace cover
+
 // Sensors https://www.home-assistant.io/integrations/sensor
 namespace sensor {
 const char* kAbsolute_humidity = "absolute_humidity";
