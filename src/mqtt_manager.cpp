@@ -49,6 +49,8 @@ MqttManager::MqttManager(const Options& opts, Tasks* tasks)
       m_opts(opts),
       m_connect_scheduler([this]() { connect(); }, tasks),
       m_vg(kName, nullptr, 4),
+      m_enabled("enabled", true, "Enable MQTT",
+                VariableBase::kConfig | VariableBase::kSettable | VariableBase::kNoPublish, m_vg),
       m_host_addr("host", opts.default_server, "", "MQTT server",
                   VariableBase::kConfig | VariableBase::kSettable, m_vg),
 #if 0
@@ -112,8 +114,21 @@ MqttManager::MqttManager(const Options& opts, Tasks* tasks)
 #endif
 }
 
+void MqttManager::disconnect() {
+#ifndef NATIVE
+  if (connected()) {
+    log()->log("Disconnecting from MQTT...");
+    m_mqttClient.disconnect();
+  }
+#endif
+}
+
 void MqttManager::connect() {
 #ifndef NATIVE
+  if (!isEnabled()) {
+    log()->log("Skipping MQTT connect: disabled.");
+    return;
+  }
   if (m_wifi_manager->apMode()) {
     log()->log("Skipping MQTT connect: in access-point mode.");
     return;
