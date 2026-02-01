@@ -57,6 +57,7 @@ class MqttManager : public Module {
   MqttManager(const Options& opts, Tasks* tasks);
 
   void connect();
+  void disconnect();
 
   void addConnectCallback(const std::function<void()>& callback) {
     m_connectCallbacks.push_back(callback);
@@ -95,6 +96,7 @@ class MqttManager : public Module {
   uint16_t port() const { return m_opts.port; }
   const String& auth_user() const { return m_auth_user.value(); }
   const String& auth_password() const { return m_auth_password.value(); }
+  bool isEnabled() const { return m_enabled.value(); }
   Mode mode() const { return m_mode.value(); }
   // const Options& options() const { return m_opts; }
 
@@ -116,6 +118,7 @@ class MqttManager : public Module {
 #endif
 
   VariableGroup m_vg;
+  BoolVariable m_enabled;
   Variable<String> m_host_addr;
   // Variable<uint16_t> m_port;
   Variable<String> m_auth_user;
