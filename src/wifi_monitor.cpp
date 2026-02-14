@@ -13,8 +13,7 @@ const char WifiMonitor::kName[] = "wifi-monitor";
 
 WifiMonitor::WifiMonitor(Tasks* tasks)
     : Module(WifiMonitor::kName, tasks->module_system()),
-      m_scheduler(
-          10 * kMsecInSec, kMsecInMin, [this]() { statusUpdate(); }, tasks) {
+      m_scheduler(10 * kMsecInSec, kMsecInMin, [this]() { statusUpdate(); }, tasks) {
   setDependencies(&m_dependencies);
   add_link_fn([this](NameToModule& name_to_module) -> bool {
     m_wifi_manager = WifiManager::get(name_to_module);
