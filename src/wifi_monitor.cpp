@@ -1,4 +1,4 @@
-// Copyright (c) 2025 Chris Lee and contibuters.
+// Copyright (c) 2026 Chris Lee and contibuters.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 #include "og3/wifi_monitor.h"
@@ -13,8 +13,7 @@ const char WifiMonitor::kName[] = "wifi-monitor";
 
 WifiMonitor::WifiMonitor(Tasks* tasks)
     : Module(WifiMonitor::kName, tasks->module_system()),
-      m_scheduler(
-          10 * kMsecInSec, kMsecInMin, [this]() { statusUpdate(); }, tasks) {
+      m_scheduler(10 * kMsecInSec, kMsecInMin, [this]() { statusUpdate(); }, tasks) {
   setDependencies(&m_dependencies);
   add_link_fn([this](NameToModule& name_to_module) -> bool {
     m_wifi_manager = WifiManager::get(name_to_module);

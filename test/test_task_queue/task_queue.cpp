@@ -1,4 +1,4 @@
-// Copyright (c) 2025 Chris Lee and contibuters.
+// Copyright (c) 2026 Chris Lee and contibuters.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 #include "og3/task_queue.h"
@@ -142,29 +142,25 @@ void test_eq3() {
   constexpr unsigned kId2 = 101;
 
   // -> [(50, 1, 100)]
-  TEST_ASSERT_TRUE(eq.insert(
-      50, [&fn]() { fn(1); }, kId1));
+  TEST_ASSERT_TRUE(eq.insert(50, [&fn]() { fn(1); }, kId1));
   TEST_ASSERT_EQUAL(1, eq.size());
   TEST_ASSERT_EQUAL(50, eq.first().msec);
   TEST_ASSERT_EQUAL(kId1, eq.first().id);
 
   // -> [(50, 1, 100)]
-  TEST_ASSERT_TRUE(eq.insert(
-      50, [&fn]() { fn(1); }, kId1));
+  TEST_ASSERT_TRUE(eq.insert(50, [&fn]() { fn(1); }, kId1));
   TEST_ASSERT_EQUAL(1, eq.size());
   TEST_ASSERT_EQUAL(50, eq.first().msec);
   TEST_ASSERT_EQUAL(kId1, eq.first().id);
 
   // -> [(10, 2, 101), (50, 1, 100)]
-  TEST_ASSERT_TRUE(eq.insert(
-      10, [fn]() { fn(2); }, kId2));
+  TEST_ASSERT_TRUE(eq.insert(10, [fn]() { fn(2); }, kId2));
   TEST_ASSERT_EQUAL(2, eq.size());
   TEST_ASSERT_EQUAL(10, eq.first().msec);
   TEST_ASSERT_EQUAL(kId2, eq.first().id);
 
   // -> [(50, 1, 100), (60, 3, 101)]
-  TEST_ASSERT_TRUE(eq.insert(
-      60, [fn]() { fn(3); }, kId2));
+  TEST_ASSERT_TRUE(eq.insert(60, [fn]() { fn(3); }, kId2));
   TEST_ASSERT_EQUAL(2, eq.size());
   TEST_ASSERT_EQUAL(50, eq.first().msec);
   TEST_ASSERT_EQUAL(kId1, eq.first().id);
@@ -195,8 +191,7 @@ void test_eq4() {
     }
     counts[val] += 1;
 
-    TEST_ASSERT_TRUE(eq.insert(
-        val * 100, [&fn, val]() { fn(val); }, val + 10));
+    TEST_ASSERT_TRUE(eq.insert(val * 100, [&fn, val]() { fn(val); }, val + 10));
   }
 
   for (unsigned i = 0; i < 20; i++) {

@@ -1,4 +1,4 @@
-// Copyright (c) 2025 Chris Lee and contibuters.
+// Copyright (c) 2026 Chris Lee and contibuters.
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 // These headers help platformio determine dependencies when doing a CI-build.
@@ -49,8 +49,7 @@ class Blink : public og3::Module {
         m_vg("blink"),
         m_high("led_on", false, "LED is on", m_vg),
         // Blink every 10 second, starting at first millisecond.
-        m_blink_timing(
-            1, 10 * og3::kMsecInSec, [this]() { blink(); }, &app->tasks()) {
+        m_blink_timing(1, 10 * og3::kMsecInSec, [this]() { blink(); }, &app->tasks()) {
     setDependencies(&m_dependencies);  // Depend on MQTT & HADiscovery, & get pointers to them.
     add_init_fn([this]() {
       // During app initialization, set the LED pin to output mode.
