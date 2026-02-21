@@ -169,8 +169,7 @@ void MqttManager::connect() {
 void MqttManager::onConnect(bool sessionPresent) {
   m_connected = kConnected;
 #ifndef NATIVE
-  log()->log("Connected to MQTT.");
-  log()->logf("Session present: %s.", sessionPresent ? "true" : "false");
+  log()->logf("Connected to MQTT. Session: %s.", sessionPresent ? "true" : "false");
 
   const auto will_topic = willTopic();
   if (will_topic.length()) {
