@@ -9,14 +9,19 @@
 
 #include "og3/wifi.h"
 
-#ifdef ESP32
-#include <AsyncTCP.h>
+#if defined(ESP32)
+#include <PsychicHttp.h>
+#include <esp_err.h>
 #elif defined(ESP8266)
 #include <ESPAsyncTCP.h>
-#endif
-#ifndef NATIVE
 #include <ESPAsyncWebServer.h>
-#else
+#endif
+
+#ifndef ESP_OK
+#define ESP_OK 0
+#endif
+
+#ifdef NATIVE
 class AsyncWebServerRequest;
 class AsyncWebServer;
 #define PROGMEM
@@ -24,9 +29,34 @@ class AsyncWebServer;
 
 namespace og3 {
 
-void sendWrappedHTML(AsyncWebServerRequest* request, const char* title, const char* footer,
+#if defined(ESP32)
+#include <esp_err.h>
+using NetRequest = PsychicRequest;
+using NetServer = PsychicHttpServer;
+using NetHandlerStatus = int;
+#else
+using NetRequest = AsyncWebServerRequest;
+using NetServer = AsyncWebServer;
+using NetHandlerStatus = void;
+#endif
+
+// Helper to return the correct status from a web handler.
+#if defined(ESP32)
+#include <esp_err.h>
+#define NET_REPLY(r, x) return (x)
+#else
+#define NET_REPLY(r, x) \
+  do {                  \
+    (x);                \
+    return;             \
+  } while (0)
+#endif
+
+using NetHandler = std::function<NetHandlerStatus(NetRequest*)>;
+
+void sendWrappedHTML(NetRequest* request, const char* title, const char* footer,
                      const char* content);
-void htmlRestartPage(AsyncWebServerRequest* request, class Tasks* tasks);
+void htmlRestartPage(NetRequest* request, class Tasks* tasks);
 
 extern const char reboot_page[] PROGMEM;
 extern const char html_page_template[] PROGMEM;
@@ -36,9 +66,7 @@ extern const char html_page_template[] PROGMEM;
 
 class WebButton {
  public:
-  using Action = std::function<void(AsyncWebServerRequest*)>;
-
-  WebButton(AsyncWebServer* server, const char* label, const char* path, const Action& action);
+  WebButton(NetServer* server, const char* label, const char* path, const NetHandler& action);
   void add_button(String* html);
 
   WebButton& operator=(const WebButton&) = default;

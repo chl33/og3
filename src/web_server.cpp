@@ -10,17 +10,24 @@ namespace og3 {
 
 const char* WebServer::kName = "web_server";
 
-bool read(const AsyncWebServerRequest& request, VariableBase& var) {
+bool read(NetRequest& request, VariableBase& var) {
 #ifndef NATIVE
+#if defined(ESP32)
+  if (!request.hasParam(var.name())) {
+    return false;
+  }
+  return var.fromString(request.getParam(var.name())->value());
+#else
   if (!request.hasParam(var.name(), true)) {
     return false;
   }
   return var.fromString(request.getParam(var.name(), true)->value());
+#endif
 #else
   return true;
 #endif
 }
-bool read(const AsyncWebServerRequest& request, const VariableGroup& var_group) {
+bool read(NetRequest& request, const VariableGroup& var_group) {
 #ifndef NATIVE
   bool ret = true;
   for (auto* var : var_group.variables()) {
@@ -37,8 +44,10 @@ bool read(const AsyncWebServerRequest& request, const VariableGroup& var_group) 
 WebServer::WebServer(ModuleSystem* module_system, uint16_t port)
     : Module(WebServer::kName, module_system)
 #ifndef NATIVE
+#if !defined(ESP32)
       ,
       m_server(port)
+#endif
 #endif
 {
   add_link_fn([this](NameToModule& name_to_module) -> bool {
@@ -48,12 +57,44 @@ WebServer::WebServer(ModuleSystem* module_system, uint16_t port)
     }
 #ifndef NATIVE
     m_wifi_manager->addConnectCallback([this]() {
+#if defined(ESP32)
+      m_server.listen(80);
+#else
       m_server.begin();
+#endif
       log()->log("Web server started.");
     });
 #endif
     return true;
   });
 }
+
+#ifndef NATIVE
+void WebServer::on(const char* uri, NetHandler handler) {
+#if defined(ESP32)
+  m_server.on(uri, HTTP_GET, handler);
+#else
+  m_server.on(uri, HTTP_GET, handler);
+#endif
+}
+
+void WebServer::on(const char* uri, NetHandler handler, NetUploadCallback upload_handler) {
+#if defined(ESP32)
+  PsychicUploadHandler* uh = new PsychicUploadHandler();
+  uh->onUpload(upload_handler);
+  m_server.on(uri, HTTP_POST, uh);
+#else
+  m_server.on(uri, HTTP_POST, handler, upload_handler);
+#endif
+}
+
+void WebServer::onNotFound(NetHandler handler) {
+#if defined(ESP32)
+  m_server.onNotFound(handler);
+#else
+  m_server.onNotFound(handler);
+#endif
+}
+#endif
 
 }  // namespace og3

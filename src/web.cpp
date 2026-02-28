@@ -4,14 +4,19 @@
 #ifndef NATIVE
 #include "og3/web.h"
 
-#include <ESPAsyncWebServer.h>
-
 #include "og3/tasks.h"
 
 namespace og3 {
 
-void sendWrappedHTML(AsyncWebServerRequest* request, const char* title, const char* footer,
+void sendWrappedHTML(NetRequest* request, const char* title, const char* footer,
                      const char* content) {
+#if defined(ESP32)
+  String html = html_page_template;
+  html.replace("%TITLE%", title);
+  html.replace("%CONTENT%", content);
+  html.replace("%FOOTER%", footer);
+  request->reply(200, "text/html", html.c_str());
+#else
   auto processor = [title, footer, content](const String& var) {
     if (var == "TITLE") {
       return title;
@@ -23,9 +28,10 @@ void sendWrappedHTML(AsyncWebServerRequest* request, const char* title, const ch
     return "";
   };
   request->send(200, "text/html", html_page_template, processor);
+#endif
 }
 
-void htmlRestartPage(AsyncWebServerRequest* request, Tasks* tasks) {
+void htmlRestartPage(NetRequest* request, Tasks* tasks) {
   sendWrappedHTML(request, "reboot", "", reboot_page);
   tasks->runIn(500, [] {
 #ifdef ESP32
@@ -77,10 +83,10 @@ const char html_page_template[] PROGMEM = R"====(<!DOCTYPE html>
 </html>
 )====";
 
-WebButton::WebButton(AsyncWebServer* server, const char* label, const char* path,
-                     const Action& action)
+WebButton::WebButton(NetServer* server, const char* label, const char* path,
+                     const NetHandler& action)
     : m_label(label), m_path(path) {
-  server->on(path, action);
+  server->on(path, HTTP_GET, action);
 }
 
 void WebButton::add_button(String* html) {

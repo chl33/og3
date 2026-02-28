@@ -15,13 +15,13 @@ class WebApp : public WifiApp {
   explicit WebApp(const WifiApp::Options& options);
 
 #ifndef NATIVE
-  AsyncWebServer& web_server() { return m_web_server.server(); }
+  WebServer& web_server_module() { return m_web_server; }
 #endif
 
-  void handleWifiConfigRequest(AsyncWebServerRequest* request);
+  NetHandlerStatus handleWifiConfigRequest(NetRequest* request);
 #ifndef NATIVE
-  WebButton createWifiConfigButton();
-  WebButton createRestartButton();
+  og3::WebButton createWifiConfigButton();
+  og3::WebButton createRestartButton();
 #endif
 
  protected:

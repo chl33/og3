@@ -24,9 +24,8 @@ ConfigModule::ConfigModule(const char* name, App* app)
     }
 #ifndef NATIVE
     if (m_web_server) {
-      m_web_server->server().on(cfg_url(), [this](AsyncWebServerRequest* request) {
-        this->handleConfigRequest(request);
-      });
+      m_web_server->on(cfg_url(),
+                       [this](NetRequest* request) { return this->handleConfigRequest(request); });
     }
 #endif
   });
@@ -36,7 +35,7 @@ void ConfigModule::add_html_button(String* body) const {
   Module::add_html_button(body, name(), cfg_url());
 }
 
-void ConfigModule::handleConfigRequest(AsyncWebServerRequest* request) {
+NetHandlerStatus ConfigModule::handleConfigRequest(NetRequest* request) {
 #ifndef NATIVE
   ::og3::read(*request, m_cvg);
   m_html.clear();
@@ -47,6 +46,7 @@ void ConfigModule::handleConfigRequest(AsyncWebServerRequest* request) {
     m_config->write_config(m_cvg);
   }
 #endif
+  NET_REPLY(request, ESP_OK);
 }
 
 }  // namespace og3

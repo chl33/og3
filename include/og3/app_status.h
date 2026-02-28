@@ -9,7 +9,7 @@
 #include "og3/tasks.h"
 #include "og3/variable.h"
 
-class AsyncWebServerRequest;
+class NetRequest;
 
 namespace og3 {
 

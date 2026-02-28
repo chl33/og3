@@ -15,7 +15,7 @@ HAApp::HAApp(const HAApp::Options& options)
 
 void HAApp::setup() { WebApp::setup(); }
 
-void HAApp::handleMqttConfigRequest(AsyncWebServerRequest* request) {
+NetHandlerStatus HAApp::handleMqttConfigRequest(NetRequest* request) {
 #ifndef NATIVE
   ::og3::read(*request, mqtt_manager().variables());
   m_web_page.clear();
@@ -24,16 +24,17 @@ void HAApp::handleMqttConfigRequest(AsyncWebServerRequest* request) {
   sendWrappedHTML(request, board_cname(), software_name(), m_web_page.c_str());
   config().write_config(mqtt_manager().variables());
 #endif
+  NET_REPLY(request, ESP_OK);
 }
 
 #ifndef NATIVE
-WebButton HAApp::createMqttConfigButton() {
-  return WebButton(&web_server(), "MQTT Config", MqttManager::kConfigUrl,
-                   [this](AsyncWebServerRequest* request) { handleMqttConfigRequest(request); });
+og3::WebButton HAApp::createMqttConfigButton() {
+  return og3::WebButton(&web_server_module().server(), "MQTT Config", MqttManager::kConfigUrl,
+                        [this](NetRequest* request) { return handleMqttConfigRequest(request); });
 }
 #endif
 
-void HAApp::handleAppStatusRequest(AsyncWebServerRequest* request) {
+NetHandlerStatus HAApp::handleAppStatusRequest(NetRequest* request) {
 #ifndef NATIVE
   m_web_page.clear();
   html::writeTableInto(&m_web_page, app_status().variables());
@@ -41,12 +42,13 @@ void HAApp::handleAppStatusRequest(AsyncWebServerRequest* request) {
   sendWrappedHTML(request, board_cname(), software_name(), m_web_page.c_str());
   config().write_config(app_status().variables());
 #endif
+  NET_REPLY(request, ESP_OK);
 }
 
 #ifndef NATIVE
-WebButton HAApp::createAppStatusButton() {
-  return WebButton(&web_server(), "App Status", AppStatus::kUrl,
-                   [this](AsyncWebServerRequest* request) { handleAppStatusRequest(request); });
+og3::WebButton HAApp::createAppStatusButton() {
+  return og3::WebButton(&web_server_module().server(), "App Status", AppStatus::kUrl,
+                        [this](NetRequest* request) { return handleAppStatusRequest(request); });
 }
 #endif
 

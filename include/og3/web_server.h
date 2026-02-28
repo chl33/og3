@@ -14,10 +14,14 @@ class WifiManager;
 class VariableBase;
 class VariableGroup;
 
-bool read(const AsyncWebServerRequest& request, VariableBase& var);
-bool read(const AsyncWebServerRequest& request, const VariableGroup& var_group);
+bool read(NetRequest& request, VariableBase& var);
+bool read(NetRequest& request, const VariableGroup& var_group);
 
-// A module for managing a AsyncWebServer.
+// Upload callback signature
+using NetUploadCallback =
+    std::function<NetHandlerStatus(NetRequest*, const String&, size_t, uint8_t*, size_t, bool)>;
+
+// A module for managing a NetServer (PsychicHttpServer or AsyncWebServer).
 class WebServer : public Module {
  public:
   explicit WebServer(ModuleSystem* module_system, uint16_t port = 80);
@@ -27,12 +31,17 @@ class WebServer : public Module {
   static const char* kName;
 
 #ifndef NATIVE
-  AsyncWebServer& server() { return m_server; }
+  NetServer& server() { return m_server; }
+
+  // Abstraction for registering routes
+  void on(const char* uri, NetHandler handler);
+  void on(const char* uri, NetHandler handler, NetUploadCallback upload_handler);
+  void onNotFound(NetHandler handler);
 #endif
 
  private:
 #ifndef NATIVE
-  AsyncWebServer m_server;
+  NetServer m_server;
 #endif
   WifiManager* m_wifi_manager = nullptr;
 };

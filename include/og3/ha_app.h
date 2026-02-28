@@ -38,11 +38,11 @@ class HAApp : public WebApp {
   HADiscovery& ha_discovery() { return m_ha_discovery; }
   AppStatus& app_status() { return m_app_status; }
 
-  void handleMqttConfigRequest(AsyncWebServerRequest* request);
-  void handleAppStatusRequest(AsyncWebServerRequest* request);
+  NetHandlerStatus handleMqttConfigRequest(NetRequest* request);
+  NetHandlerStatus handleAppStatusRequest(NetRequest* request);
 #ifndef NATIVE
-  WebButton createMqttConfigButton();
-  WebButton createAppStatusButton();
+  og3::WebButton createMqttConfigButton();
+  og3::WebButton createAppStatusButton();
 #endif
 
  private:

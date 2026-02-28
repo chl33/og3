@@ -16,16 +16,28 @@ WebApp::WebApp(const WifiApp::Options& options) : WifiApp(options) {}
 #else
 WebApp::WebApp(const WifiApp::Options& options) : WifiApp(options), m_web_server(&module_system()) {
   // Serve files in flash from the /static/ subdirectory, such as CSS files.
-  web_server().serveStatic("/static/", LittleFS, "/static/").setCacheControl("max-age=600");
+#if defined(ESP32)
+  web_server_module().server().serveStatic("/static/", LittleFS, "/static/");
+#else
+  web_server_module()
+      .server()
+      .serveStatic("/static/", LittleFS, "/static/")
+      .setCacheControl("max-age=600");
+#endif
   // For captive portal mode, map unknown URI paths to the root page.
   wifi_manager().addSoftAPCallback([this]() {
-    web_server().onNotFound(
-        [this](AsyncWebServerRequest* request) { handleWifiConfigRequest(request); });
+#if defined(ESP32)
+    web_server_module().onNotFound(
+        [this](NetRequest* request) { return handleWifiConfigRequest(request); });
+#else
+    web_server_module().onNotFound(
+        [this](NetRequest* request) { handleWifiConfigRequest(request); });
+#endif
   });
 }
 #endif
 
-void WebApp::handleWifiConfigRequest(AsyncWebServerRequest* request) {
+NetHandlerStatus WebApp::handleWifiConfigRequest(NetRequest* request) {
 #ifndef NATIVE
   ::og3::read(*request, wifi_manager().variables());
   m_web_page.clear();
@@ -34,17 +46,21 @@ void WebApp::handleWifiConfigRequest(AsyncWebServerRequest* request) {
   sendWrappedHTML(request, board_cname(), software_name(), m_web_page.c_str());
   config().write_config(wifi_manager().variables());
 #endif
+  NET_REPLY(request, ESP_OK);
 }
 
 #ifndef NATIVE
-WebButton WebApp::createWifiConfigButton() {
-  return WebButton(&web_server(), "WiFi Config", WifiManager::kConfigUrl,
-                   [this](AsyncWebServerRequest* request) { handleWifiConfigRequest(request); });
+og3::WebButton WebApp::createWifiConfigButton() {
+  return og3::WebButton(&web_server_module().server(), "WiFi Config", WifiManager::kConfigUrl,
+                        [this](NetRequest* request) { return handleWifiConfigRequest(request); });
 }
 
-WebButton WebApp::createRestartButton() {
-  return WebButton(&web_server(), "Restart", "/restart",
-                   [this](AsyncWebServerRequest* request) { htmlRestartPage(request, &tasks()); });
+og3::WebButton WebApp::createRestartButton() {
+  return og3::WebButton(&web_server_module().server(), "Restart", "/restart",
+                        [this](NetRequest* request) {
+                          htmlRestartPage(request, &tasks());
+                          NET_REPLY(request, ESP_OK);
+                        });
 }
 #endif
 

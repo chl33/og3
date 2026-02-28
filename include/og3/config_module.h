@@ -30,7 +30,7 @@ class ConfigModule : public Module {
   String m_html;
 
  private:
-  void handleConfigRequest(AsyncWebServerRequest* request);
+  NetHandlerStatus handleConfigRequest(NetRequest* request);
 };
 
 }  // namespace og3
