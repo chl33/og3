@@ -1,6 +1,6 @@
 {
     "name": "og3",
-    "version": "0.4.5",
+    "version": "0.4.6",
     "description": "A library for esp projects",
     "keywords": "esp32, esp8266, modules, tasks, mqtt",
     "authors": [
@@ -14,8 +14,9 @@
     "dependencies": {
 	"bakercp/CRC32": "~2.0.0",
 	"bblanchon/ArduinoJson": "~7.0.0",
-	"ESP32Async/ESPAsyncWebServer": "3.6.0",
-	"heman/AsyncMqttClient-esphome": "~1.0.0"
+	"ESP32Async/ESPAsyncWebServer": "^3.10.0",
+        "ESP32Async/AsyncTCP": "^3.3.2",
+	"elims/PsychicMqttClient": "^0.2.4"
     },
     "export": {
 	"exclude": [".*", "*~", "util/"]

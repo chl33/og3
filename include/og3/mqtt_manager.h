@@ -7,7 +7,7 @@
 
 #include <cstdint>
 #ifndef NATIVE
-#include <AsyncMqttClient.h>
+#include <PsychicMqttClient.h>
 #endif
 
 #include <functional>
@@ -66,13 +66,13 @@ class MqttManager : public Module {
     m_disconnectCallbacks.push_back(callback);
   }
 #ifndef NATIVE
-  AsyncMqttClient& client() { return m_mqttClient; }
-  const AsyncMqttClient& client() const { return m_mqttClient; }
+  PsychicMqttClient& client() { return m_mqttClient; }
+  const PsychicMqttClient& client() const { return m_mqttClient; }
 #endif
 
   bool connected() const {
 #ifndef NATIVE
-    return client().connected();
+    return const_cast<PsychicMqttClient&>(m_mqttClient).connected();
 #else
     return true;
 #endif
@@ -114,7 +114,7 @@ class MqttManager : public Module {
   ConfigInterface* m_config = nullptr;
   WifiManager* m_wifi_manager = nullptr;
 #ifndef NATIVE
-  AsyncMqttClient m_mqttClient;
+  PsychicMqttClient m_mqttClient;
 #endif
 
   VariableGroup m_vg;
