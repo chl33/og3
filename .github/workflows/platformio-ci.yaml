@@ -1,5 +1,7 @@
 name: PlatformIO CI
 on: [push]
+permissions:
+  contents: read # Read access to repository contents
 jobs:
   build:
     runs-on: ubuntu-latest
