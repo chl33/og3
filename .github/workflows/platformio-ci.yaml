@@ -21,7 +21,7 @@ jobs:
 
       # --- d1_mini builds using pio ci for all examples ---
       - name: Build d1_mini blink example
-        run: pio run -e d1_mini_blink.cpp
+        run: pio run -e d1_mini_blink
       - name: Build d1_mini wifi_app example
         run: pio run -e d1_mini_wifi_app
       - name: Build d1_mini web-app example
