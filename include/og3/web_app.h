@@ -20,8 +20,8 @@ class WebApp : public WifiApp {
 
   NetHandlerStatus handleWifiConfigRequest(NetRequest* request);
 #ifndef NATIVE
-  og3::WebButton createWifiConfigButton();
-  og3::WebButton createRestartButton();
+  WebButton createWifiConfigButton();
+  WebButton createRestartButton();
 #endif
 
  protected:

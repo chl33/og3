@@ -28,9 +28,9 @@ NetHandlerStatus HAApp::handleMqttConfigRequest(NetRequest* request) {
 }
 
 #ifndef NATIVE
-og3::WebButton HAApp::createMqttConfigButton() {
-  return og3::WebButton(&web_server_module().server(), "MQTT Config", MqttManager::kConfigUrl,
-                        [this](NetRequest* request) { return handleMqttConfigRequest(request); });
+WebButton HAApp::createMqttConfigButton() {
+  return WebButton(&web_server_module().server(), "MQTT Config", MqttManager::kConfigUrl,
+                   [this](NetRequest* request) { return handleMqttConfigRequest(request); });
 }
 #endif
 
@@ -46,9 +46,9 @@ NetHandlerStatus HAApp::handleAppStatusRequest(NetRequest* request) {
 }
 
 #ifndef NATIVE
-og3::WebButton HAApp::createAppStatusButton() {
-  return og3::WebButton(&web_server_module().server(), "App Status", AppStatus::kUrl,
-                        [this](NetRequest* request) { return handleAppStatusRequest(request); });
+WebButton HAApp::createAppStatusButton() {
+  return WebButton(&web_server_module().server(), "App Status", AppStatus::kUrl,
+                   [this](NetRequest* request) { return handleAppStatusRequest(request); });
 }
 #endif
 

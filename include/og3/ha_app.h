@@ -41,8 +41,8 @@ class HAApp : public WebApp {
   NetHandlerStatus handleMqttConfigRequest(NetRequest* request);
   NetHandlerStatus handleAppStatusRequest(NetRequest* request);
 #ifndef NATIVE
-  og3::WebButton createMqttConfigButton();
-  og3::WebButton createAppStatusButton();
+  WebButton createMqttConfigButton();
+  WebButton createAppStatusButton();
 #endif
 
  private:

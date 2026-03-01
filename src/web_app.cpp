@@ -50,17 +50,17 @@ NetHandlerStatus WebApp::handleWifiConfigRequest(NetRequest* request) {
 }
 
 #ifndef NATIVE
-og3::WebButton WebApp::createWifiConfigButton() {
-  return og3::WebButton(&web_server_module().server(), "WiFi Config", WifiManager::kConfigUrl,
-                        [this](NetRequest* request) { return handleWifiConfigRequest(request); });
+WebButton WebApp::createWifiConfigButton() {
+  return WebButton(&web_server_module().server(), "WiFi Config", WifiManager::kConfigUrl,
+                   [this](NetRequest* request) { return handleWifiConfigRequest(request); });
 }
 
-og3::WebButton WebApp::createRestartButton() {
-  return og3::WebButton(&web_server_module().server(), "Restart", "/restart",
-                        [this](NetRequest* request) {
-                          htmlRestartPage(request, &tasks());
-                          NET_REPLY(ESP_OK);
-                        });
+WebButton WebApp::createRestartButton() {
+  return WebButton(&web_server_module().server(), "Restart", "/restart",
+                   [this](NetRequest* request) {
+                     htmlRestartPage(request, &tasks());
+                     NET_REPLY(ESP_OK);
+                   });
 }
 #endif
 

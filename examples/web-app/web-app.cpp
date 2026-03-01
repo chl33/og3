@@ -53,7 +53,7 @@ Blink s_blink(&s_app);
 og3::WebButton s_button_wifi_config = s_app.createWifiConfigButton();
 og3::WebButton s_button_restart = s_app.createRestartButton();
 
-void handleWebRoot(AsyncWebServerRequest* request) {
+og3::NetHandlerStatus handleWebRoot(og3::NetRequest* request) {
   // The send of the web page happens asynchronously after this function exits, so we need to make
   // sure the storage for the page remains.  I don't know how to handle the case where
   // multiple clients are being served data at once.
@@ -67,12 +67,13 @@ void handleWebRoot(AsyncWebServerRequest* request) {
   s_button_restart.add_button(&s_body);
   // Send the rendered web page to the client.
   og3::sendWrappedHTML(request, s_app.board_cname(), kSoftware, s_body.c_str());
+  NET_REPLY(ESP_OK);
 }
 
 }  // namespace
 
 void setup() {
   s_app.setup();
-  s_app.web_server().on("/", handleWebRoot);
+  s_app.web_server_module().on("/", handleWebRoot);
 }
 void loop() { s_app.loop(); }

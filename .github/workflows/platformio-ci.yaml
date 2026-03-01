@@ -19,16 +19,13 @@ jobs:
 
       # --- d1_mini builds using pio ci for all examples ---
       - name: Build d1_mini blink example
-        run: pio ci --board d1_mini --lib . --project-option="lib_ldf_mode=chain" --project-option="lib_compat_mode=strict" examples/blink/blink.cpp
-
-      - name: Build d1_mini wifi-app example
-        run: pio ci --board d1_mini --lib . --project-option="lib_ldf_mode=chain" --project-option="lib_compat_mode=strict" examples/wifi-app/wifi-app.cpp
-
+        run: pio run -e d1_mini_blink.cpp
+      - name: Build d1_mini wifi_app example
+        run: pio run -e d1_mini_wifi_app
       - name: Build d1_mini web-app example
-        run: pio ci --board d1_mini --lib . --project-option="lib_ldf_mode=chain" --project-option="lib_compat_mode=strict" examples/web-app/web-app.cpp
-
+        run: pio run -e d1_mini_web_app
       - name: Build d1_mini ha-app example
-        run: pio ci --board d1_mini --lib . --project-option="lib_ldf_mode=chain" --project-option="lib_compat_mode=strict" examples/ha-app/ha-app.cpp
+        run: pio run -e d1_mini_ha_app
 
       # --- esp32dev builds using pio run for all examples (leveraging platformio.ini) ---
       - name: Build esp32dev blink example
