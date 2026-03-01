@@ -46,7 +46,7 @@ NetHandlerStatus ConfigModule::handleConfigRequest(NetRequest* request) {
     m_config->write_config(m_cvg);
   }
 #endif
-  NET_REPLY(ESP_OK);
+  NET_REPLY(request, ESP_OK);
 }
 
 }  // namespace og3

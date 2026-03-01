@@ -4,6 +4,7 @@
 #pragma once
 
 #include <Arduino.h>
+#include <ArduinoJson.h>
 
 #include <functional>
 
@@ -12,16 +13,18 @@
 #if defined(ESP32)
 #include <PsychicHttp.h>
 #include <esp_err.h>
+#ifndef ESP_OK
+#define ESP_OK 0
+#endif
 #elif defined(ESP8266)
 #include <ESPAsyncTCP.h>
 #include <ESPAsyncWebServer.h>
 #endif
 
+#ifdef NATIVE
 #ifndef ESP_OK
 #define ESP_OK 0
 #endif
-
-#ifdef NATIVE
 class AsyncWebServerRequest;
 class AsyncWebServer;
 #define PROGMEM
@@ -30,10 +33,9 @@ class AsyncWebServer;
 namespace og3 {
 
 #if defined(ESP32)
-#include <esp_err.h>
 using NetRequest = PsychicRequest;
 using NetServer = PsychicHttpServer;
-using NetHandlerStatus = int;
+using NetHandlerStatus = esp_err_t;
 #else
 using NetRequest = AsyncWebServerRequest;
 using NetServer = AsyncWebServer;
@@ -42,17 +44,17 @@ using NetHandlerStatus = void;
 
 // Helper to return the correct status from a web handler.
 #if defined(ESP32)
-#include <esp_err.h>
-#define NET_REPLY(VAL) return (VAL)
+#define NET_REPLY(r, x) return (x)
 #else
-#define NET_REPLY(VAL) \
-  do {                 \
-    (void)(VAL);       \
-    return;            \
+#define NET_REPLY(r, x) \
+  do {                  \
+    (void)(x);          \
+    return;             \
   } while (0)
 #endif
 
 using NetHandler = std::function<NetHandlerStatus(NetRequest*)>;
+using NetJsonHandler = std::function<NetHandlerStatus(NetRequest*, JsonVariant&)>;
 
 void sendWrappedHTML(NetRequest* request, const char* title, const char* footer,
                      const char* content);

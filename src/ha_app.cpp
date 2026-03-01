@@ -24,12 +24,12 @@ NetHandlerStatus HAApp::handleMqttConfigRequest(NetRequest* request) {
   sendWrappedHTML(request, board_cname(), software_name(), m_web_page.c_str());
   config().write_config(mqtt_manager().variables());
 #endif
-  NET_REPLY(ESP_OK);
+  NET_REPLY(request, ESP_OK);
 }
 
 #ifndef NATIVE
 WebButton HAApp::createMqttConfigButton() {
-  return WebButton(&web_server_module().server(), "MQTT Config", MqttManager::kConfigUrl,
+  return WebButton(&web_server_module().native_server(), "MQTT Config", MqttManager::kConfigUrl,
                    [this](NetRequest* request) { return handleMqttConfigRequest(request); });
 }
 #endif
@@ -42,12 +42,12 @@ NetHandlerStatus HAApp::handleAppStatusRequest(NetRequest* request) {
   sendWrappedHTML(request, board_cname(), software_name(), m_web_page.c_str());
   config().write_config(app_status().variables());
 #endif
-  NET_REPLY(ESP_OK);
+  NET_REPLY(request, ESP_OK);
 }
 
 #ifndef NATIVE
 WebButton HAApp::createAppStatusButton() {
-  return WebButton(&web_server_module().server(), "App Status", AppStatus::kUrl,
+  return WebButton(&web_server_module().native_server(), "App Status", AppStatus::kUrl,
                    [this](NetRequest* request) { return handleAppStatusRequest(request); });
 }
 #endif

@@ -17,10 +17,10 @@ WebApp::WebApp(const WifiApp::Options& options) : WifiApp(options) {}
 WebApp::WebApp(const WifiApp::Options& options) : WifiApp(options), m_web_server(&module_system()) {
   // Serve files in flash from the /static/ subdirectory, such as CSS files.
 #if defined(ESP32)
-  web_server_module().server().serveStatic("/static/", LittleFS, "/static/");
+  web_server_module().native_server().serveStatic("/static/", LittleFS, "/static/");
 #else
   web_server_module()
-      .server()
+      .native_server()
       .serveStatic("/static/", LittleFS, "/static/")
       .setCacheControl("max-age=600");
 #endif
@@ -46,20 +46,20 @@ NetHandlerStatus WebApp::handleWifiConfigRequest(NetRequest* request) {
   sendWrappedHTML(request, board_cname(), software_name(), m_web_page.c_str());
   config().write_config(wifi_manager().variables());
 #endif
-  NET_REPLY(ESP_OK);
+  NET_REPLY(request, ESP_OK);
 }
 
 #ifndef NATIVE
 WebButton WebApp::createWifiConfigButton() {
-  return WebButton(&web_server_module().server(), "WiFi Config", WifiManager::kConfigUrl,
+  return WebButton(&web_server_module().native_server(), "WiFi Config", WifiManager::kConfigUrl,
                    [this](NetRequest* request) { return handleWifiConfigRequest(request); });
 }
 
 WebButton WebApp::createRestartButton() {
-  return WebButton(&web_server_module().server(), "Restart", "/restart",
+  return WebButton(&web_server_module().native_server(), "Restart", "/restart",
                    [this](NetRequest* request) {
                      htmlRestartPage(request, &tasks());
-                     NET_REPLY(ESP_OK);
+                     NET_REPLY(request, ESP_OK);
                    });
 }
 #endif

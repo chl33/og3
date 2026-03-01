@@ -6,6 +6,10 @@
 #include "og3/config_interface.h"
 #include "og3/wifi_manager.h"
 
+#if defined(ESP8266)
+#include <AsyncJson.h>
+#endif
+
 namespace og3 {
 
 const char* WebServer::kName = "web_server";
@@ -70,23 +74,41 @@ WebServer::WebServer(ModuleSystem* module_system, uint16_t port)
 }
 
 #ifndef NATIVE
-void WebServer::on(const char* uri, NetHandler handler) {
+NetEndpoint* WebServer::on(const char* uri, NetHandler handler) {
 #if defined(ESP32)
-  m_server.on(uri, HTTP_GET, handler);
+  return m_server.on(uri, HTTP_GET, handler);
 #else
-  m_server.on(uri, HTTP_GET, handler);
+  return m_server.on(uri, HTTP_GET, handler);
 #endif
 }
 
-void WebServer::on(const char* uri, NetHandler handler, NetUploadCallback upload_handler) {
 #if defined(ESP32)
+NetEndpoint* WebServer::on(const char* uri, http_method method, NetHandler handler) {
+  return m_server.on(uri, method, handler);
+}
+NetEndpoint* WebServer::on(const char* uri, http_method method, NetHandler handler,
+                           NetUploadCallback upload_handler) {
   PsychicUploadHandler* uh = new PsychicUploadHandler();
   uh->onUpload(upload_handler);
-  m_server.on(uri, HTTP_POST, uh);
-#else
-  m_server.on(uri, HTTP_POST, handler, upload_handler);
-#endif
+  return m_server.on(uri, method, uh);
 }
+NetEndpoint* WebServer::onJson(const char* uri, http_method method, NetJsonHandler handler) {
+  return m_server.on(uri, method, handler);
+}
+#else
+void WebServer::on(const char* uri, WebRequestMethod method, NetHandler handler) {
+  m_server.on(uri, method, handler);
+}
+void WebServer::on(const char* uri, WebRequestMethod method, NetHandler handler,
+                   NetUploadCallback upload_handler) {
+  m_server.on(uri, method, handler, upload_handler);
+}
+void WebServer::onJson(const char* uri, WebRequestMethod method, NetJsonHandler handler) {
+  AsyncCallbackJsonWebHandler* h = new AsyncCallbackJsonWebHandler(uri, handler);
+  h->setMethod(method);
+  m_server.addHandler(h);
+}
+#endif
 
 void WebServer::onNotFound(NetHandler handler) {
 #if defined(ESP32)

@@ -10,6 +10,13 @@
 
 namespace og3 {
 
+#if defined(ESP32)
+using NetEndpoint = PsychicEndpoint;
+#else
+class AsyncCallbackJsonWebHandler;
+using NetEndpoint = void;
+#endif
+
 class WifiManager;
 class VariableBase;
 class VariableGroup;
@@ -32,10 +39,22 @@ class WebServer : public Module {
 
 #ifndef NATIVE
   NetServer& server() { return m_server; }
+  NetServer& native_server() { return m_server; }
 
   // Abstraction for registering routes
-  void on(const char* uri, NetHandler handler);
-  void on(const char* uri, NetHandler handler, NetUploadCallback upload_handler);
+  NetEndpoint* on(const char* uri, NetHandler handler);
+#if defined(ESP32)
+  NetEndpoint* on(const char* uri, http_method method, NetHandler handler);
+  NetEndpoint* on(const char* uri, http_method method, NetHandler handler,
+                  NetUploadCallback upload_handler);
+  NetEndpoint* onJson(const char* uri, http_method method, NetJsonHandler handler);
+#else
+  void on(const char* uri, WebRequestMethod method, NetHandler handler);
+  void on(const char* uri, WebRequestMethod method, NetHandler handler,
+          NetUploadCallback upload_handler);
+  void onJson(const char* uri, WebRequestMethod method, NetJsonHandler handler);
+#endif
+
   void onNotFound(NetHandler handler);
 #endif
 
