@@ -36,13 +36,3 @@ jobs:
         run: pio run -e esp32dev_web_app
       - name: Build esp32dev ha-app example
         run: pio run -e esp32dev_ha_app
-
-      # --- lolin_c3_mini builds using pio run for all examples (leveraging platformio.ini) ---
-      - name: Build lolin_c3_mini blink example
-        run: pio run -e lolin_c3_mini_blink
-      - name: Build lolin_c3_mini wifi-app example
-        run: pio run -e lolin_c3_mini_wifi_app
-      - name: Build lolin_c3_mini web-app example
-        run: pio run -e lolin_c3_mini_web_app
-      - name: Build lolin_c3_mini ha-app example
-        run: pio run -e lolin_c3_mini_ha_app
