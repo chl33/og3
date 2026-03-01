@@ -85,6 +85,7 @@ MqttManager::MqttManager(const Options& opts, Tasks* tasks)
 
 #ifndef NATIVE
   // Configure mqtt client callbacks.
+#if defined(ESP32)
   m_mqttClient.onConnect([this](bool sessionPresent) { return onConnect(sessionPresent); });
   m_mqttClient.onDisconnect([this](int reason) {
     m_connected = kNotConnected;
@@ -106,6 +107,32 @@ MqttManager::MqttManager(const Options& opts, Tasks* tasks)
       }
     }
   });
+#elif defined(ESP8266)
+  m_mqttClient.onConnect([this](bool sessionPresent) { return onConnect(sessionPresent); });
+  m_mqttClient.onDisconnect([this](AsyncMqttClientDisconnectReason reason) {
+    m_connected = kNotConnected;
+    log()->logf("Disconnected from MQTT. Reason: %d.", (int)reason);
+    if (WiFi.isConnected()) {
+      m_connect_scheduler.runIn(10 * kMsecInSec);
+    }
+  });
+  m_mqttClient.onPublish([this](uint16_t packetId) {
+    log()->debugf("Publish acknowledged. packetId: %d", (int)packetId);
+  });
+  m_mqttClient.onSubscribe([this](uint16_t packetId, uint8_t qos) {
+    log()->logf("Subscription acknowledged. packetId: %d", (int)packetId);
+  });
+  m_mqttClient.onMessage([this](char* topic, char* payload,
+                                AsyncMqttClientMessageProperties properties, size_t len,
+                                size_t index, size_t total) {
+    for (const auto& it : m_mqtt_callbacks) {
+      if (it.topic == topic) {
+        it.callback_fn(topic, payload, len);
+        return;
+      }
+    }
+  });
+#endif
 #endif
 }
 
@@ -135,10 +162,15 @@ void MqttManager::connect() {
     return;
   }
 
+#if defined(ESP32)
   // PsychicMqttClient uses a URI: mqtt://host:port
   String uri = "mqtt://" + host + ":" + String(m_opts.port);
   log()->logf("MQTT uri: '%s'", uri.c_str());
   m_mqttClient.setServer(uri.c_str());
+#elif defined(ESP8266)
+  log()->logf("MQTT h:'%s':%d", host.c_str(), (int)m_opts.port);
+  m_mqttClient.setServer(host.c_str(), m_opts.port);
+#endif
 
   const auto& password = m_auth_password.value();
   log()->logf("MQTT u: '%s'", user.c_str());
@@ -162,7 +194,11 @@ void MqttManager::onConnect(bool sessionPresent) {
   const auto will_topic = willTopic();
   if (will_topic.length()) {
     log()->debugf("Printing will");
+#if defined(ESP32)
     m_mqttClient.publish(will_topic.c_str(), m_opts.will_qos, m_opts.will_retain, "online");
+#elif defined(ESP8266)
+    m_mqttClient.publish(will_topic.c_str(), m_opts.will_qos, m_opts.will_retain, "online");
+#endif
   }
   log()->debugf("mqtt connection callbacks: %d", static_cast<int>(m_connectCallbacks.size()));
   for (const auto& callback : m_connectCallbacks) {
@@ -175,7 +211,7 @@ void MqttManager::subscribe(const String& topic, const MqttMsgCallbackFn& fn) {
 #ifndef NATIVE
   m_mqtt_callbacks.push_back({topic, fn});
   const int packetIdSub = m_mqttClient.subscribe(topic.c_str(), 2);
-  log()->logf("Subscribing to '%s' (id=%d)", topic.c_str(), packetIdSub);
+  log()->logf("Subscribing to '%s' (id=%d)", topic.c_str(), (int)packetIdSub);
 #endif
 }
 
@@ -184,7 +220,11 @@ void MqttManager::mqttSend(const char topic[], const char content[]) {
     return;
   }
 #ifndef NATIVE
+#if defined(ESP32)
   m_mqttClient.publish(topic, 1, true, content);
+#elif defined(ESP8266)
+  m_mqttClient.publish(topic, 1, true, content);
+#endif
   log()->debugf("%ld Publishing on topic %s at QoS 1", millis(), topic);
 #endif
 }

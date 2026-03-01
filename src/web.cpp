@@ -17,7 +17,7 @@ void sendWrappedHTML(NetRequest* request, const char* title, const char* footer,
   html.replace("%FOOTER%", footer);
   request->reply(200, "text/html", html.c_str());
 #else
-  auto processor = [title, footer, content](const String& var) {
+  auto processor = [title, footer, content](const String& var) -> String {
     if (var == "TITLE") {
       return title;
     } else if (var == "FOOTER") {
@@ -27,7 +27,7 @@ void sendWrappedHTML(NetRequest* request, const char* title, const char* footer,
     }
     return "";
   };
-  request->send(200, "text/html", html_page_template, processor);
+  request->send_P(200, "text/html", html_page_template, processor);
 #endif
 }
 

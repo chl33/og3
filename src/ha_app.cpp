@@ -24,7 +24,7 @@ NetHandlerStatus HAApp::handleMqttConfigRequest(NetRequest* request) {
   sendWrappedHTML(request, board_cname(), software_name(), m_web_page.c_str());
   config().write_config(mqtt_manager().variables());
 #endif
-  NET_REPLY(request, ESP_OK);
+  NET_REPLY(ESP_OK);
 }
 
 #ifndef NATIVE
@@ -42,7 +42,7 @@ NetHandlerStatus HAApp::handleAppStatusRequest(NetRequest* request) {
   sendWrappedHTML(request, board_cname(), software_name(), m_web_page.c_str());
   config().write_config(app_status().variables());
 #endif
-  NET_REPLY(request, ESP_OK);
+  NET_REPLY(ESP_OK);
 }
 
 #ifndef NATIVE

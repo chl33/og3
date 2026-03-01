@@ -6,8 +6,13 @@
 #include <Arduino.h>
 
 #include <cstdint>
+
 #ifndef NATIVE
+#if defined(ESP32)
 #include <PsychicMqttClient.h>
+#elif defined(ESP8266)
+#include <AsyncMqttClient.h>
+#endif
 #endif
 
 #include <functional>
@@ -20,6 +25,14 @@
 #include "og3/wifi_manager.h"
 
 namespace og3 {
+
+#if defined(ESP32)
+using MqttClient = PsychicMqttClient;
+#elif defined(ESP8266)
+using MqttClient = AsyncMqttClient;
+#else
+class MqttClient;
+#endif
 
 // MqttManager works with a WiFiManager to establish and maintain a connection to a remote
 //  MQTT server.
@@ -66,13 +79,17 @@ class MqttManager : public Module {
     m_disconnectCallbacks.push_back(callback);
   }
 #ifndef NATIVE
-  PsychicMqttClient& client() { return m_mqttClient; }
-  const PsychicMqttClient& client() const { return m_mqttClient; }
+  MqttClient& client() { return m_mqttClient; }
+  const MqttClient& client() const { return m_mqttClient; }
 #endif
 
   bool connected() const {
 #ifndef NATIVE
-    return const_cast<PsychicMqttClient&>(m_mqttClient).connected();
+#if defined(ESP32)
+    return const_cast<MqttClient&>(m_mqttClient).connected();
+#else
+    return m_mqttClient.connected();
+#endif
 #else
     return true;
 #endif
@@ -114,7 +131,7 @@ class MqttManager : public Module {
   ConfigInterface* m_config = nullptr;
   WifiManager* m_wifi_manager = nullptr;
 #ifndef NATIVE
-  PsychicMqttClient m_mqttClient;
+  MqttClient m_mqttClient;
 #endif
 
   VariableGroup m_vg;

@@ -46,7 +46,7 @@ NetHandlerStatus WebApp::handleWifiConfigRequest(NetRequest* request) {
   sendWrappedHTML(request, board_cname(), software_name(), m_web_page.c_str());
   config().write_config(wifi_manager().variables());
 #endif
-  NET_REPLY(request, ESP_OK);
+  NET_REPLY(ESP_OK);
 }
 
 #ifndef NATIVE
@@ -59,7 +59,7 @@ og3::WebButton WebApp::createRestartButton() {
   return og3::WebButton(&web_server_module().server(), "Restart", "/restart",
                         [this](NetRequest* request) {
                           htmlRestartPage(request, &tasks());
-                          NET_REPLY(request, ESP_OK);
+                          NET_REPLY(ESP_OK);
                         });
 }
 #endif

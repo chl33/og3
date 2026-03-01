@@ -43,12 +43,12 @@ using NetHandlerStatus = void;
 // Helper to return the correct status from a web handler.
 #if defined(ESP32)
 #include <esp_err.h>
-#define NET_REPLY(r, x) return (x)
+#define NET_REPLY(VAL) return (VAL)
 #else
-#define NET_REPLY(r, x) \
-  do {                  \
-    (x);                \
-    return;             \
+#define NET_REPLY(VAL) \
+  do {                 \
+    (void)(VAL);       \
+    return;            \
   } while (0)
 #endif
 
