@@ -38,8 +38,8 @@ class HAApp : public WebApp {
   HADiscovery& ha_discovery() { return m_ha_discovery; }
   AppStatus& app_status() { return m_app_status; }
 
-  NetHandlerStatus handleMqttConfigRequest(NetRequest* request);
-  NetHandlerStatus handleAppStatusRequest(NetRequest* request);
+  NetHandlerStatus handleMqttConfigRequest(NetRequest* request, NetResponse* response);
+  NetHandlerStatus handleAppStatusRequest(NetRequest* request, NetResponse* response);
 #ifndef NATIVE
   WebButton createMqttConfigButton();
   WebButton createAppStatusButton();

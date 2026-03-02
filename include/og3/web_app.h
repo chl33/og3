@@ -18,7 +18,7 @@ class WebApp : public WifiApp {
   WebServer& web_server_module() { return m_web_server; }
 #endif
 
-  NetHandlerStatus handleWifiConfigRequest(NetRequest* request);
+  NetHandlerStatus handleWifiConfigRequest(NetRequest* request, NetResponse* response);
 #ifndef NATIVE
   WebButton createWifiConfigButton();
   WebButton createRestartButton();

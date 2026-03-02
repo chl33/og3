@@ -27,23 +27,24 @@ WebApp::WebApp(const WifiApp::Options& options) : WifiApp(options), m_web_server
   // For captive portal mode, map unknown URI paths to the root page.
   wifi_manager().addSoftAPCallback([this]() {
 #if defined(ESP32)
-    web_server_module().onNotFound(
-        [this](NetRequest* request) { return handleWifiConfigRequest(request); });
+    web_server_module().onNotFound([this](NetRequest* request, NetResponse* response) {
+      return handleWifiConfigRequest(request, response);
+    });
 #else
     web_server_module().onNotFound(
-        [this](NetRequest* request) { handleWifiConfigRequest(request); });
+        [this](NetRequest* request, NetResponse* response) { handleWifiConfigRequest(request); });
 #endif
   });
 }
 #endif
 
-NetHandlerStatus WebApp::handleWifiConfigRequest(NetRequest* request) {
+NetHandlerStatus WebApp::handleWifiConfigRequest(NetRequest* request, NetResponse* response) {
 #ifndef NATIVE
   ::og3::read(*request, wifi_manager().variables());
   m_web_page.clear();
   html::writeFormTableInto(&m_web_page, wifi_manager().variables());
   m_web_page += HTML_BUTTON("/", "Back");
-  sendWrappedHTML(request, board_cname(), software_name(), m_web_page.c_str());
+  sendWrappedHTML(request, response, board_cname(), software_name(), m_web_page.c_str());
   config().write_config(wifi_manager().variables());
 #endif
   NET_REPLY(request, ESP_OK);
@@ -52,13 +53,15 @@ NetHandlerStatus WebApp::handleWifiConfigRequest(NetRequest* request) {
 #ifndef NATIVE
 WebButton WebApp::createWifiConfigButton() {
   return WebButton(&web_server_module().native_server(), "WiFi Config", WifiManager::kConfigUrl,
-                   [this](NetRequest* request) { return handleWifiConfigRequest(request); });
+                   [this](NetRequest* request, NetResponse* response) {
+                     return handleWifiConfigRequest(request, response);
+                   });
 }
 
 WebButton WebApp::createRestartButton() {
   return WebButton(&web_server_module().native_server(), "Restart", "/restart",
-                   [this](NetRequest* request) {
-                     htmlRestartPage(request, &tasks());
+                   [this](NetRequest* request, NetResponse* response) {
+                     htmlRestartPage(request, response, &tasks());
                      NET_REPLY(request, ESP_OK);
                    });
 }

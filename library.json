@@ -1,6 +1,6 @@
 {
     "name": "og3",
-    "version": "0.5.0",
+    "version": "0.5.1",
     "description": "A library for esp projects",
     "keywords": "esp32, esp8266, modules, tasks, mqtt",
     "authors": [
@@ -22,7 +22,7 @@
         },
         {
             "name": "hoeken/PsychicHttp",
-            "version": "^1.2.1",
+            "version": "^2.1.1",
             "platforms": "espressif32"
         },
         {

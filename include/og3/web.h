@@ -34,12 +34,17 @@ namespace og3 {
 
 #if defined(ESP32)
 using NetRequest = PsychicRequest;
+using NetResponse = PsychicResponse;
 using NetServer = PsychicHttpServer;
 using NetHandlerStatus = esp_err_t;
+using NetHandler = std::function<NetHandlerStatus(NetRequest*, NetResponse*)>;
+using NetJsonHandler = std::function<NetHandlerStatus(NetRequest*, NetResponse*, JsonVariant&)>;
 #else
 using NetRequest = AsyncWebServerRequest;
 using NetServer = AsyncWebServer;
 using NetHandlerStatus = void;
+using NetHandler = std::function<NetHandlerStatus(NetRequest*)>;
+using NetJsonHandler = std::function<NetHandlerStatus(NetRequest*, JsonVariant&)>;
 #endif
 
 // Helper to return the correct status from a web handler.
@@ -53,12 +58,9 @@ using NetHandlerStatus = void;
   } while (0)
 #endif
 
-using NetHandler = std::function<NetHandlerStatus(NetRequest*)>;
-using NetJsonHandler = std::function<NetHandlerStatus(NetRequest*, JsonVariant&)>;
-
-void sendWrappedHTML(NetRequest* request, const char* title, const char* footer,
-                     const char* content);
-void htmlRestartPage(NetRequest* request, class Tasks* tasks);
+void sendWrappedHTML(NetRequest* request, NetResponse* response, const char* title,
+                     const char* footer, const char* content);
+void htmlRestartPage(NetRequest* request, NetResponse* response, class Tasks* tasks);
 
 extern const char reboot_page[] PROGMEM;
 extern const char html_page_template[] PROGMEM;

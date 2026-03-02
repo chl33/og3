@@ -24,8 +24,9 @@ ConfigModule::ConfigModule(const char* name, App* app)
     }
 #ifndef NATIVE
     if (m_web_server) {
-      m_web_server->on(cfg_url(),
-                       [this](NetRequest* request) { return this->handleConfigRequest(request); });
+      m_web_server->on(cfg_url(), [this](NetRequest* request, NetResponse* response) {
+        return this->handleConfigRequest(request, response);
+      });
     }
 #endif
   });
@@ -35,13 +36,13 @@ void ConfigModule::add_html_button(String* body) const {
   Module::add_html_button(body, name(), cfg_url());
 }
 
-NetHandlerStatus ConfigModule::handleConfigRequest(NetRequest* request) {
+NetHandlerStatus ConfigModule::handleConfigRequest(NetRequest* request, NetResponse* response) {
 #ifndef NATIVE
   ::og3::read(*request, m_cvg);
   m_html.clear();
   html::writeFormTableInto(&m_html, m_cvg);
   Module::add_html_button(&m_html, "Back", "/");
-  sendWrappedHTML(request, m_app->board_cname(), name(), m_html.c_str());
+  sendWrappedHTML(request, response, m_app->board_cname(), name(), m_html.c_str());
   if (m_config) {
     m_config->write_config(m_cvg);
   }

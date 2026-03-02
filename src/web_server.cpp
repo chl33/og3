@@ -62,7 +62,8 @@ WebServer::WebServer(ModuleSystem* module_system, uint16_t port)
 #ifndef NATIVE
     m_wifi_manager->addConnectCallback([this]() {
 #if defined(ESP32)
-      m_server.listen(80);
+      m_server.config.max_uri_handlers = 20;
+      m_server.begin();
 #else
       m_server.begin();
 #endif
@@ -89,7 +90,10 @@ NetEndpoint* WebServer::on(const char* uri, http_method method, NetHandler handl
 NetEndpoint* WebServer::on(const char* uri, http_method method, NetHandler handler,
                            NetUploadCallback upload_handler) {
   PsychicUploadHandler* uh = new PsychicUploadHandler();
-  uh->onUpload(upload_handler);
+  uh->onUpload([upload_handler](PsychicRequest* request, const String& filename, size_t index,
+                                uint8_t* data, size_t len, bool final) {
+    return upload_handler(request, filename, index, data, len, final);
+  });
   return m_server.on(uri, method, uh);
 }
 NetEndpoint* WebServer::onJson(const char* uri, http_method method, NetJsonHandler handler) {
@@ -104,7 +108,9 @@ void WebServer::on(const char* uri, WebRequestMethod method, NetHandler handler,
   m_server.on(uri, method, handler, upload_handler);
 }
 void WebServer::onJson(const char* uri, WebRequestMethod method, NetJsonHandler handler) {
-  AsyncCallbackJsonWebHandler* h = new AsyncCallbackJsonWebHandler(uri, handler);
+  AsyncCallbackJsonWebHandler* h = new AsyncCallbackJsonWebHandler(
+      uri,
+      [handler](AsyncWebServerRequest* request, JsonVariant& json) { handler(request, json); });
   h->setMethod(method);
   m_server.addHandler(h);
 }

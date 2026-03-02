@@ -8,14 +8,14 @@
 
 namespace og3 {
 
-void sendWrappedHTML(NetRequest* request, const char* title, const char* footer,
-                     const char* content) {
+void sendWrappedHTML(NetRequest* request, NetResponse* response, const char* title,
+                     const char* footer, const char* content) {
 #if defined(ESP32)
   String html = html_page_template;
   html.replace("%TITLE%", title);
   html.replace("%CONTENT%", content);
   html.replace("%FOOTER%", footer);
-  request->reply(200, "text/html", html.c_str());
+  request->response()->send(200, "text/html", html.c_str());
 #else
   auto processor = [title, footer, content](const String& var) -> String {
     if (var == "TITLE") {
@@ -31,8 +31,8 @@ void sendWrappedHTML(NetRequest* request, const char* title, const char* footer,
 #endif
 }
 
-void htmlRestartPage(NetRequest* request, Tasks* tasks) {
-  sendWrappedHTML(request, "reboot", "", reboot_page);
+void htmlRestartPage(NetRequest* request, NetResponse* response, Tasks* tasks) {
+  sendWrappedHTML(request, response, "reboot", "", reboot_page);
   tasks->runIn(500, [] {
 #ifdef ESP32
     ESP.restart();
