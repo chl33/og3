@@ -86,7 +86,12 @@ const char html_page_template[] PROGMEM = R"====(<!DOCTYPE html>
 WebButton::WebButton(NetServer* server, const char* label, const char* path,
                      const NetHandler& action)
     : m_label(label), m_path(path) {
+#if defined(ESP32)
   server->on(path, HTTP_GET, action);
+#else
+  server->on(path, HTTP_GET,
+             [action](AsyncWebServerRequest* request) { action(request, nullptr); });
+#endif
 }
 
 void WebButton::add_button(String* html) {

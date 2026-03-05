@@ -31,8 +31,9 @@ WebApp::WebApp(const WifiApp::Options& options) : WifiApp(options), m_web_server
       return handleWifiConfigRequest(request, response);
     });
 #else
-    web_server_module().onNotFound(
-        [this](NetRequest* request, NetResponse* response) { handleWifiConfigRequest(request); });
+    web_server_module().onNotFound([this](NetRequest* request, NetResponse* response) {
+      return handleWifiConfigRequest(request, response);
+    });
 #endif
   });
 }

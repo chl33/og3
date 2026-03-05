@@ -53,7 +53,7 @@ Blink s_blink(&s_app);
 og3::WebButton s_button_wifi_config = s_app.createWifiConfigButton();
 og3::WebButton s_button_restart = s_app.createRestartButton();
 
-og3::NetHandlerStatus handleWebRoot(og3::NetRequest* request) {
+og3::NetHandlerStatus handleWebRoot(og3::NetRequest* request, og3::NetResponse* response) {
   // The send of the web page happens asynchronously after this function exits, so we need to make
   // sure the storage for the page remains.  I don't know how to handle the case where
   // multiple clients are being served data at once.
@@ -66,8 +66,8 @@ og3::NetHandlerStatus handleWebRoot(og3::NetRequest* request) {
   // Add a button for rebooting the board.
   s_button_restart.add_button(&s_body);
   // Send the rendered web page to the client.
-  og3::sendWrappedHTML(request, s_app.board_cname(), kSoftware, s_body.c_str());
-  NET_REPLY(ESP_OK);
+  og3::sendWrappedHTML(request, response, s_app.board_cname(), kSoftware, s_body.c_str());
+  NET_REPLY(request, ESP_OK);
 }
 
 }  // namespace

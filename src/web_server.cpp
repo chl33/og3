@@ -79,7 +79,9 @@ NetEndpoint* WebServer::on(const char* uri, NetHandler handler) {
 #if defined(ESP32)
   return m_server.on(uri, HTTP_GET, handler);
 #else
-  return m_server.on(uri, HTTP_GET, handler);
+  m_server.on(uri, HTTP_GET,
+              [handler](AsyncWebServerRequest* request) { handler(request, nullptr); });
+  return nullptr;
 #endif
 }
 
@@ -101,16 +103,22 @@ NetEndpoint* WebServer::onJson(const char* uri, http_method method, NetJsonHandl
 }
 #else
 void WebServer::on(const char* uri, WebRequestMethod method, NetHandler handler) {
-  m_server.on(uri, method, handler);
+  m_server.on(uri, method,
+              [handler](AsyncWebServerRequest* request) { handler(request, nullptr); });
 }
 void WebServer::on(const char* uri, WebRequestMethod method, NetHandler handler,
                    NetUploadCallback upload_handler) {
-  m_server.on(uri, method, handler, upload_handler);
+  m_server.on(
+      uri, method, [handler](AsyncWebServerRequest* request) { handler(request, nullptr); },
+      [upload_handler](AsyncWebServerRequest* request, const String& filename, size_t index,
+                       uint8_t* data, size_t len,
+                       bool final) { upload_handler(request, filename, index, data, len, final); });
 }
 void WebServer::onJson(const char* uri, WebRequestMethod method, NetJsonHandler handler) {
   AsyncCallbackJsonWebHandler* h = new AsyncCallbackJsonWebHandler(
-      uri,
-      [handler](AsyncWebServerRequest* request, JsonVariant& json) { handler(request, json); });
+      uri, [handler](AsyncWebServerRequest* request, JsonVariant& json) {
+        handler(request, nullptr, json);
+      });
   h->setMethod(method);
   m_server.addHandler(h);
 }
@@ -120,7 +128,7 @@ void WebServer::onNotFound(NetHandler handler) {
 #if defined(ESP32)
   m_server.onNotFound(handler);
 #else
-  m_server.onNotFound(handler);
+  m_server.onNotFound([handler](AsyncWebServerRequest* request) { handler(request, nullptr); });
 #endif
 }
 #endif

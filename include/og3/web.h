@@ -30,24 +30,46 @@ class AsyncWebServer;
 #define PROGMEM
 #endif
 
+#ifndef ESP_OK
+#define ESP_OK 0
+#endif
+
 namespace og3 {
 
+/**
+ * @brief Networking Abstraction Layer
+ *
+ * This layer provides a consistent API for web servers across different hardware:
+ * - ESP32: Uses PsychicHttp 2.1.1 (Request-Response style)
+ * - ESP8266: Uses ESPAsyncWebServer (Request-only style)
+ *
+ * Developers should use the Net* types below to ensure their code is portable.
+ */
+
 #if defined(ESP32)
-using NetRequest = PsychicRequest;
-using NetResponse = PsychicResponse;
-using NetServer = PsychicHttpServer;
-using NetHandlerStatus = esp_err_t;
+using NetRequest = PsychicRequest;    ///< The incoming HTTP request
+using NetResponse = PsychicResponse;  ///< The outgoing HTTP response (ESP32 only)
+using NetServer = PsychicHttpServer;  ///< The underlying web server
+using NetHandlerStatus = esp_err_t;   ///< Return type for request handlers
+/** @brief Standard handler signature: (Request, Response) */
 using NetHandler = std::function<NetHandlerStatus(NetRequest*, NetResponse*)>;
+/** @brief JSON handler signature: (Request, Response, JSON) */
 using NetJsonHandler = std::function<NetHandlerStatus(NetRequest*, NetResponse*, JsonVariant&)>;
 #else
 using NetRequest = AsyncWebServerRequest;
+using NetResponse = void;  ///< Placeholder for ESP8266 compatibility
 using NetServer = AsyncWebServer;
 using NetHandlerStatus = void;
-using NetHandler = std::function<NetHandlerStatus(NetRequest*)>;
-using NetJsonHandler = std::function<NetHandlerStatus(NetRequest*, JsonVariant&)>;
+using NetHandler = std::function<NetHandlerStatus(NetRequest*, NetResponse*)>;
+using NetJsonHandler = std::function<NetHandlerStatus(NetRequest*, NetResponse*, JsonVariant&)>;
 #endif
 
-// Helper to return the correct status from a web handler.
+/**
+ * @brief Helper to return the correct status from a web handler.
+ *
+ * @param r The NetRequest pointer
+ * @param x The return code (e.g., ESP_OK or ESP_FAIL)
+ */
 #if defined(ESP32)
 #define NET_REPLY(r, x) return (x)
 #else
