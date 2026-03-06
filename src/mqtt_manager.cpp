@@ -117,10 +117,10 @@ MqttManager::MqttManager(const Options& opts, Tasks* tasks)
     }
   });
   m_mqttClient.onPublish([this](uint16_t packetId) {
-    log()->debugf("Publish acknowledged. packetId: %d", (int)packetId);
+    log()->debugf("Publish acknowledged. packetId: %u", static_cast<unsigned>(packetId));
   });
   m_mqttClient.onSubscribe([this](uint16_t packetId, uint8_t qos) {
-    log()->logf("Subscription acknowledged. packetId: %d", (int)packetId);
+    log()->logf("Subscription acknowledged. packetId: %u", static_cast<unsigned>(packetId));
   });
   m_mqttClient.onMessage([this](char* topic, char* payload,
                                 AsyncMqttClientMessageProperties properties, size_t len,
@@ -211,7 +211,7 @@ void MqttManager::subscribe(const String& topic, const MqttMsgCallbackFn& fn) {
 #ifndef NATIVE
   m_mqtt_callbacks.push_back({topic, fn});
   const int packetIdSub = m_mqttClient.subscribe(topic.c_str(), 2);
-  log()->logf("Subscribing to '%s' (id=%d)", topic.c_str(), (int)packetIdSub);
+  log()->logf("Subscribing to '%s' (id=%d)", topic.c_str(), packetIdSub);
 #endif
 }
 
@@ -220,12 +220,8 @@ void MqttManager::mqttSend(const char topic[], const char content[]) {
     return;
   }
 #ifndef NATIVE
-#if defined(ESP32)
   m_mqttClient.publish(topic, 1, true, content);
-#elif defined(ESP8266)
-  m_mqttClient.publish(topic, 1, true, content);
-#endif
-  log()->debugf("%ld Publishing on topic %s at QoS 1", millis(), topic);
+  log()->debugf("%ld Publishing on topic '%s' at QoS 1", millis(), topic);
 #endif
 }
 

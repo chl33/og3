@@ -13,18 +13,10 @@
 #if defined(ESP32)
 #include <PsychicHttp.h>
 #include <esp_err.h>
-#ifndef ESP_OK
-#define ESP_OK 0
-#endif
 #elif defined(ESP8266)
 #include <ESPAsyncTCP.h>
 #include <ESPAsyncWebServer.h>
-#endif
-
-#ifdef NATIVE
-#ifndef ESP_OK
-#define ESP_OK 0
-#endif
+#elif defined(NATIVE)
 class AsyncWebServerRequest;
 class AsyncWebServer;
 #define PROGMEM

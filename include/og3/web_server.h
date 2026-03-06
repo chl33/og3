@@ -49,8 +49,6 @@ class WebServer : public Module {
 
 #ifndef NATIVE
   /** @brief Returns a reference to the underlying server object. */
-  NetServer& server() { return m_server; }
-  /** @brief Returns a reference to the underlying server object. */
   NetServer& native_server() { return m_server; }
 
   /**
