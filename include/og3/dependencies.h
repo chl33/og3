@@ -60,7 +60,9 @@ class DependenciesArray : public Dependencies {
                              Dependencies* prev_dependencies = nullptr)
       : m_prev(prev_dependencies),
         m_prev_num(prev_dependencies ? prev_dependencies->num_depends_on() : 0),
-        m_module_names(module_names) {}
+        m_module_names(module_names) {
+    m_modules.fill(nullptr);
+  }
 
   /** @return Total number of dependencies, including any chained ones. */
   size_t num_depends_on() const final { return m_prev_num + m_modules.size(); }

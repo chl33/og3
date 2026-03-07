@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Library Metadata**: Refined `library.json` with descriptive keywords, explicit example declarations, and an improved project summary for better discovery in the PlatformIO Registry.
 - **Doxygen Documentation**: Upgraded all header files in `include/og3/` to use Doxygen-style comments, providing detailed documentation for classes, methods, and parameters.
 - **GitHub Actions CI**: Automated the CI workflow to run native unit tests and build all examples on every push and pull request using `util/ci.sh`.
+- **Static Code Analysis**: Integrated `cppcheck` into the PlatformIO workflow with targeted filters to ensure code quality and identify potential bugs early.
 
 ### Changed
 - **Web Server Configuration**: Increased default `max_uri_handlers` to 20 on ESP32 to prevent 404 errors in complex applications with many routes.

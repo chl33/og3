@@ -16,7 +16,10 @@ uint16_t getu16(const uint8_t* u) { return (static_cast<uint16_t>(u[0]) << 8) | 
 }  // namespace
 
 PacketReader::PacketReader(const uint8_t* buffer, std::size_t nbytes)
-    : m_buffer(buffer), m_buffer_size(nbytes) {}
+    : m_buffer(buffer), m_buffer_size(nbytes) {
+  std::fill(std::begin(m_msg_sizes), std::end(m_msg_sizes), 0);
+  std::fill(std::begin(m_msg_offsets), std::end(m_msg_offsets), 0);
+}
 
 PacketReader::ParseResult PacketReader::parse() {
   if (m_buffer_size < kHeaderSize) {
@@ -58,7 +61,7 @@ PacketReader::ParseResult PacketReader::parse() {
     }
   }
   const int32_t msgs_size =
-      static_cast<int32_t>(m_pkt_size) - kHeaderSize - (m_has_crc ? sizeof(sizeof(uint32_t)) : 0);
+      static_cast<int32_t>(m_pkt_size) - kHeaderSize - (m_has_crc ? sizeof(uint32_t) : 0);
   if (static_cast<int32_t>(kMsgHeaderSize * m_num_msgs) > msgs_size) {
     return ParseResult::kBadSize;
   }

@@ -43,7 +43,7 @@ void TaskQueue::insertReplace(unsigned long msec, const Thunk& t, unsigned id) {
   }
   std::size_t num_shift = 0;
   while (num_shift < size()) {
-    TimedThunk& tti = thunk(size() - num_shift - 1);
+    const TimedThunk& tti = thunk(size() - num_shift - 1);
     if (isBefore(tti.msec, msec)) {
       break;
     }
@@ -64,7 +64,7 @@ bool TaskQueue::remove(unsigned id) {
   std::size_t num_shift = 0;
   while (num_shift < size()) {
     const unsigned idx = size() - num_shift - 1;
-    TimedThunk& tti = thunk(idx);
+    const TimedThunk& tti = thunk(idx);
     if (tti.id == id) {
       if (idx == 0) {
         incrementStart();
@@ -86,9 +86,9 @@ bool TaskQueue::runNext() {
   if (empty()) {
     return false;  // No thunks to run.
   }
-  Thunk thunk = first().thunk;
+  Thunk fn = first().thunk;
   popFirst();  // Displose of the run calback.
-  thunk();     // Run the first callback.
+  fn();        // Run the first callback.
   return true;
 }
 void TaskQueue::popFirst() {
