@@ -10,11 +10,17 @@ namespace og3 {
 
 class WifiManager;
 
-// A module handles mDNS support for an application.
+/**
+ * @brief Module providing multicast DNS (mDNS) support.
+ *
+ * Allows the device to be reachable via a local hostname (e.g. `hostname.local`)
+ * rather than just an IP address.
+ */
 class Mdns : public Module {
  public:
-  static const char kName[];
+  static const char kName[];  ///< @brief "mdns"
 
+  /** @brief Constructs an Mdns module. */
   explicit Mdns(Tasks* tasks);
 
  private:

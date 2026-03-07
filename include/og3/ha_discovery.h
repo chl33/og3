@@ -16,235 +16,141 @@ class Tasks;
 }
 
 namespace og3 {
-// Home assistant device types
+
+/** @brief Home Assistant device types. */
 namespace ha::device_type {
-extern const char* kBinarySensor;
-extern const char* kClimate;
-extern const char* kCover;
-extern const char* kSensor;
-extern const char* kSwitch;
+extern const char* kBinarySensor;  ///< "binary_sensor"
+extern const char* kClimate;       ///< "climate"
+extern const char* kCover;         ///< "cover"
+extern const char* kSensor;        ///< "sensor"
+extern const char* kSwitch;        ///< "switch"
 }  // namespace ha::device_type
 
+/** @brief Home Assistant device classes for various entity types. */
 namespace ha::device_class {
 
+/** @brief Device classes for 'cover' entities. */
 namespace cover {
-//  Control of an awning, such as an exterior retractable window, door, or patio cover.
 extern const char* kAwning;
-//  Control of blinds, which are linked slats that expand or collapse to cover an opening or may be
-//  tilted to partially covering an opening, such as window blinds.
 extern const char* kBlind;
-//  Control of curtains or drapes, which is often fabric hung above a window or door that can be
-//  drawn open.
 extern const char* kCurtain;
-//  Control of a mechanical damper that reduces airflow, sound, or light.
 extern const char* kDamper;
-//  Control of a door or gate that provides access to an area.
 extern const char* kDoor;
-//  Control of a garage door that provides access to a garage.
 extern const char* kGarage;
-//  Control of a gate. Gates are found outside of a structure and are typically part of a fence.";
 extern const char* kGate;
-//  Control of shades, which are a continuous plane of material or connected cells that expanded or
-//  collapsed over an opening, such as window shades.
 extern const char* kShade;
-//  Control of shutters. Shutters are linked slats that can be raised or lowered to cover an
-//  opening, such as window or door roller shutters. Some shutters (for example, some indoor or
-//  exterior window shutters) swing out/in to cover an opening or may be tilted to provide partial
-//  cover.
 extern const char* kShutter;
-//  Control of a physical window that opens and closes or may tilt.
 extern const char* kWindow;
 }  // namespace cover
 
-// Sensors https://www.home-assistant.io/integrations/sensor
+/** @brief Device classes for 'sensor' entities. */
 namespace sensor {
-// Absolute humidity in g/m³, mg/m³.
 extern const char* kAbsolute_humidity;
-// Apparent power in mVA, VA or kVA.
 extern const char* kApparent_power;
-// Air Quality Index (unitless).
 extern const char* kAqi;
-// Area in m², cm², km², mm², in², ft², yd², mi², ac, ha
 extern const char* kArea;
-// Atmospheric pressure in cbar, bar, hPa, mmHg, inHg, kPa, mbar, Pa or psi
 extern const char* kAtmosphericPressure;
-// Percentage of battery that is left in %
 extern const char* kBattery;
-// Blood glucose concentration in mg/dL, mmol/L
 extern const char* kBlood_glucose_concentration;
-// Carbon Dioxide (CO₂) concentration in ppm
 extern const char* kCarbon_dioxide;
-// Carbon Monoxide (CO) concentration in ppm, µg/m³, mg/m³
 extern const char* kCarbon_monoxide;
-// Current in A, mA
 extern const char* kCurrent;
-// Data rate in bit/s, kbit/s, Mbit/s, Gbit/s, B/s, kB/s, MB/s, GB/s, KiB/s, MiB/s or GiB/s
 extern const char* kDataRate;
-// Data size in bit, kbit, Mbit, Gbit, B, kB, MB, GB, TB, PB, EB, ZB, YB, KiB, MiB, GiB, TiB, PiB,
-// EiB, ZiB or YiB
 extern const char* kDataSize;
-// Date string (ISO 8601)
 extern const char* kDate;
-// Generic distance in km, m, cm, mm, mi, nmi, yd, or in
 extern const char* kDistance;
-// Duration in d, h, min, s, ms, or µs
 extern const char* kDuration;
-// Energy in J, kJ, MJ, GJ, mWh, Wh, kWh, MWh, GWh, TWh, cal, kcal, Mcal, or Gcal
 extern const char* kEnergy;
-// Energy per distance in kWh/100km, Wh/km, mi/kWh, or km/kWh.
 extern const char* kEnergyDistance;
-// Stored energy in J, kJ, MJ, GJ, mWh, Wh, kWh, MWh, GWh, TWh, cal, kcal, Mcal, or Gcal
 extern const char* kEnergyStorage;
-// Has a limited set of (non-numeric) states
 extern const char* kEnum;
-// Frequency in Hz, kHz, MHz, or GHz
 extern const char* kFrequency;
-// Gas volume in L, m³, ft³, CCF, or MCF
 extern const char* kGas;
-// Percentage of humidity in the air in %
 extern const char* kHumidity;
-// The current light level in lx
 extern const char* kIlluminance;
-// Irradiance in W/m² or BTU/(h⋅ft²)
 extern const char* kIrradiance;
-// Percentage of water in a substance in %
 extern const char* kMoisture;
-// The monetary value (ISO 4217)
 extern const char* kMonetary;
-// Concentration of Nitrogen Dioxide in µg/m³
 extern const char* kNitrogenDioxide;
-// Concentration of Nitrogen Monoxide in µg/m³
 extern const char* kNitrogenMonoxide;
-// Concentration of Nitrous Oxide in µg/m³
 extern const char* kNitrousOxide;
-// Concentration of Ozone in µg/m³
 extern const char* kOzone;
-// Potential hydrogen (pH) value of a water solution
 extern const char* kPh;
-// Concentration of particulate matter less than 1 micrometer in µg/m³
 extern const char* kPm1;
-// Concentration of particulate matter less than 2.5 micrometers in µg/m³
 extern const char* kPm25;
-// Concentration of particulate matter less than 4 micrometers in µg/m³
 extern const char* kPm4;
-// Concentration of particulate matter less than 10 micrometers in µg/m³
 extern const char* kPm10;
-// Power factor (unitless), unit may be None or %
 extern const char* kPowerFactor;
-// Power in mW, W, kW, MW, GW or TW
 extern const char* kPower;
-// Accumulated precipitation in cm, in or mm
 extern const char* kPrecipitation;
-// Precipitation intensity in in/d, in/h, mm/d or mm/h
 extern const char* kPrecipitationIntensity;
-// Pressure in mPa, Pa, hPa, kPa, bar, cbar, mbar, mmHg, inHg, inH₂O or psi
 extern const char* kPressure;
-// Reactive energy in varh or kvarh
 extern const char* kReactiveEnergy;
-// Reactive power in mvar, var, or kvar
 extern const char* kReactivePower;
-// Signal strength in dB or dBm
 extern const char* kSignalStrength;
-// Sound pressure in dB or dBA
 extern const char* kSoundPressure;
-// Generic speed in ft/s, in/d, in/h, in/s, km/h, kn, m/s, mph, mm/d, or mm/s
 extern const char* kSpeed;
-// Concentration of sulphur dioxide in µg/m³
 extern const char* kSulphurDioxide;
-// Temperature in °C, °F or K
 extern const char* kTemperature;
-// Temperature difference between two measurements in °C, °F, or K
 extern const char* kTemperatureDelta;
-// Datetime object or timestamp string (ISO 8601)
 extern const char* kTimestamp;
-// Concentration of volatile organic compounds in µg/m³ or mg/m³
 extern const char* kVolatileOrganicCompounds;
-// Ratio of volatile organic compounds in ppm or ppb
 extern const char* kVolatileOrganicCompoundsParts;
-// Voltage in V, mV, µV, kV, MV
 extern const char* kVoltage;
-// Generic volume in L, mL, gal, fl. oz., m³, ft³, CCF, or MCF
 extern const char* kVolume;
-// Volume flow rate in m³/h, m³/min, m³/s, ft³/min, L/h, L/min, L/s, gal/h, gal/min, or mL/s
 extern const char* kVolumeFlowRate;
-// Generic stored volume in L, mL, gal, fl. oz., m³, ft³, CCF, or MCF
 extern const char* kVolumeStorage;
-// Water consumption in L, gal, m³, ft³, CCF, or MCF
 extern const char* kWater;
-// Generic mass in kg, g, mg, µg, oz, lb, or st
 extern const char* kWeight;
-// Wind direction in °
 extern const char* kWindDirection;
-// Wind speed in Beaufort, ft/s, km/h, kn, m/s, or mph
 extern const char* kWindSpeed;
 }  // namespace sensor
+
+/** @brief Device classes for 'binary_sensor' entities. */
 namespace binary_sensor {
-// on means charging, off means not charging
 extern const char* kBatteryCharging;
-// on means carbon monoxide detected, off no carbon monoxide (clear)
 extern const char* kCarbonMonoxide;
-// on means cold, off means normal
 extern const char* kCold;
-// on means connected, off means disconnected
 extern const char* kConnectivity;
-// on means open, off means closed
 extern const char* kDoor;
-// on means open, off means closed
 extern const char* kGarageDoor;
-// on means gas detected, off means no gas (clear)= "garage_door";
 extern const char* kGas;
-// on means hot, off means normal
 extern const char* kHeat;
-// on means light detected, off means no light
 extern const char* kLight;
-// on means open (unlocked), off means closed (locked)";
 extern const char* kLock;
-// on means moisture detected (wet), off means no moisture (dry)
 extern const char* kMoisture;
-// on means motion detected, off means no motion (clear)re";
 extern const char* kMotion;
-// on means moving, off means not moving (stopped)
 extern const char* kMoving;
-// on means occupied (detected), off means not occupied (clear)
 extern const char* kOccupancy;
-// on means open, off means closed
 extern const char* kOpening;
-// on means device is plugged in, off means device is unplugged
 extern const char* kPlug;
-// on means power detected, off means no power
 extern const char* kPower;
-// on means home, off means away
 extern const char* kPresence;
-//  on means problem detected, off means no problem (OK)
 extern const char* kProblem;
-// on means running, off means not running
 extern const char* kRunning;
-// on means unsafe, off means safe
 extern const char* kSafety;
-// on means smoke detected, off means no smoke (clear)
 extern const char* kSmoke;
-// on means sound detected, off means no sound (clear)
 extern const char* kSound;
-// on means tampering detected, off means no tampering (clear)
 extern const char* kTamper;
-// on means update available, off means up-to-date
 extern const char* kUpdate;
-// on means vibration detected, off means no vibration (clear)
 extern const char* kVibration;
-// on means open, off means closed
 extern const char* kWindow;
 }  // namespace binary_sensor
 }  // namespace ha::device_class
 
 class ConfigInterface;
-class WiFiManager;
+class WifiManager;
 
-// HADiscovery is a module which assists with registering the value of Variables as
-//  Home Assistant Entities.
-// It does this by providing an API for sending particular MQTT messsages to declare
-//  these entities.
+/**
+ * @brief Module for automating Home Assistant MQTT Discovery.
+ *
+ * HADiscovery registers Variable objects as entities in Home Assistant by publishing
+ * configuration payloads to specific MQTT topics. It handles device metadata,
+ * state reporting, and command callbacks.
+ */
 class HADiscovery : public Module {
  public:
+  /** @brief Configuration for the device as seen in Home Assistant. */
   struct Options {
     Options(const char* manufacturer_, const char* model_, const char* software_,
             const char* device_name_ = nullptr)
@@ -258,78 +164,108 @@ class HADiscovery : public Module {
     const char* device_name;
   };
 
-  static const char* kName;
+  static const char* kName;  ///< @brief "ha_discovery"
 
+  /** @brief Constructs HADiscovery module. */
   HADiscovery(const Options& opts, ModuleSystem* module_system);
 
+  /** @brief Represents a single entity entry for HA Discovery. */
   struct Entry {
+    /** @brief Callback type for generating custom value templates. */
     using ValueTemplateFn = std::function<String(const Entry&)>;
+
+    /** @brief Constructs a general variable entry. */
     Entry(const VariableBase& var_, const char* device_type_, const char* device_class_,
           const ValueTemplateFn& value_template = nullptr);
+    /** @brief Constructs a floating-point sensor entry. */
     Entry(const FloatVariableBase& var_, const char* device_type_, const char* device_class_);
+    /** @brief Constructs a boolean sensor entry. */
     Entry(const BoolVariable& var_, const char* device_class_);
+    /** @brief Constructs an enumeration entry. */
     Entry(const EnumStrVariableBase& var, const char* device_type);
 
     const VariableBase& var;
     const char* device_type;
     const char* device_class;
-    const char* subject_topic = nullptr;
-    const char* device_name = nullptr;
-    const char* device_id = nullptr;     // HADiscovery device_id is used if not set.
-    const char* manufacturer = nullptr;  // HADiscovery manufacturer is used if not set.
-    const char* software = nullptr;      // HADiscovery software is used if not set.
-    const char* model = nullptr;         // HADiscovery model is used if not set.
+    const char* subject_topic = nullptr;  ///< MQTT topic for state updates.
+    const char* device_name = nullptr;    ///< Override device name.
+    const char* device_id = nullptr;      ///< Override device unique ID.
+    const char* manufacturer = nullptr;
+    const char* software = nullptr;
+    const char* model = nullptr;
     const char* icon = nullptr;
     const char* state_class = nullptr;
     const char* via_device = nullptr;
-    // Optionally overwrite var.name in discovery path: homeassistant/{device}/{entry_name|var.name}
-    const char* entry_name = nullptr;
-    // Command subject, if applicable
-    const char* command = nullptr;
-    // Callback to be registered for 'command', if set.
-    MqttManager::MqttMsgCallbackFn command_callback;
+    const char* entry_name = nullptr;                 ///< Override entity name.
+    const char* command = nullptr;                    ///< MQTT topic for receiving commands.
+    MqttManager::MqttMsgCallbackFn command_callback;  ///< Callback for commands.
     ValueTemplateFn value_template_fn;
     const unsigned num_options = 0;
     const char** options = nullptr;
   };
+
+  /** @brief Registers an entity by adding its config to a JSON payload. */
   bool addEntry(JsonDocument* json, const Entry& entry);
+
+  /** @brief Convenience method to register a generic entity. */
   bool addEntry(JsonDocument* json, const VariableBase& var, const char* device_type,
                 const char* device_class, const Entry::ValueTemplateFn& value_template,
                 const char* subject_topic, const char* device_name);
+
+  /** @brief Registers a numeric measurement sensor. */
   bool addMeas(JsonDocument* json, const VariableBase& var, const char* device_type,
                const char* device_class, const char* subject_topic = nullptr,
                const char* device_name = nullptr);
+
+  /** @brief Registers a floating-point measurement sensor. */
   bool addMeas(JsonDocument* json, const FloatVariableBase& var, const char* device_type,
                const char* device_class, const char* subject_topic = nullptr,
                const char* device_name = nullptr);
 
+  /** @brief Registers an enumeration sensor. */
   bool addEnum(JsonDocument* json, const EnumStrVariableBase& var, const char* device_type,
                const char* subject_topic = nullptr, const char* device_name = nullptr);
+
+  /** @brief Registers a binary sensor. */
   bool addBinarySensor(JsonDocument* json, const VariableBase& var, const char* device_class,
                        const char* subject_topic = nullptr, const char* device_name = nullptr);
+
+  /** @brief Registers a motion binary sensor. */
   bool addMotionSensor(JsonDocument* json, const VariableBase& var,
                        const char* subject_topic = nullptr, const char* device_name = nullptr);
 
+  /** @brief Internal helper to populate common device root information in JSON. */
   void addRoot(JsonDocument* json, const Entry& entry);
 
+  /** @brief Publishes a discovery configuration message. */
   bool mqttSendConfig(const char* name, const char* device_class, JsonDocument* json);
+
+  /** @brief Subscribes to a command topic. */
   void mqttSubscribe(const char* name, const MqttManager::MqttMsgCallbackFn& fn);
 
+  /** @brief Callback type for performing discovery after MQTT connection. */
   using DiscoveryCallbackFn = std::function<bool(HADiscovery*, JsonDocument*)>;
+
+  /** @brief Adds a callback to be executed whenever the module needs to re-send discovery. */
   void addDiscoveryCallback(const DiscoveryCallbackFn& callback_fn) {
     m_discovery_callbacks.push_back(callback_fn);
   }
 
-  // This is available after depend-system init.
+  /** @return The unique device ID used for discovery. */
   const char* deviceId() const { return m_device_id; }
 
+  /** @return Pointer to the HADiscovery module instance. */
   static HADiscovery* get(const NameToModule& n2m) { return GetModule<HADiscovery>(n2m, kName); }
 
+  /** @return Reference to the options used. */
   const Options& options() const { return m_options; }
 
+  /** @return true if MQTT is enabled and in Home Assistant mode. */
   bool enabled() const {
     return m_mqtt_manager && m_mqtt_manager->mode() == MqttManager::Mode::kHomeAssistant;
   }
+
+  /** @return The base MQTT topic for this board. */
   const String& boardTopic();
 
  private:

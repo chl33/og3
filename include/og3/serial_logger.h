@@ -8,10 +8,21 @@
 
 namespace og3 {
 
-// A logger which sends output to the uart.
+/**
+ * @brief A Logger implementation that outputs to the hardware Serial (UART) port.
+ *
+ * Automatically initializes Serial at 115200 baud on the first log call if not
+ * already started.
+ */
 class SerialLogger : public Logger {
  public:
+  /** @brief Constructs a SerialLogger. */
   SerialLogger() {}
+
+  /**
+   * @brief Logs a message to Serial.
+   * @param msg The C-string to log.
+   */
   void log(const char* msg) final {
     if (!m_initialized) {
       Serial.begin(115200);

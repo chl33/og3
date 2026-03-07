@@ -8,19 +8,35 @@
 
 namespace og3 {
 
-// Class which sets-up a filesystem in flash storage, and reports whether it had
-//  already been setup previously (in a previous boot).
+/**
+ * @brief Module for managing filesystem initialization in flash storage.
+ *
+ * FlashSupport handles the setup of the LittleFS filesystem and provides
+ * information about whether the filesystem pre-existed before the current boot.
+ */
 class FlashSupport : public Module {
  public:
+  /** @brief Constructs a FlashSupport module. */
   explicit FlashSupport(ModuleSystem* module_system);
 
-  static const char* kName;
+  static const char* kName;  ///< @brief "flash"
 
-  // Returns true if filesystem existed on previous boot.
+  /**
+   * @brief Initializes the LittleFS filesystem.
+   * @return true if the filesystem already existed on previous boot.
+   */
   bool setup();
+
+  /** @return true if setup() has been successfully called. */
   bool isSetup() const { return m_is_setup; }
+  /** @return true if the filesystem existed before this boot. */
   bool fsPreexisted() const { return m_fs_preexisted; }
 
+  /**
+   * @brief Helper to retrieve the FlashSupport module from a map.
+   * @param n2m Map of module names to pointers.
+   * @return Pointer to the FlashSupport instance, or nullptr.
+   */
   static FlashSupport* get(const NameToModule& n2m) { return GetModule<FlashSupport>(n2m, kName); }
 
  private:

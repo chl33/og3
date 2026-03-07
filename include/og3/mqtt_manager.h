@@ -27,32 +27,39 @@
 namespace og3 {
 
 #if defined(ESP32)
-using MqttClient = PsychicMqttClient;
+using MqttClient = PsychicMqttClient;  ///< @brief Underlying MQTT client for ESP32.
 #elif defined(ESP8266)
-using MqttClient = AsyncMqttClient;
+using MqttClient = AsyncMqttClient;  ///< @brief Underlying MQTT client for ESP8266.
 #else
-class MqttClient;
+class MqttClient;  ///< @brief Placeholder for non-ESP platforms.
 #endif
 
-// MqttManager works with a WiFiManager to establish and maintain a connection to a remote
-//  MQTT server.
-// When the WiFi connection is established, MqttManager attempts to connect to the MQTT server.
-// When the MQTT connection is established, MqttManager sends "online" to the will_topic,
-//  and it registers a will that switches the value of "offline" when this client is disconnected.
+/**
+ * @brief Manages MQTT connectivity and message publishing/subscription.
+ *
+ * MqttManager handles connection establishment, automatic reconnection via WiFiManager,
+ * and provides a high-level API for sending VariableGroup updates and subscribing to topics.
+ * It also handles Home Assistant-style "will" messages for online/offline status.
+ */
 class MqttManager : public Module {
  public:
-  static const char kName[];
-  static const char kConfigUrl[];
+  static const char kName[];       ///< @brief "mqtt"
+  static const char kConfigUrl[];  ///< @brief "/mqtt"
 
+  /** @return Pointer to the MqttManager module instance. */
   static MqttManager* get(const NameToModule& n2m) { return GetModule<MqttManager>(n2m, kName); }
 
+  /** @brief Supported MQTT integration modes. */
   enum class Mode {
-    kHomeAssistant,
-    kAdafruitIO,
+    kHomeAssistant,  ///< Automatic discovery and state topics for HA.
+    kAdafruitIO,     ///< Compatibility with Adafruit IO feed structure.
   };
+
+  /** @brief Configuration options for the MQTT manager. */
   struct Options {
     Options() {}
 
+    /** @brief Sets the application domain (prefix for topics). */
     Options& withAppDomain(const char* val) {
       this->app_domain = val;
       return *this;
@@ -67,22 +74,32 @@ class MqttManager : public Module {
     bool will_retain = true;
     Mode mode = Mode::kHomeAssistant;
   };
+
+  /** @brief Constructs an MqttManager. */
   MqttManager(const Options& opts, Tasks* tasks);
 
+  /** @brief Manually triggers a connection attempt. */
   void connect();
+  /** @brief Manually disconnects from the MQTT server. */
   void disconnect();
 
+  /** @brief Registers a callback for successful connection. */
   void addConnectCallback(const std::function<void()>& callback) {
     m_connectCallbacks.push_back(callback);
   }
+  /** @brief Registers a callback for disconnection. */
   void addDisconnectCallback(const std::function<void()>& callback) {
     m_disconnectCallbacks.push_back(callback);
   }
+
 #ifndef NATIVE
+  /** @return Reference to the underlying hardware-specific MQTT client. */
   MqttClient& client() { return m_mqttClient; }
+  /** @return Constant reference to the underlying MQTT client. */
   const MqttClient& client() const { return m_mqttClient; }
 #endif
 
+  /** @return true if the client is currently connected to the server. */
   bool connected() const {
 #ifndef NATIVE
 #if defined(ESP32)
@@ -95,32 +112,57 @@ class MqttManager : public Module {
 #endif
   }
 
+  /** @brief Publishes a raw string message to a specific topic. */
   void mqttSend(const char topic[], const char content[]);
+
+  /**
+   * @brief Publishes all variables in a group to their respective topics.
+   * @param variables The VariableGroup to publish.
+   * @param flags Filter flags for variable selection.
+   * @return true if publishing was successful.
+   */
   bool mqttSend(const VariableGroup& variables, unsigned flags = VariableBase::kNoPublish);
-  // arguments: (const char* topic, const char* payload, size_t len) {
+
+  /** @brief Callback type for received MQTT messages (topic, payload, len). */
   using MqttMsgCallbackFn = std::function<void(const char*, const char*, size_t)>;
+
+  /** @brief Subscribes to an MQTT topic with a callback. */
   void subscribe(const String& topic, const MqttMsgCallbackFn& fn);
 
+  /** @return The root topic for this board. */
   String boardTopic(const char* device_name = nullptr) const;
+  /** @return A topic for a specific attribute name. */
   String topic(const char* name, const char* device_name = nullptr) const;
+  /** @return The topic used for the LWT (Last Will and Testament). */
   String willTopic(const char* device_name = nullptr) const;
 
-  // Accessors.
+  /** @return The board name from WiFiManager. */
   const char* board() const {
     return m_wifi_manager ? m_wifi_manager->board().c_str() : "og3board";
   }
+  /** @return The configured MQTT server address. */
   const String& host() const { return m_host_addr.value(); }
+  /** @return The configured MQTT port. */
   uint16_t port() const { return m_opts.port; }
+  /** @return The configured MQTT username. */
   const String& auth_user() const { return m_auth_user.value(); }
+  /** @return The configured MQTT password. */
   const String& auth_password() const { return m_auth_password.value(); }
+  /** @return true if MQTT is enabled in settings. */
   bool isEnabled() const { return m_enabled.value(); }
+  /** @return The current MQTT integration mode. */
   Mode mode() const { return m_mode.value(); }
-  // const Options& options() const { return m_opts; }
 
+  /** @return Reference to the internal variables for MQTT configuration. */
   const VariableGroup& variables() const { return m_vg; }
+  /** @return Reference to the internal variables for MQTT configuration. */
   VariableGroup& variables() { return m_vg; }
+
+  /** @brief MQTT connection status enumeration. */
   enum ConnectionStatus { kNotConnected, kConnected };
+  /** @return Variable tracking the connection status. */
   const EnumStrVariable<ConnectionStatus>& connectionStatusVariable() const { return m_connected; }
+  /** @return true if connected. */
   bool isConnected() const { return m_connected.value() == kConnected; }
 
  private:
@@ -137,7 +179,6 @@ class MqttManager : public Module {
   VariableGroup m_vg;
   BoolVariable m_enabled;
   Variable<String> m_host_addr;
-  // Variable<uint16_t> m_port;
   Variable<String> m_auth_user;
   Variable<String> m_auth_password;
   EnumStrVariable<Mode> m_mode;

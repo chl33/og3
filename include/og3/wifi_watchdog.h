@@ -9,10 +9,15 @@
 
 namespace og3 {
 
-// This version of Watchdog will disable the watchdog during OTA firmware updates, so
-//  that the firmware update has time to complete.
+/**
+ * @brief A specialized Watchdog that handles network-aware constraints.
+ *
+ * WifiWatchdog automatically disables the hardware watchdog timer during
+ * Over-The-Air (OTA) updates to prevent resets during long firmware writes.
+ */
 class WifiWatchdog : public Watchdog {
  public:
+  /** @brief Constructs a WifiWatchdog. */
   WifiWatchdog(App* app, std::chrono::seconds timeout, std::chrono::milliseconds update);
 };
 

@@ -11,11 +11,21 @@ namespace og3 {
 
 class Module;
 
+/** @brief Type for simple parameterless callbacks. */
 using Thunk = std::function<void()>;
+
+/** @brief Map for retrieving modules by their unique names. */
 using NameToModule = std::map<const char*, Module*>;
+
+/** @brief Callback type for cross-module linking during initialization. */
 using LinkFn = std::function<bool(NameToModule&)>;
 
-// Return true if t1 is before t2, allowing that t1 may have wrapped around.
+/**
+ * @brief Checks if timestamp t1 is chronologically before t2, handling 32-bit overflow.
+ * @param t1 The earlier timestamp (millis).
+ * @param t2 The later timestamp (millis).
+ * @return true if t1 is before t2.
+ */
 inline bool isBefore(unsigned long t1, unsigned long t2) {
   const unsigned long d = t2 - t1;
   return d < std::numeric_limits<unsigned long>::max() / 2;

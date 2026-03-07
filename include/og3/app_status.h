@@ -15,21 +15,37 @@ namespace og3 {
 
 class MqttManager;
 
-// A module which sends basic application status (memory available, uptime)
-//  via MQTT every couple minutes.
+/**
+ * @brief A module which sends basic application status (memory available, uptime)
+ * via MQTT every couple minutes.
+ */
 class AppStatus : public Module {
  public:
+  /**
+   * @brief Construct a new AppStatus object.
+   * @param tasks The tasks instance for scheduling status updates.
+   * @param log_type The application log type.
+   */
   AppStatus(Tasks* tasks, App::LogType log_type);
 
   static const char* kName;
   static const char* kUrl;
 
-  // Returns true if filesystem existed on previous boot.
+  /**
+   * @brief Read the current application status.
+   */
   void read();
 
+  /**
+   * @brief Get the variable group containing status variables.
+   * @return The variable group.
+   */
   const VariableGroup& variables() const { return m_vg; }
 
  private:
+  /**
+   * @brief Send the current status via MQTT.
+   */
   void mqttSend();
 
   Tasks* const m_tasks;

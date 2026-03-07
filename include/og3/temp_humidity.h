@@ -12,24 +12,44 @@
 
 namespace og3 {
 
-// TempHumidity is a wrapper for a sensor which measures temperature and humidity.
-// Subclasses can support different specific sensors.
-// Values can be logged to HomeAssistant via MQTT.
+/**
+ * @brief Base class for sensors that measure both Temperature and Humidity.
+ *
+ * Provides standardized variables and Home Assistant discovery support
+ * for dual-property climate sensors (e.g. DHT22, BME280, SHTC3).
+ */
 class TempHumidity : public Module {
  public:
+  /**
+   * @brief Constructs a TempHumidity module.
+   * @param temp_name Variable name for temperature.
+   * @param humidity_name Variable name for humidity.
+   * @param module_system_ The ModuleSystem to register with.
+   * @param description Human-readable description.
+   * @param vg VariableGroup to add variables to.
+   * @param publish true to publish via MQTT.
+   * @param ha_discovery true to enable Home Assistant discovery.
+   */
   TempHumidity(const char* temp_name, const char* humidity_name, ModuleSystem* module_system_,
                const char* description, VariableGroup& vg, bool publish = true,
                bool ha_discovery = true);
 
+  /** @return true if the last sensor reading was valid. */
   bool ok() const { return m_ok; }
+  /** @return Last measured temperature in Celsius. */
   float temperature() const { return m_temperature.value(); }
+  /** @return Last measured temperature in Fahrenheit. */
   float temperaturef() const { return 32 + m_temperature.value() * 9 / 5; }
+  /** @return Last measured relative humidity (percentage). */
   float humidity() const { return m_humidity.value(); }
+
+  /** @return Constant reference to the temperature variable. */
   const FloatVariable& temperatureVar() const { return m_temperature; }
+  /** @return Constant reference to the humidity variable. */
   const FloatVariable& humidityVar() const { return m_humidity; }
 
  protected:
-  // Depend of HA Discovery if we are using it.
+  /** @brief Marks both variables as failed. */
   bool readingFailed() {
     m_temperature.setFailed();
     m_humidity.setFailed();

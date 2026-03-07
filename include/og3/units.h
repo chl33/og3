@@ -2,38 +2,42 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 #pragma once
+
+/**
+ * @brief Predefined unit strings compatible with Home Assistant.
+ */
 namespace og3::units {
 
 // Unit name strings which match the set recognized by Home Assistant.
 // https://github.com/home-assistant/core/blob/master/homeassistant/const.py
-extern const char kWatt[];
-extern const char kKiloWatt[];
-extern const char kVolt[];
-extern const char kWattHour[];
-extern const char kKiloWattHour[];
-extern const char kAmpere[];
-extern const char kDegree[];
-extern const char kCelsius[];
-extern const char kFahrenheit[];
-extern const char kKelvin[];
-extern const char kMicroseconds[];
-extern const char kMilliseconds[];
-extern const char kSeconds[];
-extern const char kMinutes[];
-extern const char kMillimeters[];
-extern const char kMeters[];
-extern const char kPascals[];
-extern const char kHPascals[];
-extern const char kPsi[];
-extern const char kGrams[];
-extern const char kKilograms[];
-extern const char kPounds[];
-extern const char kPercentage[];
-extern const char kMetersPerSecond[];
-extern const char kKilometersPerHour[];
-extern const char kMilesPerHour[];
-extern const char kDecibel[];
-extern const char kKilobytes[];
-extern const char kMegabytes[];
+extern const char kWatt[];               ///< "W"
+extern const char kKiloWatt[];           ///< "kW"
+extern const char kVolt[];               ///< "V"
+extern const char kWattHour[];           ///< "Wh"
+extern const char kKiloWattHour[];       ///< "kWh"
+extern const char kAmpere[];             ///< "A"
+extern const char kDegree[];             ///< "°"
+extern const char kCelsius[];            ///< "°C"
+extern const char kFahrenheit[];         ///< "°F"
+extern const char kKelvin[];             ///< "K"
+extern const char kMicroseconds[];       ///< "μs"
+extern const char kMilliseconds[];       ///< "ms"
+extern const char kSeconds[];            ///< "s"
+extern const char kMinutes[];            ///< "min"
+extern const char kMillimeters[];        ///< "mm"
+extern const char kMeters[];             ///< "m"
+extern const char kPascals[];            ///< "Pa"
+extern const char kHPascals[];           ///< "hPa"
+extern const char kPsi[];                ///< "psi"
+extern const char kGrams[];              ///< "g"
+extern const char kKilograms[];          ///< "kg"
+extern const char kPounds[];             ///< "lb"
+extern const char kPercentage[];         ///< "%"
+extern const char kMetersPerSecond[];    ///< "m/s"
+extern const char kKilometersPerHour[];  ///< "km/h"
+extern const char kMilesPerHour[];       ///< "mph"
+extern const char kDecibel[];            ///< "dB"
+extern const char kKilobytes[];          ///< "kB"
+extern const char kMegabytes[];          ///< "MB"
 
 }  // namespace og3::units

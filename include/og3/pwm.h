@@ -13,9 +13,24 @@
 
 namespace og3 {
 
-// Pwm is a wrapper for generating PWM signals from a Dout pin.
+/**
+ * @brief Module for generating Pulse Width Modulation (PWM) signals.
+ *
+ * Pwm provides an abstraction for hardware PWM control (e.g. `ledc` on ESP32
+ * or `analogWrite` on ESP8266). It supports setting duty cycle by raw counts
+ * or percentage.
+ */
 class Pwm : public Module {
  public:
+  /**
+   * @brief Constructs a Pwm module.
+   * @param name Unique name for the module.
+   * @param pwm_pin The hardware GPIO pin.
+   * @param pwm_channel (ESP32 only) The LEDC channel (0-15).
+   * @param pwm_resolution (ESP32 only) The timer resolution in bits (1-16).
+   * @param module_system The ModuleSystem to register with.
+   * @param pwm_frequency The PWM frequency in Hz.
+   */
   Pwm(const char* name, uint8_t pwm_pin,
 #ifdef ARDUINO_ARCH_ESP32
       uint8_t pwm_channel,     // 0-15
@@ -23,7 +38,9 @@ class Pwm : public Module {
 #endif
       ModuleSystem* module_system, double pwm_frequency = 500.0);
 
+  /** @brief Sets the raw duty cycle counts. */
   void setDuty(unsigned counts);
+  /** @brief Sets the duty cycle as a percentage (0.0 to 100.0). */
   void setDutyF(float percent);
 
  private:
