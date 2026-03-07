@@ -21,20 +21,32 @@ struct TimedThunk {
 };
 
 /**
- * @brief Manages a priority queue of timed callbacks.
+ * @brief Manages a priority queue of timed callbacks using a fixed-pool doubly-linked list.
  *
  * TaskQueue stores callbacks to be executed at specific times. Tasks can
  * optionally have a unique ID; if a new task is added with an existing ID,
- * it replaces the previous one.
+ * it replaces the previous one. This implementation avoids runtime memory
+ * allocations by using a pre-allocated pool of nodes.
  */
 class TaskQueue {
  public:
+  /** @brief Pointer/Index type for the internal pool. */
+  using NodeIdx = int16_t;
+  static constexpr NodeIdx kInvalidIdx = -1;
+
+  /** @brief Internal node structure for the doubly-linked list. */
+  struct Node {
+    TimedThunk data;
+    NodeIdx prev = kInvalidIdx;
+    NodeIdx next = kInvalidIdx;
+  };
+
   /** @brief Constructs a TaskQueue with a fixed capacity. */
-  explicit TaskQueue(std::size_t capacity) : m_thunks(capacity) {}
+  explicit TaskQueue(std::size_t capacity);
   TaskQueue(const TaskQueue&) = delete;
 
   /** @return The maximum number of callbacks that can be queued. */
-  std::size_t capacity() const { return m_thunks.size(); }
+  std::size_t capacity() const { return m_pool.size(); }
 
   /** @return The number of currently scheduled callbacks. */
   std::size_t size() const { return m_size; }
@@ -43,18 +55,21 @@ class TaskQueue {
   /** @return true if the queue is at capacity. */
   bool full() const { return size() == capacity(); }
 
-  /** @return Reference to a task by index. */
-  TimedThunk& thunk(std::size_t idx) { return m_thunks[index(idx)]; }
-  /** @return Constant reference to a task by index. */
-  const TimedThunk& thunk(std::size_t idx) const { return m_thunks[index(idx)]; }
   /** @return Constant reference to the next task to run. */
-  const TimedThunk& first() const { return thunk(0); }
+  const TimedThunk& first() const { return m_pool[m_head].data; }
   /** @return Reference to the next task to run. */
-  TimedThunk& first() { return thunk(0); }
-  /** @return Constant reference to the task scheduled furthest in the future. */
-  const TimedThunk& last() const { return thunk(size() - 1); }
+  TimedThunk& first() { return m_pool[m_head].data; }
   /** @return Timestamp of the next task, or 0 if empty. */
   unsigned long nextMsec() const { return empty() ? 0 : first().msec; }
+
+  /**
+   * @brief Access a task by logical index (O(N)).
+   * This is primarily for test compatibility and debugging.
+   * @param idx Logical index from 0 to size() - 1.
+   * @return Reference to the TimedThunk.
+   */
+  TimedThunk& thunk(std::size_t idx);
+  const TimedThunk& thunk(std::size_t idx) const;
 
   /**
    * @brief Schedules a task.
@@ -89,25 +104,26 @@ class TaskQueue {
   /** @brief Removes the next scheduled task without executing it. */
   void popFirst();
 
+  /** @brief Removes the last scheduled task (the one furthest in the future). */
+  void popLast();
+
   /** @brief Debug utility to print the queue state. */
   void show() const;
-
-  /** @return The current internal starting index. */
-  std::size_t start_idx() const { return m_start_idx; }
 
   /** @return Generates a new unique task ID. */
   unsigned getId() { return m_first_id++; }
 
- protected:
-  std::size_t index(std::size_t idx) const { return (m_start_idx + idx) % capacity(); }
-  void shift(std::size_t num);
-  void lshift(std::size_t num);
-  void incrementStart() { m_start_idx = (m_start_idx + 1) % capacity(); }
-  void decrementStart() { m_start_idx = (m_start_idx + (capacity() - 1)) % capacity(); }
-
  private:
-  std::vector<TimedThunk> m_thunks;
-  std::size_t m_start_idx = 0;
+  NodeIdx allocNode();
+  void freeNode(NodeIdx idx);
+  void linkBefore(NodeIdx nodeIdx, NodeIdx beforeIdx);
+  void linkAfter(NodeIdx nodeIdx, NodeIdx afterIdx);
+  void unlink(NodeIdx idx);
+
+  std::vector<Node> m_pool;
+  NodeIdx m_head = kInvalidIdx;
+  NodeIdx m_tail = kInvalidIdx;
+  NodeIdx m_free_head = kInvalidIdx;
   std::size_t m_size = 0;
 
   unsigned m_first_id = 200;
