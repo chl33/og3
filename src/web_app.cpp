@@ -41,12 +41,18 @@ WebApp::WebApp(const WifiApp::Options& options) : WifiApp(options), m_web_server
 
 NetHandlerStatus WebApp::handleWifiConfigRequest(NetRequest* request, NetResponse* response) {
 #ifndef NATIVE
-  ::og3::read(*request, wifi_manager().variables());
+  const bool all_set = ::og3::read(*request, wifi_manager().variables());
+  config().write_config(wifi_manager().variables());
   m_web_page.clear();
+  // If wifi is configured from soft-ap mode, reboot the board.
+  if (all_set && m_wifi_manager.apMode()) {
+    htmlRestartPage(request, response, &tasks());
+    NET_REPLY(request, ESP_OK);
+  }
+
   html::writeFormTableInto(&m_web_page, wifi_manager().variables());
   m_web_page += HTML_BUTTON("/", "Back");
   sendWrappedHTML(request, response, board_cname(), software_name(), m_web_page.c_str());
-  config().write_config(wifi_manager().variables());
 #endif
   NET_REPLY(request, ESP_OK);
 }
