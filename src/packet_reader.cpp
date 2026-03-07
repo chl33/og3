@@ -17,8 +17,8 @@ uint16_t getu16(const uint8_t* u) { return (static_cast<uint16_t>(u[0]) << 8) | 
 
 PacketReader::PacketReader(const uint8_t* buffer, std::size_t nbytes)
     : m_buffer(buffer), m_buffer_size(nbytes) {
-  std::fill(std::begin(m_msg_sizes), std::end(m_msg_sizes), 0);
-  std::fill(std::begin(m_msg_offsets), std::end(m_msg_offsets), 0);
+  memset(m_msg_sizes, 0, sizeof(m_msg_sizes));
+  memset(m_msg_offsets, 0, sizeof(m_msg_offsets));
 }
 
 PacketReader::ParseResult PacketReader::parse() {
