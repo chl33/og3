@@ -1,8 +1,8 @@
 {
     "name": "og3",
     "version": "0.5.0",
-    "description": "A library for esp projects",
-    "keywords": "esp32, esp8266, modules, tasks, mqtt",
+    "description": "A modular framework for ESP32 and ESP8266 IoT applications featuring a task scheduler, persistent configuration management, and seamless Home Assistant integration via MQTT.",
+    "keywords": "iot, esp32, esp8266, home-assistant, mqtt, automation, task-scheduler, pid-control, sensors",
     "authors": [
         {
             "name": "Chris Lee",
@@ -50,11 +50,20 @@
         "exclude": [
             ".*",
             "*~",
-            "util/"
+            "util/",
+            "test/",
+            "docs/",
+            "extra_script.py"
         ]
     },
+    "examples": [
+        "examples/blink/platformio.ini",
+        "examples/ha-app/platformio.ini",
+        "examples/web-app/platformio.ini",
+        "examples/wifi-app/platformio.ini"
+    ],
     "license": "MIT",
-    "frameworks": "*",
+    "frameworks": "arduino",
     "platforms": "espressif8266, espressif32, native",
     "repository": {
         "type": "git",

@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Use PsychicHttp and PsychicMqttClient on ESP32**. These should be more robust on ESP32. On ESP8266, ESPAsyncWebServer and AsyncMqttClient continue to be used.
 - **Networking Abstraction Layer**: Standardized `NetHandler` and `NetJsonHandler` signatures to `(NetRequest*, NetResponse*)` for cross-platform compatibility between ESP32 (`PsychicHttp`) and ESP8266 (`ESPAsyncWebServer`).
 - **Improved Test Coverage**: Added comprehensive native unit tests for `PID` controllers, `HtmlTable` generation, `Relay` control, and `BlinkLed` patterns.
+- **Library Metadata**: Refined `library.json` with descriptive keywords, explicit example declarations, and an improved project summary for better discovery in the PlatformIO Registry.
 - **Doxygen Documentation**: Upgraded all header files in `include/og3/` to use Doxygen-style comments, providing detailed documentation for classes, methods, and parameters.
 
 ### Changed
