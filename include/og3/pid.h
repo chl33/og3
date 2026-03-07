@@ -41,8 +41,8 @@ class PID {
     float i_max = 1.0e10;         // The maximum value for the controller integral.
     float i_min = -1.0e10;        // The minimum value for the controller integral.
     float feedforward = 0.0f;     // The feedforward gain.
-    float command_min = 1.0e10;   // The minimum allowed output value.
-    float command_max = -1.0e10;  // The maximum allowed output value.
+    float command_min = -1.0e10;  // The minimum allowed output value.
+    float command_max = 1.0e10;   // The maximum allowed output value.
   };
 
   PID(const Gains& gains, VariableGroup& vg, VariableGroup& cfg_vg, VariableGroup& cmd_vg);
