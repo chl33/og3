@@ -15,6 +15,9 @@ namespace og3 {
  *
  * Subclasses must implement the pure virtual `log()` method.
  * Supports printf-style formatting and conditional debug levels.
+ * In C/C++ preprocessor, define:
+ * - LOG_DEBUG for debug() logs to be processed, or
+ * - LOG_DISABLE to disable all logging.
  */
 class Logger {
  public:

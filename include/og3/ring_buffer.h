@@ -103,9 +103,9 @@ class RingQueue : public RingBufferBase<T, CAPACITY> {
   void pushBack(const T& el);
 
   using Parent = RingBufferBase<T, CAPACITY>;
-  /** @brief Removes the front element. */
+  /** @brief Removes the first element. */
   void popFront() { Parent::popFront(); }
-  /** @brief Removes the back element. */
+  /** @brief Removes the last element. */
   void popBack() { Parent::popBack(); }
 };
 
@@ -142,4 +142,167 @@ class SortedRing : public RingBufferBase<T, CAPACITY> {
   void popBack() { Parent::popBack(); }
 };
 
-// ... implementation ...
+template <typename T, unsigned CAPACITY>
+inline void RingBufferBase<T, CAPACITY>::shift(std::size_t num) {
+  for (std::size_t i = 0; i < num; i++) {
+    const std::size_t i_src = size() - i - 1;
+    const std::size_t i_dst = i_src + 1;
+    if (i_dst < capacity()) {
+      element(i_dst) = element(i_src);
+    }
+  }
+}
+
+template <typename T, unsigned CAPACITY>
+inline void RingBufferBase<T, CAPACITY>::lshift(std::size_t num) {
+  for (std::size_t i = num; i > 0; i--) {
+    const std::size_t i_dst = size() - i - 1;
+    const std::size_t i_src = i_dst + 1;
+    if (i_dst < capacity()) {
+      element(i_dst) = element(i_src);
+    }
+  }
+}
+
+template <typename T, unsigned CAPACITY>
+inline void RingBufferBase<T, CAPACITY>::popFront() {
+  if (empty()) {
+    return;
+  }
+  if (size() == 1) {
+    m_start_idx = 0;
+    m_size = 0;
+    return;
+  }
+  incrementStart();
+  m_size -= 1;
+}
+
+template <typename T, unsigned CAPACITY>
+inline void RingBufferBase<T, CAPACITY>::popBack() {
+  if (empty()) {
+    return;
+  }
+  if (size() == 1) {
+    m_start_idx = 0;
+    m_size = 0;
+    return;
+  }
+  m_size -= 1;
+}
+
+template <typename T, unsigned CAPACITY>
+inline bool RingBufferBase<T, CAPACITY>::remove(const std::function<bool(const T&)>& select_fn) {
+  std::size_t num_shift = 0;
+  while (num_shift < size()) {
+    const unsigned idx = size() - num_shift - 1;
+    T& el = element(idx);
+    if (select_fn(el)) {
+      if (idx == 0) {
+        incrementStart();
+      } else {
+        lshift(num_shift);
+      }
+      m_size -= 1;
+      if (m_size == 0) {
+        m_start_idx = 0;
+      }
+      return true;
+    }
+    num_shift += 1;
+  }
+  return false;
+}
+
+template <typename T, unsigned CAPACITY>
+inline bool RingBufferBase<T, CAPACITY>::remove_index(size_t index) {
+  if (index >= size()) {
+    return false;
+  }
+  if (index == 0) {
+    incrementStart();
+  } else {
+    lshift(size() - index - 1);
+  }
+  m_size -= 1;
+  return true;
+}
+
+template <typename T, unsigned CAPACITY>
+inline void RingQueue<T, CAPACITY>::pushFront(const T& el) {
+  if (!Parent::empty()) {
+    Parent::decrementStart();
+  }
+  Parent::element(0) = el;
+  if (!Parent::full()) {
+    Parent::m_size += 1;
+  }
+}
+
+template <typename T, unsigned CAPACITY>
+inline void RingQueue<T, CAPACITY>::pushBack(const T& el) {
+  if (Parent::full()) {
+    Parent::incrementStart();
+    Parent::element(Parent::size() - 1) = el;
+  } else {
+    Parent::element(Parent::size()) = el;
+    Parent::m_size += 1;
+  }
+}
+
+template <typename T, unsigned CAPACITY>
+bool SortedRing<T, CAPACITY>::insert(const T& t) {
+  if (Parent::size() == Parent::capacity() || Parent::capacity() < 1) {
+    return false;
+  }
+  if (Parent::size() == 0) {
+    // Front element in the queue.
+    Parent::m_start_idx = 0;
+    Parent::m_size = 1;
+    Parent::front() = t;
+    return true;
+  }
+  // If the front element in the list is not before the new element, just insert the
+  //  new element at the front of the list.
+  if (t < Parent::front()) {
+    Parent::decrementStart();
+    Parent::front() = t;
+    Parent::m_size = std::min(Parent::capacity(), Parent::m_size + 1);
+    return true;
+  }
+  if (Parent::full() && Parent::back() < t) {
+    // Don't add the task if full and all current tasks are before it.
+    return false;
+  }
+  std::size_t num_shift = 0;
+  while (num_shift < Parent::size()) {
+    T& el = Parent::element(Parent::size() - num_shift - 1);
+    if (t > el) {
+      break;
+    }
+    num_shift += 1;
+  }
+  Parent::shift(num_shift);
+  T& el = Parent::element(Parent::size() - num_shift);
+  el = t;
+  Parent::m_size = std::min(Parent::capacity(), Parent::m_size + 1);
+  return true;
+}
+
+template <typename T, unsigned CAPACITY>
+bool SortedRing<T, CAPACITY>::insert(const T& t, size_t index) {
+  if (index > Parent::size()) {
+    return false;
+
+    if (Parent::capacity() < 1) {
+      return false;
+    }
+    Parent::element(index) = t;
+    if (index == Parent::size()) {
+      Parent::m_size += 1;
+    }
+    return true;
+  }
+}
+
+}  // namespace og3
