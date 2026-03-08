@@ -8,9 +8,24 @@
 
 namespace og3 {
 
-// A wrapper for a digital input reading the value from a motion detector sensor
+/**
+ * @brief Specialized digital input for PIR motion sensors.
+ *
+ * Extends DIn to add Home Assistant discovery support specifically
+ * for motion detection binary sensors.
+ */
 class MotionDetector : public DIn {
  public:
+  /**
+   * @brief Constructs a MotionDetector.
+   * @param name Unique name for the sensor.
+   * @param module_system The ModuleSystem to register with.
+   * @param pin The hardware pin the sensor is connected to.
+   * @param description Human-readable description.
+   * @param vg The VariableGroup to add the state variable to.
+   * @param publish true to publish via MQTT.
+   * @param ha_discovery true to enable Home Assistant discovery.
+   */
   MotionDetector(const char* name, ModuleSystem* module_system, uint8_t pin,
                  const char* description, VariableGroup& vg, bool publish = true,
                  bool ha_discovery = true);

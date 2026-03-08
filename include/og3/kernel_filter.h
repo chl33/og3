@@ -14,40 +14,61 @@
 
 namespace og3 {
 
-// KernelFilter supports getting inputs sampled over time and producing a synthetic
-// reading of these inputs smoothed using a kernel filter.
-
-// Base class for KernelFilter which does not depend on the size template parameter.
+/**
+ * @brief Implements a kernel-based smoothing filter for time-series data.
+ *
+ * KernelFilter collects samples over time and computes a weighted average
+ * using a Gaussian kernel. This is effective for smoothing noisy sensor readings.
+ */
 class KernelFilter {
  public:
-  static constexpr unsigned kDefaultNumSamples = 30;
+  static constexpr unsigned kDefaultNumSamples = 30;  ///< @brief Default buffer size.
 
+  /** @brief Configuration options for the filter. */
   struct Options {
-    const char* name;         // The name of the output value variable
-    const char* units;        // The units of the output
-    const char* description;  // A description of the output variable
-    unsigned var_flags;       // Variable flags for the output variable
-    float sigma;              // The sigma of the gausian used for smoothing
-    int decimals;             // The number of decimal values for printing the output value
-    size_t size;              // The number of samples used for the smoothing kernel.
+    const char* name;         ///< The name of the output value variable.
+    const char* units;        ///< The units of the output.
+    const char* description;  ///< A description of the output variable.
+    unsigned var_flags;       ///< Variable flags for the output variable.
+    float sigma;              ///< The sigma of the Gaussian used for smoothing.
+    int decimals;             ///< Decimal places for display.
+    size_t size;              ///< Buffer size (number of samples).
   };
 
+  /** @brief Constructs a KernelFilter. */
   KernelFilter(const Options& options, ModuleSystem* module_system_, VariableGroup& vg);
 
+  /** @return The current smoothed value. */
   float value() const { return m_value.value(); }
+  /** @return The weight contribution for a given time delta. */
   float kernelValue(float dt) const { return exp(m_exp_scalar * dt * dt); }
+  /** @return The current buffer capacity. */
   size_t size() const { return m_values.size(); }
+  /** @brief Updates the smoothing sigma. */
   void setSigma(float sigma);
 
+  /**
+   * @brief Adds a new sample to the filter.
+   * @param time The timestamp of the sample (in seconds).
+   * @param value The raw sample value.
+   * @return The updated filtered value.
+   */
   float addSample(float time, float value);
+
+  /**
+   * @brief Computes the smoothed value for a specific time.
+   * @param time The evaluation timestamp.
+   * @return The filtered value.
+   */
   float computeValue(float time) const;
 
+  /** @return Constant reference to the filtered value variable. */
   const FloatVariable& valueVariable() const { return m_value; }
 
+  /** @return Total number of samples added since initialization. */
   unsigned long numSamples() const { return m_num_samples; }
 
-  // The state of the filter can be saved and restored.
-  // This could be useful for restoring state after deep sleep etc...
+  /** @brief Serializable state of the filter. */
   template <int SZ>
   struct State {
     static constexpr uint32_t kHeader = 0x4321;
@@ -58,6 +79,7 @@ class KernelFilter {
     std::array<float, SZ> times;
   };
 
+  /** @brief Saves filter state for persistence (e.g. deep sleep). */
   template <int SZ>
   bool saveState(State<SZ>& state) {
     if (SZ != m_values.size()) {
@@ -71,13 +93,14 @@ class KernelFilter {
     return true;
   }
 
+  /** @brief Restores filter state from a buffer. */
   template <int SZ>
   bool restoreState(const State<SZ>& state) {
     if (SZ != m_values.size()) {
       return false;
     }
     if (state.header != State<SZ>::kHeader) {
-      return false;  // Doesn't look like a filter state.
+      return false;
     }
     memcpy(m_values.data(), state.values.data(), sizeof(state.values[0]) * state.values.size());
     memcpy(m_times.data(), state.times.data(), sizeof(state.times[0]) * state.times.size());
@@ -85,11 +108,6 @@ class KernelFilter {
     m_sigma = state.sigma;
     return true;
   }
-
-#if 0
-  // Call in setup to suggest an icon for HomeAssistant discovery MQTT message.
-  void setHAIcon(const char* icon) { m_icon = icon; }
-#endif
 
  protected:
   FloatVariable m_value;

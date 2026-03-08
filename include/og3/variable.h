@@ -13,24 +13,68 @@ namespace og3 {
 
 class VariableBase;
 
-// A VariableGroup is a collection of variables which can be loaded together from
-// a configuration file, edited together in a web form, or written together to MQTT.
+/**
+ * @brief A collection of variables that can be managed together.
+ *
+ * A VariableGroup allows grouped operations on variables, such as loading/saving
+ * from configuration files, editing via web forms, or publishing to MQTT.
+ */
 class VariableGroup {
  public:
+  /**
+   * @brief Constructs a VariableGroup.
+   * @param name The human-readable name of the group.
+   * @param id An optional unique identifier for the group (defaults to name).
+   * @param initial_size Initial capacity for the internal variables vector.
+   */
   VariableGroup(const char* name, const char* id = nullptr, size_t initial_size = 16);
   VariableGroup(const VariableGroup&) = delete;
+
+  /**
+   * @brief Adds a variable to this group. Called by VariableBase constructor.
+   * @param variable Pointer to the variable to add.
+   */
   void add(VariableBase* variable);
+
+  /** @return The human-readable name of the group. */
   const char* name() const { return m_name; }
+  /** @return The unique identifier of the group. */
   const char* id() const { return m_id; }
 
+  /** @return Constant reference to the list of variables in this group. */
   const std::vector<VariableBase*>& variables() const { return m_variables; }
+  /** @return Reference to the list of variables in this group. */
   std::vector<VariableBase*>& variables() { return m_variables; }
 
+  /** @return The number of variables in this group marked with the kConfig flag. */
   unsigned num_config() const { return m_num_config; }
 
+  /**
+   * @brief Serializes variables in the group to a JSON object.
+   * @param out_json The target JSON object.
+   * @param flags Filter flags (e.g., VariableBase::kConfig).
+   */
   void toJson(JsonObject out_json, unsigned flags) const;
+
+  /**
+   * @brief Serializes the group to a JSON string.
+   * @param out_str Pointer to the target String.
+   * @param flags Filter flags.
+   */
   void toJson(String* out_str, unsigned flags) const;
+
+  /**
+   * @brief Serializes the group to an output stream.
+   * @param out_str Pointer to the target stream.
+   * @param flags Filter flags.
+   */
   void toJson(std::ostream* out_str, unsigned flags) const;
+
+  /**
+   * @brief Updates settable variables in the group from a JSON object.
+   * @param obj The source JSON object.
+   * @return The number of variables successfully updated.
+   */
   unsigned updateFromJson(JsonObjectConst obj);
 
  private:
@@ -40,44 +84,87 @@ class VariableGroup {
   std::vector<VariableBase*> m_variables;
 };
 
-// A Variable of a type derived from VariableBase has a name, string represenation,
-//  description, and set of flags which help it to be used as a configuration value,
-//  set in a web interface, written to and read from JSON (for MQTT for flash storage), etc....
+/**
+ * @brief Abstract base class for all variables in the framework.
+ *
+ * Provides core metadata (name, units, description) and defines the interface
+ * for string conversion, JSON serialization, and web form rendering.
+ */
 class VariableBase {
  public:
   VariableBase(const VariableBase&) = delete;
+
+  /**
+   * @brief Constructs a VariableBase and registers it with a VariableGroup.
+   * @param name_ Unique name within the group.
+   * @param units_ Units of measurement (can be nullptr).
+   * @param description_ Human-readable description (can be nullptr).
+   * @param flags_ Behavioral flags (see VariableBase::Flags).
+   * @param group The VariableGroup this variable belongs to.
+   */
   VariableBase(const char* name_, const char* units_, const char* description_, unsigned flags_,
                VariableGroup& group);
 
-  virtual String string() const = 0;
-  virtual bool fromString(const String&) = 0;
+  virtual ~VariableBase() = default;
 
+  /** @return String representation of the current value. */
+  virtual String string() const = 0;
+  /**
+   * @brief Sets the value from a string.
+   * @param val The source string.
+   * @return true if conversion was successful.
+   */
+  virtual bool fromString(const String& val) = 0;
+
+  /**
+   * @brief Adds the variable's value to a JSON object.
+   * @param doc The target JSON object.
+   */
   virtual void toJson(JsonObject doc) = 0;
+  /**
+   * @brief Updates the variable's value from a JSON variant.
+   * @param val The source JSON variant.
+   * @return true if update was successful.
+   */
   virtual bool fromJson(JsonVariantConst val) = 0;
 
+  /** @return HTML snippet for an input field in a web form. */
   virtual String formEntry() const;
 
+  /** @brief Flags that define variable behavior. */
   enum Flags {
-    kSettable = 0x01,  // may be set via web form
-    kConfig = 0x02,    // persist value via flash
-    kNoPublish = 0x4,  // do not publish via mqtt
-    kNoDisplay = 0x8,  // do not write into web tables for display
+    kSettable = 0x01,  ///< May be set via a web form.
+    kConfig = 0x02,    ///< Persistent value saved to flash.
+    kNoPublish = 0x4,  ///< Do not publish this variable via MQTT.
+    kNoDisplay = 0x8,  ///< Do not include this variable in web display tables.
   };
 
+  /** @return The unique name of the variable. */
   const char* name() const { return m_name; }
+  /** @return The units of measurement. */
   const char* units() const { return m_units; }
+  /** @return The human-readable description. */
   const char* description() const { return m_description; }
+  /** @return Description if available, otherwise the name. */
   const char* human_str() const {
     return m_description && m_description[0] ? description() : name();
   }
+  /** @return Reference to the owning VariableGroup. */
   const VariableGroup& group() const { return m_group; }
 
+  /** @return Current behavioral flags. */
   unsigned flags() const { return m_flags; }
+  /** @return true if the kSettable flag is set. */
   bool settable() const { return testFlag(Flags::kSettable); }
+  /** @return true if the kConfig flag is set. */
   bool config() const { return testFlag(Flags::kConfig); }
+  /** @return true if the kNoPublish flag is set. */
   bool noPublish() const { return testFlag(Flags::kNoPublish); }
+  /** @return true if the kNoDisplay flag is set. */
   bool noDisplay() const { return testFlag(Flags::kNoDisplay); }
+  /** @return true if the variable is in a failed/invalid state. */
   bool failed() const { return m_failed; }
+  /** @brief Marks the variable as failed or healthy. */
   void setFailed(bool failed = true) { m_failed = failed; }
 
  private:
@@ -91,18 +178,25 @@ class VariableBase {
   bool m_failed = false;
 };
 
+/**
+ * @brief Base class for floating-point variables.
+ */
 class FloatVariableBase : public VariableBase {
  public:
   FloatVariableBase(const char* name_, const char* units_, const char* description_,
                     unsigned flags_, unsigned decimals_, VariableGroup& group)
       : VariableBase(name_, units_, description_, flags_, group), m_decimals(decimals_) {}
 
+  /** @return Number of decimal places to use for display/serialization. */
   unsigned decimals() const { return m_decimals; }
 
  private:
   const unsigned m_decimals;
 };
 
+/**
+ * @brief Template class for simple type variables (int, bool, String, etc.).
+ */
 template <typename T>
 class Variable : public VariableBase {
  public:
@@ -114,8 +208,11 @@ class Variable : public VariableBase {
   void toJson(JsonObject doc) override;
   bool fromJson(JsonVariantConst json) override;
 
+  /** @return Constant reference to the underlying value. */
   const T& value() const { return m_value; }
+  /** @return Reference to the underlying value. */
   T& value() { return m_value; }
+  /** @brief Assignment operator that also clears the failed state. */
   Variable<T>& operator=(const T& value) {
     m_value = value;
     setFailed(false);
@@ -126,6 +223,9 @@ class Variable : public VariableBase {
   T m_value;
 };
 
+/**
+ * @brief Template class for floating-point variables (float, double).
+ */
 template <typename T>
 class FloatingPointVariable : public FloatVariableBase {
  public:
@@ -138,8 +238,11 @@ class FloatingPointVariable : public FloatVariableBase {
   void toJson(JsonObject doc) override;
   bool fromJson(JsonVariantConst json) override;
 
+  /** @return Constant reference to the underlying value. */
   const T& value() const { return m_value; }
+  /** @return Reference to the underlying value. */
   T& value() { return m_value; }
+  /** @brief Assignment operator that also clears the failed state. */
   FloatingPointVariable<T>& operator=(const T& value) {
     m_value = value;
     setFailed(false);
@@ -150,6 +253,9 @@ class FloatingPointVariable : public FloatVariableBase {
   T m_value;
 };
 
+/**
+ * @brief Base class for enumeration variables.
+ */
 class EnumVariableBase : public VariableBase {
  public:
   EnumVariableBase(const char* name_, const char* description_, unsigned flags_,
@@ -157,6 +263,9 @@ class EnumVariableBase : public VariableBase {
       : VariableBase(name_, nullptr /*units_*/, description_, flags_, group) {}
 };
 
+/**
+ * @brief Base class for enumeration variables that use a string list for display.
+ */
 class EnumStrVariableBase : public EnumVariableBase {
  public:
   EnumStrVariableBase(const char* name_, int value, const char* description_, unsigned num_values,
@@ -168,7 +277,9 @@ class EnumStrVariableBase : public EnumVariableBase {
   void toJson(JsonObject doc) override;
   String formEntry() const override;
 
+  /** @return Total number of possible enum values. */
   unsigned num_values() const { return m_num_values; }
+  /** @return Pointer to the array of value name strings. */
   const char** value_names() const { return m_value_names; }
 
  protected:
@@ -177,6 +288,9 @@ class EnumStrVariableBase : public EnumVariableBase {
   int m_value;
 };
 
+/**
+ * @brief Template class for simple enumeration variables.
+ */
 template <typename T>
 class EnumVariable : public EnumVariableBase {
  public:
@@ -218,7 +332,9 @@ class EnumVariable : public EnumVariableBase {
   T m_value;
 };
 
-// Enumeration where rendering of values to string (not json) is from a list of strings.
+/**
+ * @brief Template for enumeration variables using a list of strings for rendering.
+ */
 template <typename T>
 class EnumStrVariable : public EnumStrVariableBase {
  public:
@@ -355,6 +471,9 @@ inline bool FloatingPointVariable<T>::fromJson(JsonVariantConst json) {
 using FloatVariable = FloatingPointVariable<float>;
 using DoubleVariable = FloatingPointVariable<double>;
 
+/**
+ * @brief Boolean variable type.
+ */
 class BoolVariable : public Variable<bool> {
  public:
   BoolVariable(const char* name_, const bool value, const char* description_, unsigned flags_,
@@ -366,6 +485,9 @@ class BoolVariable : public Variable<bool> {
   String formEntry() const override;
 };
 
+/**
+ * @brief Binary sensor variable (ON/OFF display).
+ */
 class BinarySensorVariable : public Variable<bool> {
  public:
   BinarySensorVariable(const char* name_, const bool value, const char* description_,
@@ -377,6 +499,9 @@ class BinarySensorVariable : public Variable<bool> {
   BinarySensorVariable& operator=(bool value);
 };
 
+/**
+ * @brief Binary cover sensor variable (open/closed display).
+ */
 class BinaryCoverSensorVariable : public BinarySensorVariable {
  public:
   BinaryCoverSensorVariable(const char* name_, const bool value, const char* description_,

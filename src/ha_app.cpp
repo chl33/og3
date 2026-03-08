@@ -15,38 +15,44 @@ HAApp::HAApp(const HAApp::Options& options)
 
 void HAApp::setup() { WebApp::setup(); }
 
-void HAApp::handleMqttConfigRequest(AsyncWebServerRequest* request) {
+NetHandlerStatus HAApp::handleMqttConfigRequest(NetRequest* request, NetResponse* response) {
 #ifndef NATIVE
   ::og3::read(*request, mqtt_manager().variables());
   m_web_page.clear();
   html::writeFormTableInto(&m_web_page, mqtt_manager().variables());
   m_web_page += HTML_BUTTON("/", "Back");
-  sendWrappedHTML(request, board_cname(), software_name(), m_web_page.c_str());
+  sendWrappedHTML(request, response, board_cname(), software_name(), m_web_page.c_str());
   config().write_config(mqtt_manager().variables());
 #endif
+  NET_REPLY(request, ESP_OK);
 }
 
 #ifndef NATIVE
 WebButton HAApp::createMqttConfigButton() {
-  return WebButton(&web_server(), "MQTT Config", MqttManager::kConfigUrl,
-                   [this](AsyncWebServerRequest* request) { handleMqttConfigRequest(request); });
+  return WebButton(&web_server_module().native_server(), "MQTT Config", MqttManager::kConfigUrl,
+                   [this](NetRequest* request, NetResponse* response) {
+                     return handleMqttConfigRequest(request, response);
+                   });
 }
 #endif
 
-void HAApp::handleAppStatusRequest(AsyncWebServerRequest* request) {
+NetHandlerStatus HAApp::handleAppStatusRequest(NetRequest* request, NetResponse* response) {
 #ifndef NATIVE
   m_web_page.clear();
   html::writeTableInto(&m_web_page, app_status().variables());
   m_web_page += HTML_BUTTON("/", "Back");
-  sendWrappedHTML(request, board_cname(), software_name(), m_web_page.c_str());
+  sendWrappedHTML(request, response, board_cname(), software_name(), m_web_page.c_str());
   config().write_config(app_status().variables());
 #endif
+  NET_REPLY(request, ESP_OK);
 }
 
 #ifndef NATIVE
 WebButton HAApp::createAppStatusButton() {
-  return WebButton(&web_server(), "App Status", AppStatus::kUrl,
-                   [this](AsyncWebServerRequest* request) { handleAppStatusRequest(request); });
+  return WebButton(&web_server_module().native_server(), "App Status", AppStatus::kUrl,
+                   [this](NetRequest* request, NetResponse* response) {
+                     return handleAppStatusRequest(request, response);
+                   });
 }
 #endif
 

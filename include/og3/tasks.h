@@ -8,28 +8,49 @@
 
 namespace og3 {
 
-// The Tasks module supports running callbacks at scheduled times.
-// It uses an TaskQueue to keep a prioritized list of tasks to run.
+/**
+ * @brief Application module for scheduling and executing timed callbacks.
+ *
+ * The Tasks module manages a TaskQueue and provides an interface for
+ * scheduling one-shot tasks. It integrates with the main application loop
+ * to execute tasks whose scheduled time has passed.
+ */
 class Tasks : public Module {
  public:
-  static const char* kName;
+  static const char* kName;  ///< @brief "tasks"
 
+  /** @return Pointer to the Tasks module instance. */
   static Tasks* get(const NameToModule& n2m) { return GetModule<Tasks>(n2m, kName); }
 
-  // A way to specify code to run from an interrupt.
+  /**
+   * @brief Direct way to schedule a task from an interrupt context.
+   * @param thunk The callback to run in the next loop.
+   */
   static void run_next(const Thunk& thunk) { s_run_next = thunk; }
 
+  /** @brief Constructs a Tasks module with a given capacity. */
   Tasks(std::size_t capacity, ModuleSystem* module_system);
 
+  /** @brief Schedules a task to run at an absolute timestamp. */
   void runAt(unsigned long msec, const Thunk& thunk, unsigned id = 0);
+  /** @brief Schedules a task to run after a delay from now. */
   void runIn(unsigned long msec, const Thunk& thunk, unsigned id = 0);
+
+  /** @return Generates a unique ID for scheduling related tasks. */
   unsigned getId() { return m_queue.getId(); }
 
+  /** @return Maximum task capacity. */
   std::size_t capacity() const { return m_queue.capacity(); }
+  /** @return Current number of scheduled tasks. */
   std::size_t size() const { return m_queue.size(); }
 
+  /** @return Constant reference to the underlying queue. */
   const TaskQueue& queue() const { return m_queue; }
 
+  /**
+   * @brief Executes all due tasks. Should be called in loop().
+   * @return Number of tasks executed.
+   */
   int loop();
 
  private:
@@ -40,13 +61,18 @@ class Tasks : public Module {
   TaskQueue m_queue;
 };
 
-// The TaskIdScheduler assists in scheduling tasks with a given id.
-// Queuing an task with a given id will replace any task already queueed with the same id.
+/**
+ * @brief Helper for scheduling tasks with a consistent unique ID.
+ *
+ * This ensures that subsequent calls to `runAt` or `runIn` will replace
+ * the previously scheduled task for this specific scheduler instance.
+ */
 class TaskIdScheduler {
  public:
-  // You can set tasks = nullptr if you set it later on with setTasks().
+  /** @brief Constructs a TaskIdScheduler. */
   explicit TaskIdScheduler(Tasks* tasks) : m_tasks(tasks), m_id(tasks ? tasks->getId() : 0) {}
 
+  /** @brief Late-initialization of the tasks module pointer. */
   void setTasks(Tasks* tasks) {
     if (m_tasks) {
       return;
@@ -54,17 +80,20 @@ class TaskIdScheduler {
     m_tasks = tasks;
     m_id = tasks->getId();
   }
+  /** @brief Schedules the task at an absolute time. */
   void runAt(unsigned long msec, const Thunk& thunk) {
     if (m_tasks) {
       m_tasks->runAt(msec, thunk, m_id);
     }
   }
+  /** @brief Schedules the task after a delay. */
   void runIn(unsigned long msec, const Thunk& thunk) {
     if (m_tasks) {
       m_tasks->runIn(msec, thunk, m_id);
     }
   }
 
+  /** @return Pointer to the associated Tasks module. */
   const Tasks* tasks() const { return m_tasks; }
 
  private:
@@ -72,15 +101,18 @@ class TaskIdScheduler {
   unsigned m_id;
 };
 
-// The TaskScheduler assists in scheduling tasks with a given id.
-// Queuing an task with a given id will replace any task already queueed with the same id.
+/**
+ * @brief Specialized scheduler for a single, fixed callback function.
+ */
 class TaskScheduler {
  public:
-  // You can set tasks = nullptr if you set it later on with setTasks().
+  /** @brief Constructs a TaskScheduler. */
   TaskScheduler(const Thunk& thunk, Tasks* tasks) : m_thunk(thunk), m_scheduler(tasks) {}
 
   void setTasks(Tasks* tasks) { m_scheduler.setTasks(tasks); }
+  /** @brief Schedules the fixed callback at an absolute time. */
   void runAt(unsigned long msec) { m_scheduler.runAt(msec, m_thunk); }
+  /** @brief Schedules the fixed callback after a delay. */
   void runIn(unsigned long msec) { m_scheduler.runIn(msec, m_thunk); }
   const Tasks* tasks() const { return m_scheduler.tasks(); }
 
@@ -89,18 +121,20 @@ class TaskScheduler {
   TaskIdScheduler m_scheduler;
 };
 
-// PeriodicTaskScheduler is like TaskIdQueue but automatically reschedules
-//  the task each time it is run.
+/**
+ * @brief Automatically reschedules a task to run at fixed intervals.
+ */
 class PeriodicTaskScheduler {
  public:
-  // You can set tasks = nullptr if you set it later on with setTasks().
+  /** @brief Constructs a PeriodicTaskScheduler. */
   PeriodicTaskScheduler(unsigned msec_initial, unsigned period_msec, const Thunk& thunk,
                         Tasks* tasks);
 
   void setTasks(Tasks* tasks_);
 
-  // Reschedule the time of the next task, shifing all following tasks.
+  /** @brief Manually reschedules the next execution time. */
   void runAt(unsigned long msec);
+  /** @brief Manually reschedules the next execution after a delay. */
   void runIn(unsigned long msec);
 
  private:

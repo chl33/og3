@@ -10,20 +10,33 @@
 
 namespace og3 {
 
-// Logger is a very simple interface for handling text logs.
-// Subclasses should override the pure-virtual log() function.
-// define LOG_DEBUG() for debug() logs to be processed, or
-//  LOG_DISABLE to disable all logging.
+/**
+ * @brief Base interface for application-wide logging.
+ *
+ * Subclasses must implement the pure virtual `log()` method.
+ * Supports printf-style formatting and conditional debug levels.
+ * In C/C++ preprocessor, define:
+ * - LOG_DEBUG for debug() logs to be processed, or
+ * - LOG_DISABLE to disable all logging.
+ */
 class Logger {
  public:
+  virtual ~Logger() = default;
+
+  /**
+   * @brief Core logging function.
+   * @param msg The C-string message to log.
+   */
   virtual void log(const char* msg) = 0;
 
+  /** @brief Logs an Arduino String. */
   void log(const String& str) {
 #ifndef LOG_DISABLE
     log(str.c_str());
 #endif
   }
 
+  /** @brief Logs a message with variable arguments (va_list). */
   void logv(const char* format, va_list ap) {
 #ifndef LOG_DISABLE
     char buffer[512];
@@ -31,6 +44,8 @@ class Logger {
     log(buffer);
 #endif
   }
+
+  /** @brief Logs a printf-style formatted message. */
   void logf(const char* format, ...) OG3_PRINTF_FORMAT(2) {
 #ifndef LOG_DISABLE
     va_list ap;
@@ -41,7 +56,9 @@ class Logger {
   }
 
 #ifdef LOG_DEBUG
+  /** @brief Logs a debug message (only if LOG_DEBUG is defined). */
   void debug(const char* text) { log(text); }
+  /** @brief Logs a formatted debug message (only if LOG_DEBUG is defined). */
   void debugf(const char* format, ...) OG3_PRINTF_FORMAT(2) {
     va_list ap;
     va_start(ap, format);
@@ -54,6 +71,9 @@ class Logger {
 #endif
 };
 
+/**
+ * @brief A logger implementation that ignores all messages.
+ */
 class NullLogger : public Logger {
  public:
   NullLogger() = default;

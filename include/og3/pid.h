@@ -7,46 +7,62 @@
 
 namespace og3 {
 
-// This is a PID controller.
+/**
+ * @brief A standard Proportional-Integral-Derivative (PID) controller implementation.
+ *
+ * This controller computes a command output based on measured error and its
+ * time-derivative and integral. It includes features like anti-windup (saturation handling)
+ * and feedforward. All parameters are integrated with the Variable system for easy
+ * tuning via web or config.
+ */
 class PID {
  public:
+  /** @brief Tuning parameters for the PID controller. */
   struct Gains {
+    /** @brief Constructs gains with proportional control by default. */
     Gains(float p_, float i_ = 0, float d_ = 0) : p(p_), i(i_), d(d_) {}
     Gains& operator=(const Gains&) = default;
 
+    /** @brief Sets maximum allowed integral contribution. */
     Gains& withIMax(float val) {
       i_max = val;
       return *this;
     }
+    /** @brief Sets minimum allowed integral contribution. */
     Gains& withIMin(float val) {
       i_min = val;
       return *this;
     }
+    /** @brief Sets constant feedforward gain. */
     Gains& withFeedforward(float val) {
       feedforward = val;
       return *this;
     }
+    /** @brief Sets hard maximum output clamp. */
     Gains& withCommandMax(float val) {
       command_max = val;
       return *this;
     }
+    /** @brief Sets hard minimum output clamp. */
     Gains& withCommandMin(float val) {
       command_min = val;
       return *this;
     }
 
-    float p;                      // The proportional error gain.
-    float i;                      // The integral error gain.
-    float d;                      // The derivative error gain.
-    float i_max = 1.0e10;         // The maximum value for the controller integral.
-    float i_min = -1.0e10;        // The minimum value for the controller integral.
-    float feedforward = 0.0f;     // The feedforward gain.
-    float command_min = 1.0e10;   // The minimum allowed output value.
-    float command_max = -1.0e10;  // The maximum allowed output value.
+    float p;                      ///< The proportional error gain.
+    float i;                      ///< The integral error gain.
+    float d;                      ///< The derivative error gain.
+    float i_max = 1.0e10;         ///< Maximum integral value.
+    float i_min = -1.0e10;        ///< Minimum integral value.
+    float feedforward = 0.0f;     ///< The feedforward gain.
+    float command_min = -1.0e10;  ///< Hard minimum allowed output.
+    float command_max = 1.0e10;   ///< Hard maximum allowed output.
   };
 
+  /** @brief Constructs a PID controller and registers its variables. */
   PID(const Gains& gains, VariableGroup& vg, VariableGroup& cfg_vg, VariableGroup& cmd_vg);
 
+  /** @brief Resets the internal controller state (integral and last time). */
   void initialize() {
     m_last_msec = millis();
     m_error = 0.0f;
@@ -56,25 +72,31 @@ class PID {
     m_d_cmd = 0.0f;
     m_i_cmd = 0.0f;
   }
+
+  /** @brief Sets the desired setpoint and its expected rate of change. */
   void setTarget(float target, float d_target = 0) {
     m_target = target;
     m_d_target = d_target;
   }
+
+  /** @brief Computes the new command using system millis(). */
   float command(float measured) { return command(measured, millis()); }
+  /** @brief Computes the new command using an explicit timestamp. */
   float command(float measured, unsigned now_msec);
+  /** @brief Computes the command with an explicit derivative measurement. */
   float command(float measured, float d_measured, unsigned now_msec);
 
-  FloatVariable& p() { return m_p; }
-  FloatVariable& i() { return m_i; }
-  FloatVariable& d() { return m_d; }
-  FloatVariable& i_max() { return m_i_max; }
-  FloatVariable& i_min() { return m_i_min; }
-  FloatVariable& feedforward() { return m_feedforward; }
-  FloatVariable& command_min() { return m_command_min; }
-  FloatVariable& command_max() { return m_command_max; }
+  FloatVariable& p() { return m_p; }                      ///< @return P gain variable.
+  FloatVariable& i() { return m_i; }                      ///< @return I gain variable.
+  FloatVariable& d() { return m_d; }                      ///< @return D gain variable.
+  FloatVariable& i_max() { return m_i_max; }              ///< @return I-limit max variable.
+  FloatVariable& i_min() { return m_i_min; }              ///< @return I-limit min variable.
+  FloatVariable& feedforward() { return m_feedforward; }  ///< @return FF variable.
+  FloatVariable& command_min() { return m_command_min; }  ///< @return Output clamp min variable.
+  FloatVariable& command_max() { return m_command_max; }  ///< @return Output clamp max variable.
 
-  FloatVariable& target() { return m_target; }
-  FloatVariable& d_target() { return m_d_target; }
+  FloatVariable& target() { return m_target; }      ///< @return Current setpoint variable.
+  FloatVariable& d_target() { return m_d_target; }  ///< @return Target rate variable.
 
  private:
   // Gains

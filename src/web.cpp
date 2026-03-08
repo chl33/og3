@@ -4,15 +4,20 @@
 #ifndef NATIVE
 #include "og3/web.h"
 
-#include <ESPAsyncWebServer.h>
-
 #include "og3/tasks.h"
 
 namespace og3 {
 
-void sendWrappedHTML(AsyncWebServerRequest* request, const char* title, const char* footer,
-                     const char* content) {
-  auto processor = [title, footer, content](const String& var) {
+void sendWrappedHTML(NetRequest* request, NetResponse* response, const char* title,
+                     const char* footer, const char* content) {
+#if defined(ESP32)
+  String html = html_page_template;
+  html.replace("%TITLE%", title);
+  html.replace("%CONTENT%", content);
+  html.replace("%FOOTER%", footer);
+  request->response()->send(200, "text/html", html.c_str());
+#else
+  auto processor = [title, footer, content](const String& var) -> String {
     if (var == "TITLE") {
       return title;
     } else if (var == "FOOTER") {
@@ -22,11 +27,12 @@ void sendWrappedHTML(AsyncWebServerRequest* request, const char* title, const ch
     }
     return "";
   };
-  request->send(200, "text/html", html_page_template, processor);
+  request->send_P(200, "text/html", html_page_template, processor);
+#endif
 }
 
-void htmlRestartPage(AsyncWebServerRequest* request, Tasks* tasks) {
-  sendWrappedHTML(request, "reboot", "", reboot_page);
+void htmlRestartPage(NetRequest* request, NetResponse* response, Tasks* tasks) {
+  sendWrappedHTML(request, response, "reboot", "", reboot_page);
   tasks->runIn(500, [] {
 #ifdef ESP32
     ESP.restart();
@@ -77,10 +83,15 @@ const char html_page_template[] PROGMEM = R"====(<!DOCTYPE html>
 </html>
 )====";
 
-WebButton::WebButton(AsyncWebServer* server, const char* label, const char* path,
-                     const Action& action)
+WebButton::WebButton(NetServer* server, const char* label, const char* path,
+                     const NetHandler& action)
     : m_label(label), m_path(path) {
-  server->on(path, action);
+#if defined(ESP32)
+  server->on(path, HTTP_GET, action);
+#else
+  server->on(path, HTTP_GET,
+             [action](AsyncWebServerRequest* request) { action(request, nullptr); });
+#endif
 }
 
 void WebButton::add_button(String* html) {

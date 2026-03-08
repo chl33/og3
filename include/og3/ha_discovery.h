@@ -16,17 +16,20 @@ class Tasks;
 }
 
 namespace og3 {
-// Home assistant device types
+
+/** @brief Home Assistant device types. */
 namespace ha::device_type {
-extern const char* kBinarySensor;
-extern const char* kClimate;
-extern const char* kCover;
-extern const char* kSensor;
-extern const char* kSwitch;
+extern const char* kBinarySensor;  ///< "binary_sensor"
+extern const char* kClimate;       ///< "climate"
+extern const char* kCover;         ///< "cover"
+extern const char* kSensor;        ///< "sensor"
+extern const char* kSwitch;        ///< "switch"
 }  // namespace ha::device_type
 
+/** @brief Home Assistant device classes for various entity types. */
 namespace ha::device_class {
 
+/** @brief Device classes for 'cover' entities. */
 namespace cover {
 //  Control of an awning, such as an exterior retractable window, door, or patio cover.
 extern const char* kAwning;
@@ -56,7 +59,10 @@ extern const char* kShutter;
 extern const char* kWindow;
 }  // namespace cover
 
-// Sensors https://www.home-assistant.io/integrations/sensor
+/** @brief Device classes for 'sensor' entities.
+ *
+ * See https://www.home-assistant.io/integrations/sensor
+ */
 namespace sensor {
 // Absolute humidity in g/m³, mg/m³.
 extern const char* kAbsolute_humidity;
@@ -178,6 +184,8 @@ extern const char* kWindDirection;
 // Wind speed in Beaufort, ft/s, km/h, kn, m/s, or mph
 extern const char* kWindSpeed;
 }  // namespace sensor
+
+/** @brief Device classes for 'binary_sensor' entities. */
 namespace binary_sensor {
 // on means charging, off means not charging
 extern const char* kBatteryCharging;
@@ -237,14 +245,18 @@ extern const char* kWindow;
 }  // namespace ha::device_class
 
 class ConfigInterface;
-class WiFiManager;
+class WifiManager;
 
-// HADiscovery is a module which assists with registering the value of Variables as
-//  Home Assistant Entities.
-// It does this by providing an API for sending particular MQTT messsages to declare
-//  these entities.
+/**
+ * @brief Module for automating Home Assistant MQTT Discovery.
+ *
+ * HADiscovery registers Variable objects as entities in Home Assistant by publishing
+ * configuration payloads to specific MQTT topics. It handles device metadata,
+ * state reporting, and command callbacks.
+ */
 class HADiscovery : public Module {
  public:
+  /** @brief Configuration for the device as seen in Home Assistant. */
   struct Options {
     Options(const char* manufacturer_, const char* model_, const char* software_,
             const char* device_name_ = nullptr)
@@ -258,78 +270,113 @@ class HADiscovery : public Module {
     const char* device_name;
   };
 
-  static const char* kName;
+  static const char* kName;  ///< @brief "ha_discovery"
 
+  /** @brief Constructs HADiscovery module. */
   HADiscovery(const Options& opts, ModuleSystem* module_system);
 
+  /** @brief Represents a single entity entry for HA Discovery. */
   struct Entry {
+    /** @brief Callback type for generating custom value templates. */
     using ValueTemplateFn = std::function<String(const Entry&)>;
+
+    /** @brief Constructs a general variable entry. */
     Entry(const VariableBase& var_, const char* device_type_, const char* device_class_,
           const ValueTemplateFn& value_template = nullptr);
+    /** @brief Constructs a floating-point sensor entry. */
     Entry(const FloatVariableBase& var_, const char* device_type_, const char* device_class_);
+    /** @brief Constructs a boolean sensor entry. */
     Entry(const BoolVariable& var_, const char* device_class_);
+    /** @brief Constructs an enumeration entry. */
     Entry(const EnumStrVariableBase& var, const char* device_type);
 
     const VariableBase& var;
     const char* device_type;
     const char* device_class;
-    const char* subject_topic = nullptr;
-    const char* device_name = nullptr;
-    const char* device_id = nullptr;     // HADiscovery device_id is used if not set.
-    const char* manufacturer = nullptr;  // HADiscovery manufacturer is used if not set.
-    const char* software = nullptr;      // HADiscovery software is used if not set.
-    const char* model = nullptr;         // HADiscovery model is used if not set.
+    const char* subject_topic = nullptr;  ///< MQTT topic for state updates.
+    const char* device_name = nullptr;    ///< Override device name.
+    const char* device_id = nullptr;      ///< Override parent HADiscovery value
+    const char* manufacturer = nullptr;   ///< Override parent HADiscovery value
+    const char* software = nullptr;       ///< Override parent HADiscovery value
+    const char* model = nullptr;          ///< Override parent HADiscovery value
     const char* icon = nullptr;
     const char* state_class = nullptr;
     const char* via_device = nullptr;
-    // Optionally overwrite var.name in discovery path: homeassistant/{device}/{entry_name|var.name}
+    /// Optionally overwrite var.name in discovery path:
+    ///    homeassistant/{device}/{entry_name|var.name}
     const char* entry_name = nullptr;
-    // Command subject, if applicable
-    const char* command = nullptr;
-    // Callback to be registered for 'command', if set.
-    MqttManager::MqttMsgCallbackFn command_callback;
+    const char* command = nullptr;                    ///< MQTT topic for receiving commands.
+    MqttManager::MqttMsgCallbackFn command_callback;  ///< Callback for commands.
     ValueTemplateFn value_template_fn;
     const unsigned num_options = 0;
     const char** options = nullptr;
   };
+
+  /** @brief Registers an entity by adding its config to a JSON payload. */
   bool addEntry(JsonDocument* json, const Entry& entry);
+
+  /** @brief Convenience method to register a generic entity. */
   bool addEntry(JsonDocument* json, const VariableBase& var, const char* device_type,
                 const char* device_class, const Entry::ValueTemplateFn& value_template,
                 const char* subject_topic, const char* device_name);
+
+  /** @brief Registers a numeric measurement sensor. */
   bool addMeas(JsonDocument* json, const VariableBase& var, const char* device_type,
                const char* device_class, const char* subject_topic = nullptr,
                const char* device_name = nullptr);
+
+  /** @brief Registers a floating-point measurement sensor. */
   bool addMeas(JsonDocument* json, const FloatVariableBase& var, const char* device_type,
                const char* device_class, const char* subject_topic = nullptr,
                const char* device_name = nullptr);
 
+  /** @brief Registers an enumeration sensor. */
   bool addEnum(JsonDocument* json, const EnumStrVariableBase& var, const char* device_type,
                const char* subject_topic = nullptr, const char* device_name = nullptr);
+
+  /** @brief Registers a binary sensor. */
   bool addBinarySensor(JsonDocument* json, const VariableBase& var, const char* device_class,
                        const char* subject_topic = nullptr, const char* device_name = nullptr);
+
+  /** @brief Registers a motion binary sensor. */
   bool addMotionSensor(JsonDocument* json, const VariableBase& var,
                        const char* subject_topic = nullptr, const char* device_name = nullptr);
 
+  /** @brief Internal helper to populate common device root information in JSON. */
   void addRoot(JsonDocument* json, const Entry& entry);
 
+  /** @brief Publishes a discovery configuration message. */
   bool mqttSendConfig(const char* name, const char* device_class, JsonDocument* json);
+
+  /** @brief Subscribes to a command topic. */
   void mqttSubscribe(const char* name, const MqttManager::MqttMsgCallbackFn& fn);
 
+  /** @brief Callback type for performing discovery after MQTT connection. */
   using DiscoveryCallbackFn = std::function<bool(HADiscovery*, JsonDocument*)>;
+
+  /** @brief Adds a callback to be executed whenever the module needs to re-send discovery. */
   void addDiscoveryCallback(const DiscoveryCallbackFn& callback_fn) {
     m_discovery_callbacks.push_back(callback_fn);
   }
 
-  // This is available after depend-system init.
+  /** @return The unique device ID used for discovery.
+   *
+   * @details This is available after depend-system init.
+   */
   const char* deviceId() const { return m_device_id; }
 
+  /** @return Pointer to the HADiscovery module instance. */
   static HADiscovery* get(const NameToModule& n2m) { return GetModule<HADiscovery>(n2m, kName); }
 
+  /** @return Reference to the options used. */
   const Options& options() const { return m_options; }
 
+  /** @return true if MQTT is enabled and in Home Assistant mode. */
   bool enabled() const {
     return m_mqtt_manager && m_mqtt_manager->mode() == MqttManager::Mode::kHomeAssistant;
   }
+
+  /** @return The base MQTT topic for this board. */
   const String& boardTopic();
 
  private:

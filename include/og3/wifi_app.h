@@ -17,18 +17,29 @@ namespace og3 {
 
 class WifiManager;
 
-// An application which supports Wifi.
-// The WifiManager manages the wifi connection, OtaManager supports firmware update,
-//  and mDNS broadcasts the board/device name.
+/**
+ * @brief Base class for applications requiring WiFi and standard network services.
+ *
+ * WifiApp coordinates several core modules:
+ * - WifiManager: Connectivity and configuration.
+ * - OtaManager: Over-The-Air updates.
+ * - Mdns: Local hostname resolution.
+ * - FlashSupport: Configuration persistence.
+ *
+ * It automatically handles setup, loading configuration from flash, and logging
+ * redirection.
+ */
 class WifiApp : public App {
  public:
+  /** @brief Comprehensive options for initializing all core WifiApp services. */
   struct Options {
     App::Options app;
-    const char* default_device_name;
-    const char* software_name;
-    WifiManager::Options wifi;
-    OtaManager::Options ota;
-    IPAddress udp_log_host;
+    const char* default_device_name;  ///< Initial hostname/SSID.
+    const char* software_name;        ///< Software version/identifier.
+    WifiManager::Options wifi;        ///< WiFi-specific tuning.
+    OtaManager::Options ota;          ///< OTA settings.
+    IPAddress udp_log_host;           ///< Optional remote IP for UDP logging.
+
     Options& withDefaultDeviceName(const char* default_device_name) {
       this->default_device_name = default_device_name;
       return *this;
@@ -55,14 +66,21 @@ class WifiApp : public App {
     }
   };
 
+  /** @brief Constructs a WifiApp. */
   explicit WifiApp(const Options& options);
 
+  /** @return Reference to the WiFi manager. */
   WifiManager& wifi_manager() { return m_wifi_manager; }
+  /** @return Constant reference to the WiFi manager. */
   const WifiManager& wifi_manager() const { return m_wifi_manager; }
+  /** @return Reference to the persistent configuration interface. */
   ConfigInterface& config() { return m_config; }
 
+  /** @return The configured board name. */
   const String& board_name() const { return wifi_manager().board(); }
+  /** @return The configured board name as a C-string. */
   const char* board_cname() const { return board_name().c_str(); }
+  /** @return The name of the software running on the board. */
   const char* software_name() const { return m_software_name; }
 
  protected:

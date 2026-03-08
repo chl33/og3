@@ -11,19 +11,37 @@ namespace og3 {
 class HADiscovery;
 class MqttManager;
 
-// HADependencies is a version of Dependencies which makes a module depend on the
-/// MQTTManager and HADiscovery, and provides pointers to these modules.
+/**
+ * @brief Dependency manager for modules requiring MQTT and Home Assistant discovery.
+ *
+ * This class ensures that a module's dependencies on MqttManager and HADiscovery
+ * are correctly resolved by the ModuleSystem.
+ */
 class HADependencies : public Dependencies {
  public:
+  /**
+   * @brief Resolves MqttManager and HADiscovery from the module map.
+   * @param name_to_module Map of names to module pointers.
+   * @return true if both required modules were found.
+   */
   bool resolve(const NameToModule& name_to_module) override;
+
+  /** @return 2 (MqttManager + HADiscovery). */
   size_t num_depends_on() const override;
+
+  /** @brief Returns pointer to MqttManager (0) or HADiscovery (1). */
   const Module* depends_on(size_t idx) const override;
 
+  /** @return Pointer to the resolved MqttManager. */
   MqttManager* mqtt_manager() { return m_mqtt_manager; }
+  /** @return Constant pointer to the resolved MqttManager. */
   const MqttManager* mqtt_manager() const { return m_mqtt_manager; }
+  /** @return Pointer to the resolved HADiscovery. */
   HADiscovery* ha_discovery() { return m_ha_discovery; }
+  /** @return Constant pointer to the resolved HADiscovery. */
   const HADiscovery* ha_discovery() const { return m_ha_discovery; }
 
+  /** @return true if both dependencies were successfully resolved. */
   const bool ok() { return m_mqtt_manager && m_ha_discovery; }
 
  protected:
@@ -31,13 +49,25 @@ class HADependencies : public Dependencies {
   HADiscovery* m_ha_discovery = nullptr;
 };
 
+/**
+ * @brief Extends HADependencies with an additional fixed-size array of dependencies.
+ * @tparam N The number of additional dependencies.
+ */
 template <unsigned N>
 class HADependenciesArray : public HADependencies {
  public:
+  /**
+   * @brief Constructs HADependenciesArray.
+   * @param module_names Array of additional module names to depend on.
+   */
   HADependenciesArray(const std::array<const char*, N>& module_names) : m_more_deps(module_names) {}
+
+  /** @return Total number of dependencies (2 + N). */
   size_t num_depends_on() const override {
     return HADependencies::num_depends_on() + m_more_deps.num_depends_on();
   }
+
+  /** @return Pointer to a dependency by index. */
   const Module* depends_on(size_t idx) const override {
     const auto d1 = HADependencies::num_depends_on();
     return idx < d1 ? HADependencies::depends_on(idx) : m_more_deps.depends_on(idx - d1);

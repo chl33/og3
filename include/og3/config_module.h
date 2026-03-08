@@ -12,25 +12,47 @@
 
 namespace og3 {
 
-// ConfigModule is a parent class for modules which save and load their variable values
-//  from flash via the config system and should have their own web page for setting
-//  variable values.
+/**
+ * @brief ConfigModule is a parent class for modules which save and load their variable values from
+ * flash via the config system and should have their own web page for setting variable values.
+ */
 class ConfigModule : public Module {
  public:
+  /**
+   * @brief Construct a new ConfigModule object.
+   * @param name The name of the module.
+   * @param app The application instance.
+   */
   ConfigModule(const char* name, App* app);
+
+  /**
+   * @brief Get the URL for the configuration page.
+   * @return The configuration URL.
+   */
   const char* cfg_url() const { return m_cfg_url.c_str(); }
+
+  /**
+   * @brief Add an HTML button that links to this module's config page.
+   * @param body The HTML body string to append to.
+   */
   void add_html_button(String* body) const;
 
  protected:
-  const App* m_app;
-  VariableGroup m_cvg;
-  ConfigInterface* m_config = nullptr;
-  WebServer* m_web_server = nullptr;
-  std::string m_cfg_url;
-  String m_html;
+  const App* m_app;                     ///< Application instance.
+  VariableGroup m_cvg;                  ///< Configuration variable group.
+  ConfigInterface* m_config = nullptr;  ///< Config interface instance.
+  WebServer* m_web_server = nullptr;    ///< Web server instance.
+  std::string m_cfg_url;                ///< URL for this module's config page.
+  String m_html;                        ///< HTML content for the config page.
 
  private:
-  void handleConfigRequest(AsyncWebServerRequest* request);
+  /**
+   * @brief HTTP handler for configuration requests.
+   * @param request The network request object.
+   * @param response The network response object.
+   * @return The handling status.
+   */
+  NetHandlerStatus handleConfigRequest(NetRequest* request, NetResponse* response);
 };
 
 }  // namespace og3

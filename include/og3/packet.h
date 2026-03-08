@@ -5,24 +5,32 @@
 #include <cstddef>
 #include <cstdint>
 
-// This is a still-experimental multi-message packet format.
+/**
+ * @brief Experimental multi-message binary packet format definitions.
+ */
 namespace og3::pkt {
 
-// Packet:
-// Magic              [4] 'og3p'
-// ProtocolVersion    [2] major, minor
-// PktSize            [2] uint16le, includes header
-// SeqId              [2] uint16le
-// NumMsgs            [2] uint16le (high-bit is whether there is a CRC32 at the end)
-// - Msg 0
-//   Sz               [2] uint16le, includes full msg
-//   Type             [2] uint16le: indicates kind of data.
-// -...
-// - (optional CRC32 at end) [4] uint32l3
+/*
+ * Packet Layout:
+ * Magic              [4] 'og3p'
+ * ProtocolVersion    [2] major, minor
+ * PktSize            [2] uint16le (includes header)
+ * SeqId              [2] uint16le
+ * NumMsgs            [2] uint16le (MSB is CRC-present flag)
+ *
+ * - Message 0
+ *   Sz               [2] uint16le (includes msg header)
+ *   Type             [2] uint16le (application-defined)
+ *   Data             [...]
+ *
+ * - ... (more messages)
+ *
+ * - (Optional CRC32) [4] uint32le
+ */
 
-constexpr size_t kHeaderSize = 12;
-constexpr uint8_t kProtocolVersionMajor = 0x0;
-constexpr uint8_t kProtocolVersionMinor = 0x1;
-constexpr size_t kMsgHeaderSize = 4;
+constexpr size_t kHeaderSize = 12;              ///< @brief Packet header size.
+constexpr uint8_t kProtocolVersionMajor = 0x0;  ///< @brief Current major version.
+constexpr uint8_t kProtocolVersionMinor = 0x1;  ///< @brief Current minor version.
+constexpr size_t kMsgHeaderSize = 4;            ///< @brief Sub-message header size.
 
 }  // namespace og3::pkt

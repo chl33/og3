@@ -8,28 +8,39 @@
 
 namespace og3 {
 
-// This is a wrapper to support over-the-air firmware updates.
+/**
+ * @brief Module providing Over-The-Air (OTA) firmware update support.
+ *
+ * OtaManager configures the platform-specific OTA system (e.g. ArduinoOTA)
+ * and provides callbacks for monitoring update progress and status.
+ */
 class OtaManager : public Module {
  public:
-  static const char kName[];
+  static const char kName[];  ///< @brief "ota"
 
+  /** @brief Configuration options for OTA. */
   struct Options {
     Options(const char* default_password_ = nullptr) : default_password(default_password_) {}
-    const char* default_password;
+    const char* default_password;  ///< Optional password for OTA authentication.
   };
 
+  /** @brief Constructs an OtaManager. */
   OtaManager(const Options& opts, ModuleSystem* module_system);
 
+  /** @brief Registers a callback for when an update starts. */
   void addOtaStartCallback(const std::function<void()>& callback) {
     m_startCallbacks.push_back(callback);
   }
+  /** @brief Registers a callback for when an update successfully ends. */
   void addOtaEndCallback(const std::function<void()>& callback) {
     m_endCallbacks.push_back(callback);
   }
+  /** @brief Registers a callback for when an update fails. */
   void addOtaErrorCallback(const std::function<void(int)>& callback) {
     m_errorCallbacks.push_back(callback);
   }
 
+  /** @return Pointer to the OtaManager module instance. */
   static OtaManager* get(const NameToModule& n2m) { return GetModule<OtaManager>(n2m, kName); }
 
  private:

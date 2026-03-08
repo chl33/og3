@@ -14,14 +14,31 @@ namespace og3 {
 
 class WifiManager;
 
-// A logger which simply sends logged text in plain UDP frames to a specified enpoint.
+/**
+ * @brief A Logger implementation that sends messages over UDP.
+ *
+ * This allows remote log monitoring by sending plain-text UDP frames to a
+ * specified IP address and port.
+ */
 class UdpLogger : public Logger {
  public:
-  static constexpr uint16_t kDefaultPort = 5005;
+  static constexpr uint16_t kDefaultPort = 5005;  ///< @brief Default UDP logging port.
 
+  /**
+   * @brief Constructs a UdpLogger.
+   * @param wifi_mgr Pointer to the WiFiManager (used to check connectivity).
+   * @param ip_address Target IP for the logs.
+   * @param port Target UDP port.
+   */
   UdpLogger(WifiManager* wifi_mgr, IPAddress ip_address, uint16_t port = kDefaultPort);
+
+  /**
+   * @brief Logs a message via UDP.
+   * @param msg The C-string to log.
+   */
   void log(const char* msg) final;
 
+  /** @brief Updates the logger when WiFi becomes available. */
   void set_wifi_manager();
 
  private:

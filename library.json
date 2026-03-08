@@ -1,35 +1,76 @@
 {
     "name": "og3",
-    "version": "0.4.5",
-    "description": "A library for esp projects",
-    "keywords": "esp32, esp8266, modules, tasks, mqtt",
+    "version": "0.5.0",
+    "description": "A modular framework for ESP32 and ESP8266 IoT applications featuring a task scheduler, persistent configuration management, and seamless Home Assistant integration via MQTT.",
+    "keywords": "iot, esp32, esp8266, home-assistant, mqtt, automation, task-scheduler, pid-control, sensors",
     "authors": [
-	{
-	    "name": "Chris Lee",
-	    "email": "lee.chris.h@gmail.com",
-	    "url": "https://selectiveappeal.org/",
-	    "maintainer": true
-	}
+        {
+            "name": "Chris Lee",
+            "email": "lee.chris.h@gmail.com",
+            "url": "https://selectiveappeal.org/",
+            "maintainer": true
+        }
     ],
-    "dependencies": {
-	"bakercp/CRC32": "~2.0.0",
-	"bblanchon/ArduinoJson": "~7.0.0",
-	"ESP32Async/ESPAsyncWebServer": "3.6.0",
-	"heman/AsyncMqttClient-esphome": "~1.0.0"
-    },
+    "dependencies": [
+        {
+            "name": "bakercp/CRC32",
+            "version": "~2.0.0"
+        },
+        {
+            "name": "bblanchon/ArduinoJson",
+            "version": "~7.0.0"
+        },
+        {
+            "name": "hoeken/PsychicHttp",
+            "version": "^2.1.1",
+            "platforms": "espressif32"
+        },
+        {
+            "name": "elims/PsychicMqttClient",
+            "version": "^0.2.4",
+            "platforms": "espressif32"
+        },
+        {
+            "name": "ESP32Async/ESPAsyncWebServer",
+            "version": "^3.6.0",
+            "platforms": "espressif8266"
+        },
+        {
+            "name": "marvinroger/AsyncMqttClient",
+            "version": "^0.9.0",
+            "platforms": "espressif8266"
+        },
+        {
+            "name": "ESPAsyncTCP",
+            "version": "^1.2.2",
+            "platforms": "espressif8266"
+        }
+    ],
     "export": {
-	"exclude": [".*", "*~", "util/"]
+        "exclude": [
+            ".*",
+            "*~",
+            "util/",
+            "test/",
+            "docs/",
+            "extra_script.py"
+        ]
     },
+    "examples": [
+        "examples/blink/platformio.ini",
+        "examples/ha-app/platformio.ini",
+        "examples/web-app/platformio.ini",
+        "examples/wifi-app/platformio.ini"
+    ],
     "license": "MIT",
-    "frameworks": "*",
+    "frameworks": "arduino",
     "platforms": "espressif8266, espressif32, native",
-    "repository":
-    {
-	"type": "git",
-	"url": "https://github.com/chl33/og3"
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/chl33/og3"
     },
     "build": {
-     "libLDFMode": "deep+",
-     "libCompatMode": "strict"
-  }
+        "libLDFMode": "deep+",
+        "libCompatMode": "strict"
+    }
 }

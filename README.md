@@ -4,11 +4,12 @@ The **og3** library is a robust C++ application framework for ESP32 and ESP8266 
 
 This library is built for the [PlatformIO](https://platformio.org/) development environment.
 
-Why "og" ([Garden133 Firmware](https://selectiveappeal.org/posts/garden133-firmware/))?
+## What's New in v0.5.0
 
-> "og" stands for [original gangsta](https://www.dictionary.com/e/slang/og/) because it is an old-school C++ library and application framework, not one of those trendy [YAML](https://en.wikipedia.org/wiki/YAML)-based frameworks like [ESPHome](https://esphome.io/index.html) that the kids these days are using. This is partly because I want the control that writing firmware directly in C++ provides, and partly because I'm a programmer so my hobby projects involve real programming, dammit!
-
-Version 0.4.0 and later should be considered stable.
+*   **Modernized Networking**: Native support for `PsychicHttp` and `PsychicMqttClient` on ESP32.
+*   **Cross-Platform Abstraction**: A unified `NetHandler` API that works seamlessly across ESP32 and ESP8266.
+*   **Expanded Testing**: High-coverage unit tests for core systems like PID, TaskQueue, and HTML generation.
+*   **Doxygen Documentation**: Fully documented headers for a professional developer experience.
 
 ## Key Features
 

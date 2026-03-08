@@ -9,8 +9,6 @@
 #include "og3/logger.h"
 #include "og3/module.h"
 
-#define ALLOC(T, N) reinterpret_cast<T*>(alloca(N * sizeof(T)))
-
 namespace og3 {
 
 bool ModuleSystem::LinkFnRec::operator<(const ModuleSystem::LinkFnRec& o) const {
@@ -58,8 +56,8 @@ bool ModuleSystem::link() {
   //  module will be before that module.
   // The output is a list of indexes into m_modules such that:
   //  module[sorted_module_indexes[i]] <  module[sorted_module_indexes[i+1]]
-  size_t* sorted_module_indexes = ALLOC(size_t, m_modules.size());
-  if (!topological_sort(sorted_module_indexes)) {
+  std::vector<size_t> sorted_module_indexes(m_modules.size());
+  if (!topological_sort(sorted_module_indexes.data())) {
     return false;
   }
 
@@ -107,17 +105,16 @@ bool ModuleSystem::link_modules_by_name() {
 bool ModuleSystem::topological_sort(size_t* out_sorted_module_indexes) {
   const size_t n_modules = m_modules.size();
   std::map<const Module*, size_t> module_to_index;
-  bool* visiting = ALLOC(bool, n_modules);
+  std::vector<bool> visiting(n_modules, false);
   std::set<size_t> unsorted;
 
   for (size_t i = 0; i < n_modules; i++) {
-    visiting[i] = false;
     unsorted.insert(i);
     module_to_index[m_modules[i]] = i;
   }
 
   std::function<bool(size_t)> visit = [this, &module_to_index, n_modules, out_sorted_module_indexes,
-                                       &unsorted, &visit, visiting](size_t idx) -> bool {
+                                       &unsorted, &visit, &visiting](size_t idx) -> bool {
     if (unsorted.find(idx) == unsorted.end()) {
       return true;
     }

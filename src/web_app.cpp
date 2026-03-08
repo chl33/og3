@@ -16,35 +16,61 @@ WebApp::WebApp(const WifiApp::Options& options) : WifiApp(options) {}
 #else
 WebApp::WebApp(const WifiApp::Options& options) : WifiApp(options), m_web_server(&module_system()) {
   // Serve files in flash from the /static/ subdirectory, such as CSS files.
-  web_server().serveStatic("/static/", LittleFS, "/static/").setCacheControl("max-age=600");
+#if defined(ESP32)
+  web_server_module().native_server().serveStatic("/static/", LittleFS, "/static/");
+#else
+  web_server_module()
+      .native_server()
+      .serveStatic("/static/", LittleFS, "/static/")
+      .setCacheControl("max-age=600");
+#endif
   // For captive portal mode, map unknown URI paths to the root page.
   wifi_manager().addSoftAPCallback([this]() {
-    web_server().onNotFound(
-        [this](AsyncWebServerRequest* request) { handleWifiConfigRequest(request); });
+#if defined(ESP32)
+    web_server_module().onNotFound([this](NetRequest* request, NetResponse* response) {
+      return handleWifiConfigRequest(request, response);
+    });
+#else
+    web_server_module().onNotFound([this](NetRequest* request, NetResponse* response) {
+      return handleWifiConfigRequest(request, response);
+    });
+#endif
   });
 }
 #endif
 
-void WebApp::handleWifiConfigRequest(AsyncWebServerRequest* request) {
+NetHandlerStatus WebApp::handleWifiConfigRequest(NetRequest* request, NetResponse* response) {
 #ifndef NATIVE
-  ::og3::read(*request, wifi_manager().variables());
+  const bool all_set = ::og3::read(*request, wifi_manager().variables());
+  config().write_config(wifi_manager().variables());
   m_web_page.clear();
+  // If wifi is configured from soft-ap mode, reboot the board.
+  if (all_set && m_wifi_manager.apMode()) {
+    htmlRestartPage(request, response, &tasks());
+    NET_REPLY(request, ESP_OK);
+  }
+
   html::writeFormTableInto(&m_web_page, wifi_manager().variables());
   m_web_page += HTML_BUTTON("/", "Back");
-  sendWrappedHTML(request, board_cname(), software_name(), m_web_page.c_str());
-  config().write_config(wifi_manager().variables());
+  sendWrappedHTML(request, response, board_cname(), software_name(), m_web_page.c_str());
 #endif
+  NET_REPLY(request, ESP_OK);
 }
 
 #ifndef NATIVE
 WebButton WebApp::createWifiConfigButton() {
-  return WebButton(&web_server(), "WiFi Config", WifiManager::kConfigUrl,
-                   [this](AsyncWebServerRequest* request) { handleWifiConfigRequest(request); });
+  return WebButton(&web_server_module().native_server(), "WiFi Config", WifiManager::kConfigUrl,
+                   [this](NetRequest* request, NetResponse* response) {
+                     return handleWifiConfigRequest(request, response);
+                   });
 }
 
 WebButton WebApp::createRestartButton() {
-  return WebButton(&web_server(), "Restart", "/restart",
-                   [this](AsyncWebServerRequest* request) { htmlRestartPage(request, &tasks()); });
+  return WebButton(&web_server_module().native_server(), "Restart", "/restart",
+                   [this](NetRequest* request, NetResponse* response) {
+                     htmlRestartPage(request, response, &tasks());
+                     NET_REPLY(request, ESP_OK);
+                   });
 }
 #endif
 
