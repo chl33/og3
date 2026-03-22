@@ -31,6 +31,12 @@ AppStatus::AppStatus(Tasks* tasks, App::LogType log_type)
       m_num_modules("numModules", 0, "", "num modules", 0, m_vg),
       m_module_capacity("moduleCapacity", 0, "", "module capacity", 0, m_vg),
       m_log_type("logType", log_type, "log type", App::LogType::kUdp, kLogTypeNames, 0, m_vg) {
+  m_mem_available.setHaName("mem_avail");
+  m_num_tasks.setHaName("num_tasks");
+  m_task_capacity.setHaName("task_capacity");
+  m_num_modules.setHaName("num_modules");
+  m_module_capacity.setHaName("module_capacity");
+  m_log_type.setHaName("log_type");
   add_link_fn([this](const NameToModule& name_to_module) -> bool {
     m_mqtt_manager = MqttManager::get(name_to_module);
     return true;

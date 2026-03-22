@@ -36,7 +36,7 @@ void VariableGroup::add(VariableBase* variable) {
   }
 }
 
-void VariableGroup::toJson(JsonObject out_json, unsigned flags) const {
+void VariableGroup::toJson(JsonObject out_json, unsigned flags, bool use_ha_name) const {
   for (auto* var : variables()) {
     if (flags & var->flags() & VariableBase::kNoPublish) {
       continue;
@@ -44,23 +44,23 @@ void VariableGroup::toJson(JsonObject out_json, unsigned flags) const {
     if (var->config() && !(flags & VariableBase::kConfig)) {
       continue;
     }
-    var->toJson(out_json);
+    var->toJson(out_json, use_ha_name);
   }
 }
 
-void VariableGroup::toJson(String* out_str, unsigned flags) const {
+void VariableGroup::toJson(String* out_str, unsigned flags, bool use_ha_name) const {
 #ifndef NATIVE
   JsonDocument jsondoc;
   JsonObject json = jsondoc.to<JsonObject>();
-  toJson(json, flags);
+  toJson(json, flags, use_ha_name);
   serializeJson(jsondoc, *out_str);
 #endif
 }
 
-void VariableGroup::toJson(std::ostream* out_str, unsigned flags) const {
+void VariableGroup::toJson(std::ostream* out_str, unsigned flags, bool use_ha_name) const {
   JsonDocument jsondoc;
   JsonObject json = jsondoc.to<JsonObject>();
-  toJson(json, flags);
+  toJson(json, flags, use_ha_name);
   serializeJson(jsondoc, *out_str);
 }
 
@@ -83,7 +83,12 @@ unsigned VariableGroup::updateFromJson(JsonObjectConst obj) {
 
 VariableBase::VariableBase(const char* name_, const char* units_, const char* description_,
                            unsigned flags_, VariableGroup& group)
-    : m_name(name_), m_units(units_), m_description(description_), m_flags(flags_), m_group(group) {
+    : m_name(name_),
+      m_ha_name(nullptr),
+      m_units(units_),
+      m_description(description_),
+      m_flags(flags_),
+      m_group(group) {
   group.add(this);
 }
 
@@ -128,9 +133,9 @@ bool EnumStrVariableBase::fromJson(JsonVariantConst json) {
   }
   return false;
 }
-void EnumStrVariableBase::toJson(JsonObject json) {
+void EnumStrVariableBase::toJson(JsonObject json, bool use_ha_name) {
   if (!failed()) {
-    json[name()] = string();
+    json[use_ha_name ? ha_name() : name()] = string();
   }
 }
 
@@ -154,12 +159,13 @@ String EnumStrVariableBase::formEntry() const {
   return ret;
 }
 
-void BoolVariable::toJson(JsonObject json) {
+void BoolVariable::toJson(JsonObject json, bool use_ha_name) {
   if (!failed()) {
+    const char* key = use_ha_name ? ha_name() : name();
 #ifndef NATIVE
-    json[name()] = string();
+    json[key] = string();
 #else
-    json[name()] = string().c_str();
+    json[key] = string().c_str();
 #endif
   }
 }
@@ -170,12 +176,13 @@ BoolVariable& BoolVariable::operator=(bool value) {
   return *this;
 }
 
-void BinarySensorVariable::toJson(JsonObject json) {
+void BinarySensorVariable::toJson(JsonObject json, bool use_ha_name) {
   if (!failed()) {
+    const char* key = use_ha_name ? ha_name() : name();
 #ifndef NATIVE
-    json[name()] = string();
+    json[key] = string();
 #else
-    json[name()] = string().c_str();
+    json[key] = string().c_str();
 #endif
   }
 }

@@ -90,6 +90,9 @@ WifiManager::WifiManager(const char* default_board_name, Tasks* tasks,
                  m_vg),
       m_ip_addr("ipAddr", "", "", "", 0, m_vg),
       m_rssi("rssi", 0, units::kDecibel, "", 0, m_vg) {
+  m_essid.setHaName("essid");
+  m_password.setHaName("password");
+  m_ip_addr.setHaName("ip");
   setDependencies(ConfigInterface::kName);
   add_link_fn([this](og3::NameToModule& name_to_module) -> bool {
     m_config = ConfigInterface::get(name_to_module);
