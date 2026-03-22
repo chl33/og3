@@ -17,8 +17,7 @@ namespace {
 bool strOk(const char* str) { return str && str[0]; }
 
 String default_value_template(const HADiscovery::Entry& entry) {
-  const char* var_name = entry.ha_name ? entry.ha_name : entry.var.name();
-  return String("{{value_json.") + var_name + "}}";
+  return String("{{value_json.") + entry.var.name() + "}}";
 };
 
 }  // namespace
@@ -153,9 +152,8 @@ HADiscovery::Entry::Entry(const FloatVariableBase& var_, const char* device_type
       device_type(device_type_),
       device_class(device_class_),
       value_template_fn([&var_](const Entry& entry) {
-        const char* var_name = entry.ha_name ? entry.ha_name : entry.var.name();
-        return String("{{value_json.") + var_name + "|float|round(" + String(var_.decimals()) +
-               ")}}";
+        return String("{{value_json.") + entry.var.name() + "|float|round(" +
+               String(var_.decimals()) + ")}}";
       }) {}
 
 HADiscovery::Entry::Entry(const BoolVariable& var_, const char* device_class_)
@@ -281,9 +279,8 @@ bool HADiscovery::addEntry(JsonDocument* json, const HADiscovery::Entry& entry) 
   }
   js["name"] = entry.var.description() && entry.var.description()[0] ? entry.var.description()
                                                                      : entry.var.name();
-  const char* var_name = entry.ha_name ? entry.ha_name : entry.var.name();
   snprintf(value, sizeof(value), "%s_%s", entry.device_id ? entry.device_id : m_device_id,
-           var_name);
+           entry.var.name());
   js["uniq_id"] = value;
   if (entry.icon) {
     js["ic"] = entry.icon;
@@ -305,8 +302,7 @@ bool HADiscovery::addEntry(JsonDocument* json, const HADiscovery::Entry& entry) 
     }
   }
 
-  const char* entry_name =
-      entry.entry_name ? entry.entry_name : (entry.ha_name ? entry.ha_name : entry.var.name());
+  const char* entry_name = entry.entry_name ? entry.entry_name : entry.var.name();
   return mqttSendConfig(entry_name, entry.device_type, json);
 }
 

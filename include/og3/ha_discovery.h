@@ -303,12 +303,8 @@ class HADiscovery : public Module {
     const char* state_class = nullptr;
     const char* via_device = nullptr;
     /// Optionally overwrite var.name in discovery path:
-    ///    homeassistant/{device}/{entry_name|ha_name|var.name}
+    ///    homeassistant/{device}/{entry_name|var.name}
     const char* entry_name = nullptr;
-    /// Optionally overwrite var.name in unique_id and value templates.
-    /// Use this if you want to keep the HA entity name stable while changing
-    /// the variable name (e.g. for JSON camelCase transition).
-    const char* ha_name = nullptr;
     const char* command = nullptr;                    ///< MQTT topic for receiving commands.
     MqttManager::MqttMsgCallbackFn command_callback;  ///< Callback for commands.
     ValueTemplateFn value_template_fn;

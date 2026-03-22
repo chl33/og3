@@ -67,9 +67,6 @@ MqttManager::MqttManager(const Options& opts, Tasks* tasks)
              VariableBase::kConfig | VariableBase::kSettable | VariableBase::kNoPublish, m_vg),
       m_connected("connection", kNotConnected, "connection", kConnected, s_str_connected,
                   VariableBase::kNoPublish, m_vg) {
-  m_host_addr.setHaName("host");
-  m_auth_user.setHaName("user");
-  m_auth_password.setHaName("password");
   // Module callbacks
   setDependencies(WifiManager::kName);
   add_link_fn([this](NameToModule& name_to_module) -> bool {
@@ -235,7 +232,7 @@ bool MqttManager::mqttSend(const VariableGroup& variables, unsigned flags) {
   String mqttOutput;
   switch (mode()) {
     case Mode::kHomeAssistant: {
-      variables.toJson(&mqttOutput, flags, true);
+      variables.toJson(&mqttOutput, flags);
       break;
     }
     case Mode::kAdafruitIO:

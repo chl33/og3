@@ -53,25 +53,22 @@ class VariableGroup {
    * @brief Serializes variables in the group to a JSON object.
    * @param out_json The target JSON object.
    * @param flags Filter flags (e.g., VariableBase::kConfig).
-   * @param use_ha_name If true, use the HA name instead of the internal name.
    */
-  void toJson(JsonObject out_json, unsigned flags, bool use_ha_name = false) const;
+  void toJson(JsonObject out_json, unsigned flags) const;
 
   /**
    * @brief Serializes the group to a JSON string.
    * @param out_str Pointer to the target String.
    * @param flags Filter flags.
-   * @param use_ha_name If true, use the HA name instead of the internal name.
    */
-  void toJson(String* out_str, unsigned flags, bool use_ha_name = false) const;
+  void toJson(String* out_str, unsigned flags) const;
 
   /**
    * @brief Serializes the group to an output stream.
    * @param out_str Pointer to the target stream.
    * @param flags Filter flags.
-   * @param use_ha_name If true, use the HA name instead of the internal name.
    */
-  void toJson(std::ostream* out_str, unsigned flags, bool use_ha_name = false) const;
+  void toJson(std::ostream* out_str, unsigned flags) const;
 
   /**
    * @brief Updates settable variables in the group from a JSON object.
@@ -122,9 +119,8 @@ class VariableBase {
   /**
    * @brief Adds the variable's value to a JSON object.
    * @param doc The target JSON object.
-   * @param use_ha_name If true, use the HA name instead of the internal name.
    */
-  virtual void toJson(JsonObject doc, bool use_ha_name = false) = 0;
+  virtual void toJson(JsonObject doc) = 0;
   /**
    * @brief Updates the variable's value from a JSON variant.
    * @param val The source JSON variant.
@@ -145,10 +141,6 @@ class VariableBase {
 
   /** @return The unique name of the variable. */
   const char* name() const { return m_name; }
-  /** @return The name used for HA MQTT (defaults to name()). */
-  const char* ha_name() const { return m_ha_name ? m_ha_name : m_name; }
-  /** @brief Sets the name used for HA MQTT. */
-  void setHaName(const char* ha_name_) { m_ha_name = ha_name_; }
   /** @return The units of measurement. */
   const char* units() const { return m_units; }
   /** @return The human-readable description. */
@@ -179,7 +171,6 @@ class VariableBase {
   bool testFlag(Flags flag) const { return m_flags & static_cast<unsigned>(flag); }
 
   const char* m_name;
-  const char* m_ha_name = nullptr;
   const char* m_units;
   const char* m_description;
   const unsigned m_flags;
@@ -214,7 +205,7 @@ class Variable : public VariableBase {
       : VariableBase(name_, units_, description_, flags_, group), m_value(value) {}
   String string() const override;
   bool fromString(const String&) override;
-  void toJson(JsonObject doc, bool use_ha_name = false) override;
+  void toJson(JsonObject doc) override;
   bool fromJson(JsonVariantConst json) override;
 
   /** @return Constant reference to the underlying value. */
@@ -244,7 +235,7 @@ class FloatingPointVariable : public FloatVariableBase {
       : FloatVariableBase(name_, units_, description_, flags_, decimals_, group), m_value(value) {}
   String string() const override;
   bool fromString(const String&) override;
-  void toJson(JsonObject doc, bool use_ha_name = false) override;
+  void toJson(JsonObject doc) override;
   bool fromJson(JsonVariantConst json) override;
 
   /** @return Constant reference to the underlying value. */
@@ -283,7 +274,7 @@ class EnumStrVariableBase : public EnumVariableBase {
   String string() const override;
   bool fromString(const String& value) override;
   bool fromJson(JsonVariantConst json) override;
-  void toJson(JsonObject doc, bool use_ha_name = false) override;
+  void toJson(JsonObject doc) override;
   String formEntry() const override;
 
   /** @return Total number of possible enum values. */
@@ -316,9 +307,9 @@ class EnumVariable : public EnumVariableBase {
     m_value = static_cast<T>(ival);
     return true;
   }
-  void toJson(JsonObject json, bool use_ha_name = false) override {
+  void toJson(JsonObject json) override {
     if (!failed()) {
-      json[use_ha_name ? ha_name() : name()] = static_cast<int>(value());
+      json[name()] = static_cast<int>(value());
     }
   }
   bool fromJson(JsonVariantConst json) override {
@@ -429,23 +420,23 @@ inline bool Variable<bool>::fromJson(JsonVariantConst json) {
 }
 
 template <>
-inline void Variable<String>::toJson(JsonObject json, bool use_ha_name) {
+inline void Variable<String>::toJson(JsonObject json) {
   if (!failed()) {
-    json[use_ha_name ? ha_name() : name()] = value().c_str();
+    json[name()] = value().c_str();
   }
 }
 
 template <typename T>
-inline void Variable<T>::toJson(JsonObject json, bool use_ha_name) {
+inline void Variable<T>::toJson(JsonObject json) {
   if (!failed()) {
-    json[use_ha_name ? ha_name() : name()] = value();
+    json[name()] = value();
   }
 }
 
 template <typename T>
-inline void FloatingPointVariable<T>::toJson(JsonObject json, bool use_ha_name) {
+inline void FloatingPointVariable<T>::toJson(JsonObject json) {
   if (!failed()) {
-    json[use_ha_name ? ha_name() : name()] = value();
+    json[name()] = value();
   }
 }
 
@@ -489,7 +480,7 @@ class BoolVariable : public Variable<bool> {
                VariableGroup& group)
       : Variable<bool>(name_, value, "", description_, flags_, group) {}
   String string() const final { return value() ? "true" : "false"; }
-  void toJson(JsonObject json, bool use_ha_name = false);
+  void toJson(JsonObject json);
   BoolVariable& operator=(bool value);
   String formEntry() const override;
 };
@@ -503,7 +494,7 @@ class BinarySensorVariable : public Variable<bool> {
                        VariableGroup& group, bool publish = true)
       : Variable<bool>(name_, value, "", description_, publish ? 0 : kNoPublish, group) {}
   String string() const override { return value() ? "ON" : "OFF"; }
-  void toJson(JsonObject json, bool use_ha_name = false);
+  void toJson(JsonObject json);
   bool fromJson(JsonVariantConst json);
   BinarySensorVariable& operator=(bool value);
 };
