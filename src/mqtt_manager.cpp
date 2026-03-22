@@ -51,15 +51,15 @@ MqttManager::MqttManager(const Options& opts, Tasks* tasks)
       m_vg(kName, nullptr, 4),
       m_enabled("enabled", true, "Enable MQTT",
                 VariableBase::kConfig | VariableBase::kSettable | VariableBase::kNoPublish, m_vg),
-      m_host_addr("host", opts.default_server, "", "MQTT server",
+      m_host_addr("hostAddr", opts.default_server, "", "MQTT server",
                   VariableBase::kConfig | VariableBase::kSettable, m_vg),
 #if 0
       m_port("port", opts.port, "", "port",
                   VariableBase::kConfig | VariableBase::kSettable | VariableBase::kNoPublish, m_vg),
 #endif
-      m_auth_user("user", opts.default_user, "", "username",
+      m_auth_user("authUser", opts.default_user, "", "username",
                   VariableBase::kConfig | VariableBase::kSettable, m_vg),
-      m_auth_password("password", opts.default_password, "", "password",
+      m_auth_password("authPassword", opts.default_password, "", "password",
                       VariableBase::kConfig | VariableBase::kSettable | VariableBase::kNoPublish |
                           VariableBase::kNoDisplay,
                       m_vg),

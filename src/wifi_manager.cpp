@@ -82,13 +82,13 @@ WifiManager::WifiManager(const char* default_board_name, Tasks* tasks,
       m_vg(kName, nullptr, 4),
       m_board("board", default_board_name, "", "Device name",
               VariableBase::kConfig | VariableBase::kSettable, m_vg),
-      m_essid("essid", nullToEmpty(options.default_essid), "", "",
+      m_essid("essId", nullToEmpty(options.default_essid), "", "",
               VariableBase::kConfig | VariableBase::kSettable | VariableBase::kNoPublish, m_vg),
-      m_password("password", nullToEmpty(options.default_password), "", "",
+      m_password("wifiPassword", nullToEmpty(options.default_password), "", "",
                  VariableBase::kConfig | VariableBase::kSettable | VariableBase::kNoPublish |
                      VariableBase::kNoDisplay,
                  m_vg),
-      m_ip_addr("ip", "", "", "", 0, m_vg),
+      m_ip_addr("ipAddr", "", "", "", 0, m_vg),
       m_rssi("rssi", 0, units::kDecibel, "", 0, m_vg) {
   setDependencies(ConfigInterface::kName);
   add_link_fn([this](og3::NameToModule& name_to_module) -> bool {
@@ -283,7 +283,7 @@ void WifiManager::startAp() {
 void WifiManager::startClient() {
 #ifndef NATIVE
   // If we don't have a configured ESSID then startup in AP mode instead.
-  const bool have_essid = essid().length() > 0;
+  const bool have_essid = essId().length() > 0;
   if (!have_essid) {
     startAp();
     return;
@@ -291,9 +291,9 @@ void WifiManager::startClient() {
   // If we have a configured ESSID, try to connect to it.
   m_ap_mode = false;
   m_start_connect_msec = millis();
-  log()->logf("Wifi: connecting to essid %s (%s)", essid().c_str(), strWifiStatus());
+  log()->logf("Wifi: connecting to essid %s (%s)", essId().c_str(), strWifiStatus());
   WiFi.mode(WIFI_STA);
-  WiFi.begin(essid().c_str(), password().c_str());
+  WiFi.begin(essId().c_str(), wifiPassword().c_str());
 #endif
 }
 

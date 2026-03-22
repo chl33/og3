@@ -70,16 +70,16 @@ class WifiManager : public Module {
   /** @return The configured board name (hostname). */
   const String& board() const { return m_board.value(); }
   /** @return The target ESSID. */
-  const String& essid() const { return m_essid.value(); }
+  const String& essId() const { return m_essid.value(); }
   /** @return The WiFi password. */
-  const String& password() const { return m_password.value(); }
+  const String& wifiPassword() const { return m_password.value(); }
   /** @return true if currently running in Soft AP mode. */
   bool apMode() const { return m_ap_mode; }
 
   /** @return Variable tracking the current IP address. */
-  const Variable<String>& ipAddressVariable() const { return m_ip_addr; }
+  const Variable<String>& ipAddrVariable() const { return m_ip_addr; }
   /** @return Current IP address as a string. */
-  const String& ipAddress() const { return m_ip_addr.value(); }
+  const String& ipAddr() const { return m_ip_addr.value(); }
   /** @return true if at least one successful connection was made this boot. */
   bool wasConnected() const { return m_was_connected; }
 
@@ -90,7 +90,7 @@ class WifiManager : public Module {
   /** @return Variable tracking signal strength (RSSI). */
   const Variable<int>& rssi() const { return m_rssi; }
   /** @return Current Soft AP password. */
-  const char* ap_password() const { return m_ap_password; }
+  const char* apPassword() const { return m_ap_password; }
 
   /** @brief Registers a callback for when WiFi client connects. */
   void addConnectCallback(const std::function<void()>& callback) {
