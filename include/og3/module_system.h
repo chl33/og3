@@ -108,6 +108,16 @@ class ModuleSystem {
    */
   size_t module_capacity() const { return m_modules.capacity(); }
 
+  /**
+   * @brief Registers a dependency requirement for a module.
+   * @param owner The module declaring the dependency.
+   * @param name The name of the required module.
+   * @param target_ptr Address of the pointer to populate.
+   */
+  void add_requirement(Module* owner, const char* name, void** target_ptr) {
+    m_pending_requirements.push_back({owner, name, target_ptr});
+  }
+
  private:
   friend class Module;  ///< @brief Module is a friend to allow it to add callbacks.
 
@@ -176,7 +186,15 @@ class ModuleSystem {
   std::vector<LinkFnRec> m_link_fns;   ///< @brief List of all registered link functions.
   std::vector<ThunkRec> m_init_fns;    ///< @brief List of all registered init functions.
   std::vector<ThunkRec> m_start_fns;   ///< @brief List of all registered start functions.
-  std::vector<ThunkRec> m_update_fns;  ///< @brief List of all registered update functions.};
+  std::vector<ThunkRec> m_update_fns;  ///< @brief List of all registered update functions.
+
+  struct RequirementDescriptor {
+    Module* owner;
+    const char* required_name;
+    void** target_ptr;
+  };
+  std::vector<RequirementDescriptor> m_pending_requirements;
+  std::vector<std::pair<const Module*, const Module*>> m_implicit_deps;
 };
 
 }  // namespace og3

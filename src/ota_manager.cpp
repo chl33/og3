@@ -21,12 +21,8 @@ OtaManager::OtaManager(const Options& opts, ModuleSystem* module_system)
       m_vg(kName),
       m_password("password", opts.default_password, "", "password",
                  VariableBase::kConfig | VariableBase::kSettable, m_vg) {
-  setDependencies({WifiManager::kName, ConfigInterface::kName});
-  add_link_fn([this](NameToModule& name_to_module) -> bool {
-    m_config = ConfigInterface::get(name_to_module);
-    m_wifi_manager = WifiManager::get(name_to_module);
-    return m_config && m_wifi_manager;
-  });
+  require(WifiManager::kName, &m_wifi_manager);
+  require(ConfigInterface::kName, &m_config);
   add_init_fn([this]() {
     if (!m_config || !m_wifi_manager) {
       return;

@@ -17,13 +17,9 @@ const char Mdns::kName[] = "mdns";
 
 // Wrapper for digital input.
 Mdns::Mdns(Tasks* tasks) : Module(kName, tasks->module_system()), m_tasks(tasks) {
-  setDependencies(WifiManager::kName);
 #ifndef NATIVE
   // Module callbacks
-  add_link_fn([this](NameToModule& name_to_module) -> bool {
-    m_wifi_manager = WifiManager::get(name_to_module);
-    return !!m_wifi_manager;
-  });
+  require(WifiManager::kName, &m_wifi_manager);
   add_init_fn([this]() {
     if (m_wifi_manager) {
       m_wifi_manager->addConnectCallback([this] { connect(); });

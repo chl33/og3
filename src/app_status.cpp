@@ -31,10 +31,7 @@ AppStatus::AppStatus(Tasks* tasks, App::LogType log_type)
       m_num_modules("numModules", 0, "", "num modules", 0, m_vg),
       m_module_capacity("moduleCapacity", 0, "", "module capacity", 0, m_vg),
       m_log_type("logType", log_type, "log type", App::LogType::kUdp, kLogTypeNames, 0, m_vg) {
-  add_link_fn([this](const NameToModule& name_to_module) -> bool {
-    m_mqtt_manager = MqttManager::get(name_to_module);
-    return true;
-  });
+  require(MqttManager::kName, &m_mqtt_manager);
   add_start_fn([this]() {
     m_tasks->runIn(1, [this]() { read(); });
     m_tasks->runIn(20 * kMsecInSec, [this]() { mqttSend(); });

@@ -192,13 +192,11 @@ HADiscovery::HADiscovery(const Options& opts, ModuleSystem* module_system)
   m_mac_address = WiFi.macAddress();
 #endif
 
-  add_link_fn([this](NameToModule& name_to_module) -> bool {
-    m_config = ConfigInterface::get(name_to_module);
-    m_tasks = Tasks::get(name_to_module);
-    m_wifi_manager = WifiManager::get(name_to_module);
-    m_mqtt_manager = MqttManager::get(name_to_module);
-    return m_config && m_wifi_manager && m_mqtt_manager;
-  });
+  require(ConfigInterface::kName, &m_config);
+  require(Tasks::kName, &m_tasks);
+  require(WifiManager::kName, &m_wifi_manager);
+  require(MqttManager::kName, &m_mqtt_manager);
+
   add_init_fn([this]() {
     if (m_mqtt_manager) {
       m_device_name = m_options.device_name ? m_options.device_name : m_wifi_manager->board();

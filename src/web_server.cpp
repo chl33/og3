@@ -54,10 +54,10 @@ WebServer::WebServer(ModuleSystem* module_system, uint16_t port)
 #endif
 #endif
 {
-  add_link_fn([this](NameToModule& name_to_module) -> bool {
-    m_wifi_manager = WifiManager::get(name_to_module);
+  require(WifiManager::kName, &m_wifi_manager);
+  add_init_fn([this]() {
     if (!m_wifi_manager) {
-      return false;
+      return;
     }
 #ifndef NATIVE
     m_wifi_manager->addConnectCallback([this]() {
@@ -70,7 +70,6 @@ WebServer::WebServer(ModuleSystem* module_system, uint16_t port)
       log()->log("Web server started.");
     });
 #endif
-    return true;
   });
 }
 

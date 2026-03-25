@@ -90,11 +90,7 @@ WifiManager::WifiManager(const char* default_board_name, Tasks* tasks,
                  m_vg),
       m_ip_addr("ipAddr", "", "", "", 0, m_vg),
       m_rssi("rssi", 0, units::kDecibel, "", 0, m_vg) {
-  setDependencies(ConfigInterface::kName);
-  add_link_fn([this](og3::NameToModule& name_to_module) -> bool {
-    m_config = ConfigInterface::get(name_to_module);
-    return m_config != nullptr;
-  });
+  require(ConfigInterface::kName, &m_config);
   add_init_fn([this]() {
 #ifndef NATIVE
     WiFi.persistent(false);  // Keep the esp from automatically writing essid+paswd to flash.

@@ -42,6 +42,12 @@ bool ModuleSystem::setup() {
   }
   init();
   start();
+
+  m_pending_requirements.clear();
+  m_pending_requirements.shrink_to_fit();
+  m_implicit_deps.clear();
+  m_implicit_deps.shrink_to_fit();
+
   return true;
 }
 
@@ -92,6 +98,20 @@ bool ModuleSystem::link_modules_by_name() {
       return false;
     }
   }
+
+  // Resolve declarative requirements
+  for (auto& req : m_pending_requirements) {
+    auto it = name_to_module.find(req.required_name);
+    if (it != name_to_module.end()) {
+      *(req.target_ptr) = it->second;
+      m_implicit_deps.push_back({req.owner, it->second});
+    } else {
+      log()->logf("Failed to resolve requirement '%s' for module '%s'.", req.required_name,
+                  req.owner->name());
+      return false;
+    }
+  }
+
   // Resolve dependencies after linking so modules can use pointers gathered during linking.
   for (auto mod : m_modules) {
     if (mod->dependencies()) {
@@ -129,6 +149,13 @@ bool ModuleSystem::topological_sort(size_t* out_sorted_module_indexes) {
       for (size_t pred_idx = 0; pred_idx < num_preds; pred_idx++) {
         const Module* pred = module->dependencies()->depends_on(pred_idx);
         if (pred && !visit(module_to_index[pred])) {
+          return false;
+        }
+      }
+    }
+    for (const auto& edge : m_implicit_deps) {
+      if (edge.first == module) {
+        if (!visit(module_to_index[edge.second])) {
           return false;
         }
       }

@@ -15,10 +15,7 @@ WifiMonitor::WifiMonitor(Tasks* tasks)
     : Module(WifiMonitor::kName, tasks->module_system()),
       m_scheduler(10 * kMsecInSec, kMsecInMin, [this]() { statusUpdate(); }, tasks) {
   setDependencies(&m_dependencies);
-  add_link_fn([this](NameToModule& name_to_module) -> bool {
-    m_wifi_manager = WifiManager::get(name_to_module);
-    return m_wifi_manager != nullptr;
-  });
+  require(WifiManager::kName, &m_wifi_manager);
   add_init_fn([this]() {
     if (m_dependencies.ok() && m_wifi_manager) {
       m_dependencies.ha_discovery()->addDiscoveryCallback(

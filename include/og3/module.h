@@ -9,11 +9,11 @@
 
 #include "og3/compiler_definitions.h"
 #include "og3/dependencies.h"
+#include "og3/module_system.h"
 #include "og3/util.h"
 
 namespace og3 {
 
-class ModuleSystem;
 class Logger;
 
 /**
@@ -122,6 +122,19 @@ class Module {
       return nullptr;
     }
     return reinterpret_cast<T*>(iter->second);
+  }
+
+  /**
+   * @brief Declaratively require another module.
+   *
+   * Registers a dependency and automatically populates the pointer during the linking phase.
+   * @tparam T The type of the module.
+   * @param name The name of the required module.
+   * @param ptr Address of the pointer to populate.
+   */
+  template <class T>
+  void require(const char* name, T** ptr) {
+    m_module_system->add_requirement(this, name, reinterpret_cast<void**>(ptr));
   }
 
   /**

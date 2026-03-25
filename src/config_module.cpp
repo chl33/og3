@@ -12,12 +12,8 @@ ConfigModule::ConfigModule(const char* name, App* app)
       m_app(app),
       m_cvg(name),
       m_cfg_url(std::string("/config/") + name) {
-  setDependencies({ConfigInterface::kName, WebServer::kName});
-  add_link_fn([this](og3::NameToModule& name_to_module) -> bool {
-    m_config = ConfigInterface::get(name_to_module);
-    m_web_server = WebServer::get(name_to_module);
-    return m_config && m_web_server;
-  });
+  require(ConfigInterface::kName, &m_config);
+  require(WebServer::kName, &m_web_server);
   add_init_fn([this]() {
     if (m_config) {
       m_config->read_config(m_cvg);
