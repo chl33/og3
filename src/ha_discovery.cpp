@@ -171,7 +171,6 @@ const char* HADiscovery::kName = "ha_discovery";
 
 HADiscovery::HADiscovery(const Options& opts, ModuleSystem* module_system)
     : Module(kName, module_system), m_options(opts) {
-  setDependencies(MqttManager::kName);
   if (!opts.manufacturer) {
     log()->logf("%s: manufacturer not set", kName);
     delay(10000);

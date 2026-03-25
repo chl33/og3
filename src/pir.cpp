@@ -21,14 +21,13 @@ Pir::Pir(const char* module_name, const char* motion_name, ModuleSystem* module_
          const char* description, VariableGroup& vg, bool publish, bool ha_discovery)
     : Module(module_name, module_system),
       m_din(motion_name, module_system, pin, description, vg, publish) {
-  setDependencies(&m_dependencies);
   if (ha_discovery) {
+    require(HADiscovery::kName, &m_ha_discovery);
     add_init_fn([this]() {
-      if (m_dependencies.ok()) {
-        m_dependencies.ha_discovery()->addDiscoveryCallback(
-            [this](HADiscovery* had, JsonDocument* json) {
-              return had->addMotionSensor(json, m_din.isHighVar());
-            });
+      if (m_ha_discovery) {
+        m_ha_discovery->addDiscoveryCallback([this](HADiscovery* had, JsonDocument* json) {
+          return had->addMotionSensor(json, m_din.isHighVar());
+        });
       }
     });
   }

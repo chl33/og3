@@ -41,12 +41,12 @@ AppStatus::AppStatus(Tasks* tasks, App::LogType log_type)
 void AppStatus::read() {
   m_uptime_msec = millis();
 #ifndef NATIVE
-  m_mem_available = ESP.getFreeHeap() / 1024;
+  m_mem_available = ESP.getFreeHeap() / 1024.0f;
 #endif
   m_num_tasks = m_tasks->size();
   m_task_capacity = m_tasks->capacity();
-  m_num_modules = m_tasks->module_system()->num_modules();
-  m_module_capacity = m_tasks->module_system()->module_capacity();
+  m_num_modules = module_system()->num_modules();
+  m_module_capacity = module_system()->module_capacity();
   m_tasks->runIn(2 * kMsecInSec, [this]() { read(); });
 }
 

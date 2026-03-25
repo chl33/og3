@@ -122,13 +122,6 @@ class ModuleSystem {
   friend class Module;  ///< @brief Module is a friend to allow it to add callbacks.
 
   /**
-   * @brief Adds a linking callback. Called by Modules during their construction.
-   * @param link_fn The callback function.
-   * @param mod The module registering the callback.
-   */
-  void add_link_fn(const LinkFn& link_fn, Module* mod);
-
-  /**
    * @brief Adds an initialization callback. Called by Modules during their construction.
    * @param thunk The callback function.
    * @param mod The module registering the callback.
@@ -162,18 +155,13 @@ class ModuleSystem {
    */
   bool topological_sort(size_t* sorted_module_indexes);
 
+ private:
+  bool topological_sort_internal(std::vector<size_t>* out_sorted_module_indexes);
+
   Logger** m_logger;     ///< @brief Pointer to the application's Logger pointer.
   bool m_is_ok = false;  ///< @brief Flag indicating the operational status of the ModuleSystem.
   std::vector<Module*> m_modules;  ///< @brief Collection of all registered modules.
 
-  /// @brief Helper struct to pair a LinkFn with its owning Module.
-  struct LinkFnRec {
-    LinkFnRec(const LinkFn& f, Module* m) : fn(f), mod(m) {}
-    LinkFnRec(const LinkFnRec&) = default;
-    LinkFn fn;    ///< The link callback function.
-    Module* mod;  ///< The module that owns this callback.
-    bool operator<(const LinkFnRec& o) const;
-  };
   /// @brief Helper struct to pair a Thunk (init, start, update callback) with its owning Module.
   struct ThunkRec {
     ThunkRec(const Thunk& f, Module* m) : fn(f), mod(m) {}
@@ -183,7 +171,6 @@ class ModuleSystem {
     bool operator<(const ThunkRec& o) const;
   };
 
-  std::vector<LinkFnRec> m_link_fns;   ///< @brief List of all registered link functions.
   std::vector<ThunkRec> m_init_fns;    ///< @brief List of all registered init functions.
   std::vector<ThunkRec> m_start_fns;   ///< @brief List of all registered start functions.
   std::vector<ThunkRec> m_update_fns;  ///< @brief List of all registered update functions.
