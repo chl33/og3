@@ -55,11 +55,14 @@ Components can use other components.  For example, a web-server component or MQT
 
 For a given module, its life-cycle looks like:
 
-1. **Construction**. Each module is constructed and registered with the `ModuleSystem` using a unique name.  Any callback functions to be called by the `ModuleSystem` during the later stages of the lifecycle listed below (Initialization, Start, and Update) are registered with the `ModuleSystem` during construction.  A module may register more than one of these callbacks can be registered for a given lifecycle stage.
-2. **Linking**.  The module is passed a mapping for all modules of the module so that it can grab pointers to any modules it wants.  These pointers can be used to:
-    * Declare to the `ModuleSystem` which modules this module depends on.  The `ModuleSystem` will sort modules so that during the Initialization, Start, and Update steps below, modules are processed after all modules they depend on.  If declared dependencies are circular, this will be detected and an error reported
-    * Use the pointers to collaborate with other modules by getting information from them, passing information to them, or giving them commands.
-3. **Sorting module callbacks**.  Callbacks registered by each module for the Initialization, Start, and Update steps are sorted by the `ModuleSystem`.  Within each life-cycle phase, functions for a given module will be called after those for all modules it depends on (a "topological sort").  If more than one function for a given phase is registered by a given module, these will be called in the order in which they were registered with the `ModuleSystem.
+1. **Construction**. Each module is constructed and registered with the `ModuleSystem` using a unique name.
+    *   **Declarative Requirements**: In the constructor, a module can use `require<T>(name, &ptr)` to register its dependencies.
+    *   **Lifecycle Callbacks**: Any callback functions to be called by the `ModuleSystem` during the later stages (Initialization, Start, and Update) are registered during construction.
+2. **Linking**.  After all modules have been constructed, the `ModuleSystem` resolves the requirements registered during step 1.
+    *   **Implicit Dependency Graph**: The system automatically identifies which modules depend on which others based on the `require()` calls. It then performs a topological sort to ensure that during the following steps, modules are processed after all modules they depend on.
+    *   **Pointer Population**: Registered pointers are automatically populated with the addresses of the required modules.
+    *   **Order Independence**: By deferring resolution until this phase, the system avoids C++ "initialization order fiascos."
+3. **Sorting module callbacks**.  Callbacks registered by each module for the Initialization, Start, and Update steps are sorted by the `ModuleSystem` based on the dependency graph. Within each phase, functions for a given module will be called after those for all modules it depends on.
 4. **Initialization**.  The `init()` functions registered with the `ModuleSystem` are called in topologically-sorted order.  Modules may want to do things like set hardware pins to input or output mode, allocate memory, or setup data structures.
 5. **Start**.  The `start()` functions registered with the `ModuleSystem` are called in topologically-sorted order.  Modules may want to do things like schedule timed tasks to run in the future, set outputs, read initial values of inputs, and start network operations.
 6. **Update**.  After all the above steps have run to set up the application, the main work of the application is performed by repeatedly looping through the `update()` callback functions registered by each module.  These callbacks are are called in topologically-sorted order.  The update loop will be repeated until the application ends (e.g., the microcontroller is powered off).

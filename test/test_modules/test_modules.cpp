@@ -43,7 +43,9 @@ class TestModule : public Module {
   TestModule(const char* name, const std::vector<const char*> predecessors,
              ModuleSystem* module_system)
       : Module(name, module_system) {
-    setDependencies(predecessors);
+    for (const auto* pred : predecessors) {
+      require(pred, &m_ptr);
+    }
     add_init_fn([this]() { log()->logf("Init %s", this->name()); });
     if (0 != strcmp("test2", name)) {
       add_start_fn([this]() { log()->logf("Start %s", this->name()); });
@@ -54,7 +56,7 @@ class TestModule : public Module {
   }
 
  private:
-  const char* m_name;
+  Module* m_ptr = nullptr;
 };
 
 }  // namespace
@@ -105,7 +107,7 @@ void test3() {
   og3::TestModule test1("test1", {"test3"}, &depends);
   og3::TestModule test3("test3", {"test2"}, &depends);
   TEST_ASSERT_FALSE(depends.link());
-  TEST_ASSERT_TRUE(log.check("Dependency loop detected at module 'test2'.\n"));
+  TEST_ASSERT_TRUE(log.check("Circular dependency detected involving module 'test2'.\n"));
 }
 
 int runUnityTests() {

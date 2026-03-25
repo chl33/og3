@@ -2,7 +2,8 @@
 
 ## Coding Standards
 - **Naming**:
-  - **Methods**: `camelCase`. (Transition older `snake_case` methods during major releases).
+  - **Methods**: `camelCase`.
+  - **JSON Keys**: `camelCase` (Variables should use camelCase for native Svelte integration).
   - **Local Variables**: `snake_case`.
   - **Private Members**: `m_` prefix (e.g., `m_variable_name`).
   - **Constants**: `kPascalCase` (e.g., `kDefaultPort`).
@@ -10,9 +11,10 @@
 - **Namespaces**: Generally use the `og3::` namespace. Consider sub-namespaces (e.g., `og3::pkt`) only when adding large amounts of related code to maintain organization.
 
 ## Architecture & Memory
-- **Module System**: Logic must be encapsulated in `Module` classes registered with the `ModuleSystem`. Use `setDependencies()` to manage lifecycle ordering.
+- **Module System**: Logic must be encapsulated in `Module` classes registered with the `ModuleSystem`. Use the `require<T>(name, &ptr)` pattern in constructors to manage lifecycle ordering and automate module linking.
 - **Memory Management**:
   - **ESP8266 Sensitivity**: Minimize stack usage. Avoid local arrays > 64 bytes; move large structures to the heap during `setup()` or use static pools.
+  - **Dependency Storage**: `ModuleSystem` uses transient contiguous storage for requirements during boot; all memory used for linking is reclaimed before `loop()`.
   - **Heap Usage**: Prefer not to perform heap allocations in `loop()`. Use static pools or pre-allocated buffers for recurring tasks (e.g., `TaskQueue` pool).
 - **Task Scheduling**: Use the `Tasks` module for any asynchronous or delayed logic; avoid blocking `delay()` calls.
 
