@@ -88,8 +88,11 @@ WebButton::WebButton(NetServer* server, const char* label, const char* path,
     : m_label(label), m_path(path) {
 #if defined(ESP32)
   server->on(path, HTTP_GET, action);
+  server->on(path, HTTP_POST, action);
 #else
   server->on(path, HTTP_GET,
+             [action](AsyncWebServerRequest* request) { action(request, nullptr); });
+  server->on(path, HTTP_POST,
              [action](AsyncWebServerRequest* request) { action(request, nullptr); });
 #endif
 }
