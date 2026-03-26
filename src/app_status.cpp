@@ -24,17 +24,14 @@ AppStatus::AppStatus(Tasks* tasks, App::LogType log_type)
     : Module(kName, tasks->module_system()),
       m_tasks(tasks),
       m_vg(kName),
-      m_mem_available("mem_avail", 0.0f, units::kKilobytes, "memory available", 0, 1, m_vg),
+      m_mem_available("memAvail", 0.0f, units::kKilobytes, "memory available", 0, 1, m_vg),
       m_uptime_msec("uptime", 0, units::kMilliseconds, "uptime", 0, m_vg),
-      m_num_tasks("num_tasks", 0, "", "num tasks", 0, m_vg),
-      m_task_capacity("task_capacity", 0, "", "task capacity", 0, m_vg),
-      m_num_modules("num_modules", 0, "", "num modules", 0, m_vg),
-      m_module_capacity("module_capacity", 0, "", "module capacity", 0, m_vg),
-      m_log_type("log_type", log_type, "log type", App::LogType::kUdp, kLogTypeNames, 0, m_vg) {
-  add_link_fn([this](const NameToModule& name_to_module) -> bool {
-    m_mqtt_manager = MqttManager::get(name_to_module);
-    return true;
-  });
+      m_num_tasks("numTasks", 0, "", "num tasks", 0, m_vg),
+      m_task_capacity("taskCapacity", 0, "", "task capacity", 0, m_vg),
+      m_num_modules("numModules", 0, "", "num modules", 0, m_vg),
+      m_module_capacity("moduleCapacity", 0, "", "module capacity", 0, m_vg),
+      m_log_type("logType", log_type, "log type", App::LogType::kUdp, kLogTypeNames, 0, m_vg) {
+  require(MqttManager::kName, &m_mqtt_manager);
   add_start_fn([this]() {
     m_tasks->runIn(1, [this]() { read(); });
     m_tasks->runIn(20 * kMsecInSec, [this]() { mqttSend(); });
@@ -44,12 +41,12 @@ AppStatus::AppStatus(Tasks* tasks, App::LogType log_type)
 void AppStatus::read() {
   m_uptime_msec = millis();
 #ifndef NATIVE
-  m_mem_available = ESP.getFreeHeap() / 1024;
+  m_mem_available = ESP.getFreeHeap() / 1024.0f;
 #endif
   m_num_tasks = m_tasks->size();
   m_task_capacity = m_tasks->capacity();
-  m_num_modules = m_tasks->module_system()->num_modules();
-  m_module_capacity = m_tasks->module_system()->module_capacity();
+  m_num_modules = module_system()->num_modules();
+  m_module_capacity = module_system()->module_capacity();
   m_tasks->runIn(2 * kMsecInSec, [this]() { read(); });
 }
 

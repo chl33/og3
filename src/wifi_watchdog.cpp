@@ -11,14 +11,13 @@ WifiWatchdog::WifiWatchdog(App* app, std::chrono::seconds timeout, std::chrono::
     : Watchdog(app, timeout, update) {
 #ifndef NATIVE
   // If we are part of a WifiApp, we should disable the watchdog during OTA updates.
-  add_link_fn([this](NameToModule& name_to_module) -> bool {
-    auto* ota = OtaManager::get(name_to_module);
-    if (ota) {
-      ota->addOtaStartCallback([this]() { disable(); });
-      ota->addOtaEndCallback([this]() { enable(); });
-      ota->addOtaErrorCallback([this](int) { enable(); });
+  require(OtaManager::kName, &m_ota_manager);
+  add_init_fn([this]() {
+    if (m_ota_manager) {
+      m_ota_manager->addOtaStartCallback([this]() { disable(); });
+      m_ota_manager->addOtaEndCallback([this]() { enable(); });
+      m_ota_manager->addOtaErrorCallback([this](int) { enable(); });
     }
-    return true;
   });
 #endif
 }

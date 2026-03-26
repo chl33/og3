@@ -81,11 +81,7 @@ const char* ConfigInterface::kName = "config";
 
 ConfigInterface::ConfigInterface(ModuleSystem* module_system)
     : Module(ConfigInterface::kName, module_system) {
-  setDependencies(FlashSupport::kName);
-  add_link_fn([this](NameToModule& name_to_module) -> bool {
-    m_fs = FlashSupport::get(name_to_module);
-    return m_fs != nullptr;
-  });
+  require(FlashSupport::kName, &m_fs);
 }
 
 Logger* ConfigInterface::log() { return module_system()->log(); }

@@ -141,13 +141,13 @@ class MqttManager : public Module {
     return m_wifi_manager ? m_wifi_manager->board().c_str() : "og3board";
   }
   /** @return The configured MQTT server address. */
-  const String& host() const { return m_host_addr.value(); }
+  const String& hostAddr() const { return m_host_addr.value(); }
   /** @return The configured MQTT port. */
   uint16_t port() const { return m_opts.port; }
   /** @return The configured MQTT username. */
-  const String& auth_user() const { return m_auth_user.value(); }
+  const String& authUser() const { return m_auth_user.value(); }
   /** @return The configured MQTT password. */
-  const String& auth_password() const { return m_auth_password.value(); }
+  const String& authPassword() const { return m_auth_password.value(); }
   /** @return true if MQTT is enabled in settings. */
   bool isEnabled() const { return m_enabled.value(); }
   /** @return The current MQTT integration mode. */

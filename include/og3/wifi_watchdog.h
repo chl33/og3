@@ -9,6 +9,8 @@
 
 namespace og3 {
 
+class OtaManager;
+
 /**
  * @brief A specialized Watchdog that handles network-aware constraints.
  *
@@ -19,6 +21,9 @@ class WifiWatchdog : public Watchdog {
  public:
   /** @brief Constructs a WifiWatchdog. */
   WifiWatchdog(App* app, std::chrono::seconds timeout, std::chrono::milliseconds update);
+
+ private:
+  OtaManager* m_ota_manager = nullptr;
 };
 
 }  // namespace og3

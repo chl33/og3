@@ -51,15 +51,15 @@ MqttManager::MqttManager(const Options& opts, Tasks* tasks)
       m_vg(kName, nullptr, 4),
       m_enabled("enabled", true, "Enable MQTT",
                 VariableBase::kConfig | VariableBase::kSettable | VariableBase::kNoPublish, m_vg),
-      m_host_addr("host", opts.default_server, "", "MQTT server",
+      m_host_addr("hostAddr", opts.default_server, "", "MQTT server",
                   VariableBase::kConfig | VariableBase::kSettable, m_vg),
 #if 0
       m_port("port", opts.port, "", "port",
                   VariableBase::kConfig | VariableBase::kSettable | VariableBase::kNoPublish, m_vg),
 #endif
-      m_auth_user("user", opts.default_user, "", "username",
+      m_auth_user("authUser", opts.default_user, "", "username",
                   VariableBase::kConfig | VariableBase::kSettable, m_vg),
-      m_auth_password("password", opts.default_password, "", "password",
+      m_auth_password("authPassword", opts.default_password, "", "password",
                       VariableBase::kConfig | VariableBase::kSettable | VariableBase::kNoPublish |
                           VariableBase::kNoDisplay,
                       m_vg),
@@ -68,12 +68,9 @@ MqttManager::MqttManager(const Options& opts, Tasks* tasks)
       m_connected("connection", kNotConnected, "connection", kConnected, s_str_connected,
                   VariableBase::kNoPublish, m_vg) {
   // Module callbacks
-  setDependencies(WifiManager::kName);
-  add_link_fn([this](NameToModule& name_to_module) -> bool {
-    m_config = ConfigInterface::get(name_to_module);
-    m_wifi_manager = WifiManager::get(name_to_module);
-    return m_config && m_wifi_manager;
-  });
+  require(ConfigInterface::kName, &m_config);
+  require(WifiManager::kName, &m_wifi_manager);
+
   add_init_fn([this]() {
     if (m_config) {
       m_config->read_config(m_vg);

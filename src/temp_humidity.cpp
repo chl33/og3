@@ -18,11 +18,7 @@ TempHumidity::TempHumidity(const char* temp_name, const char* humidity_name,
   m_temperature.setFailed();
   m_humidity.setFailed();
   if (ha_discovery) {
-    setDependencies(HADiscovery::kName);
-    add_link_fn([this](NameToModule& name_to_module) -> bool {
-      m_ha_discovery = HADiscovery::get(name_to_module);
-      return true;
-    });
+    require(HADiscovery::kName, &m_ha_discovery);
   }
   add_init_fn([this]() {
     if (m_ha_discovery) {

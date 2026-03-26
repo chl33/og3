@@ -5,7 +5,7 @@ A [`og3::Variable`](../include/og3/variable.h) is a named container for a value 
 An example of declaring variable groups for configuring and monitoring a plant watering system is shown below.
 ```C++
   // A variable group for configuring the plant-watering process.
-  VariableGroup cfg_vg("watering_config");
+  VariableGroup cfg_vg("wateringConfig");
   // A variable group for monitoring the plant-watering process.
   VariableGroup vg("watering");
 
@@ -17,17 +17,17 @@ An example of declaring variable groups for configuring and monitoring a plant w
 
   // Configuration variable: whether the watering process is enabled.
   // The default value is false.
-  BoolVariable watering_enabled("watering_enabled", false, "watering enabled",
+  BoolVariable wateringEnabled("wateringEnabled", false, "watering enabled",
                                 kCfgFlags, &vg);
   // Configuration variable: the soil moisture level above which watering stops
   // Values should be printed with on digit after the decimal point.
   // The default value is 80, the unit is "%".
-  FloatVariable max_moisture("max_moisture_target", 80.0f, units::kPercentage,
+  FloatVariable maxMoisture("maxMoisture", 80.0f, units::kPercentage,
                              "Max moisture", kCfgFlags, 1, &cfg_vg);
   // Configuration variable: the soil moisture level below which when watering starts
-  FloatVariable min_moisture("min_moisture_target", 60.0f, units::kPercentage,
+  FloatVariable minMoisture("minMoisture", 60.0f, units::kPercentage,
                              "Min moisture", kCfgFlags, 1, &cfg_vg);
   // Monitored variable variable: the meaured soil moisture level.
   // The default value is 0.
-  FloatVariable moisture("soil_moisture", 0.0, "%", "soil moisture", kVarFlags, 1, &vg);
+  FloatVariable moisture("soilMoisture", 0.0, "%", "soil moisture", kVarFlags, 1, &vg);
 ```

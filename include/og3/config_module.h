@@ -4,7 +4,6 @@
 
 #include "og3/app.h"
 #include "og3/config_interface.h"
-#include "og3/dependencies.h"
 #include "og3/module.h"
 #include "og3/variable.h"
 #include "og3/web_server.h"

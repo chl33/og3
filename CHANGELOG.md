@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.0] - 2026-03-24
+
+### Added
+- **Declarative Dependency Injection**: Introduced the `require<T>(name, &ptr)` pattern. Modules can now declare their dependencies and receive pointers to them directly in the constructor, with resolution safely deferred until after all modules are constructed.
+- **Implicit Dependency Graph**: The `ModuleSystem` now automatically builds the topological sort graph from `require()` calls, significantly reducing the need for manual `setDependencies()` calls.
+- **Memory Efficiency (ESP8266)**: Dependency metadata is now stored in transient contiguous memory during boot and fully reclaimed before the main loop starts, preventing heap fragmentation on memory-constrained devices.
+- **CamelCase JSON Standard**: Transitioned core framework JSON keys and public method names to `camelCase` (e.g., `ipAddr`, `wifiPassword`, `mqttConnected`) to provide a native experience for Svelte and JavaScript frontends.
+
+### Changed
+- **Unified Header Structure**: Merged `variable_group.h` into `variable.h` to simplify include management.
+- **Modernized Core Modules**: `WifiManager`, `MqttManager`, and `AppStatus` refactored to use the new `require()` pattern and `camelCase` API.
+- **Refined Module Lifecycle**: Simplified the internal `link()` phase by replacing legacy manual linking lambdas with automated declarative resolution.
+
+### Removed
+- ** Purged Legacy API**: Removed `Module::add_link_fn()`, `Module::setDependencies()`, and the `HADependencies` helper class.
+- **Standalone Dependency Headers**: Removed `og3/include/og3/dependencies.h` and associated source files as they are no longer required for the modernized dependency system.
+
 ## [0.5.0] - 2026-03-07
 
 ### Added

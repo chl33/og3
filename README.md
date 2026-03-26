@@ -4,12 +4,14 @@ The **og3** library is a robust C++ application framework for ESP32 and ESP8266 
 
 This library is built for the [PlatformIO](https://platformio.org/) development environment.
 
-## What's New in v0.5.0
+## What's New in v0.6.0
 
-*   **Modernized Networking**: Native support for `PsychicHttp` and `PsychicMqttClient` on ESP32.
-*   **Cross-Platform Abstraction**: A unified `NetHandler` API that works seamlessly across ESP32 and ESP8266.
-*   **Expanded Testing**: High-coverage unit tests for core systems like PID, TaskQueue, and HTML generation.
-*   **Doxygen Documentation**: Fully documented headers for a professional developer experience.
+*   **Declarative Dependencies**: New `require<T>(name, &ptr)` API for automatic, type-safe module linking.
+*   **Boilerplate Reduction**: Removal of legacy linking lambdas and manual dependency declarations.
+*   **Svelte Alignment**: Core JSON keys and APIs now use `camelCase` for seamless frontend integration.
+*   **Memory Efficiency**: Optimized boot-time dependency resolution to minimize heap fragmentation on ESP8266.
+
+## What's New in v0.5.0
 
 ## Key Features
 
@@ -41,14 +43,18 @@ Here is a snippet showing how to define a simple module. See the [examples](exam
 class MyModule : public og3::Module {
 public:
   MyModule(og3::App* app) : og3::Module("my_module", &app->module_system()) {
+    // Declaratively require other modules
+    require(og3::WifiManager::kName, &m_wifi);
+
     add_init_fn([this]() {
         // Initialization code (e.g., pinMode)
-        log()->log("MyModule Initialized");
-    });
-    add_start_fn([this]() {
-        // Startup code
+        if (m_wifi) {
+          log()->log("MyModule Initialized with WiFi");
+        }
     });
   }
+private:
+  og3::WifiManager* m_wifi = nullptr;
 };
 
 og3::App app(og3::App::Options().withLogType(og3::App::LogType::kSerial));

@@ -3,12 +3,13 @@
 
 #pragma once
 
-#include "og3/ha_dependencies.h"
 #include "og3/module.h"
 #include "og3/tasks.h"
 
 namespace og3 {
 
+class HADiscovery;
+class MqttManager;
 class WifiManager;
 
 /**
@@ -28,9 +29,10 @@ class WifiMonitor : public Module {
   /** @brief Scheduled task to refresh signal metrics. */
   void statusUpdate();
 
-  HADependencies m_dependencies;
   PeriodicTaskScheduler m_scheduler;
   WifiManager* m_wifi_manager = nullptr;
+  MqttManager* m_mqtt_manager = nullptr;
+  HADiscovery* m_ha_discovery = nullptr;
 };
 
 }  // namespace og3

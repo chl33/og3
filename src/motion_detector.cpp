@@ -10,10 +10,7 @@ MotionDetector::MotionDetector(const char* name, ModuleSystem* module_system, ui
                                bool ha_discovery)
     : DIn(name, module_system, pin, description, vg, publish) {
   if (ha_discovery) {
-    add_link_fn([this](NameToModule& name_to_module) -> bool {
-      m_ha_discovery = HADiscovery::get(name_to_module);
-      return true;
-    });
+    require(HADiscovery::kName, &m_ha_discovery);
   }
   add_init_fn([this]() {
     if (m_ha_discovery) {

@@ -1,0 +1,15 @@
+version: 2
+updates:
+  # Maintain GitHub Actions dependencies
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "daily"
+
+  # Maintain PlatformIO dependencies
+  - package-ecosystem: "pub" # Note: GitHub uses 'pub' for some ecosystems, but for PIO specifically,
+                             # it's better to rely on manual updates or specific ecosystem support if available.
+                             # However, 'github-actions' is the most important for your warning.
+    directory: "/"
+    schedule:
+      interval: "weekly"

@@ -9,7 +9,6 @@
 // These are the relevant include files for using the library.
 #include <og3/constants.h>
 #include <og3/ha_app.h>
-#include <og3/ha_dependencies.h>
 #include <og3/html_table.h>
 
 #define SW_VERSION "0.1.0"
@@ -50,13 +49,14 @@ class Blink : public og3::Module {
         m_high("led_on", false, "LED is on", m_vg),
         // Blink every 10 second, starting at first millisecond.
         m_blink_timing(1, 10 * og3::kMsecInSec, [this]() { blink(); }, &app->tasks()) {
-    setDependencies(&m_dependencies);  // Depend on MQTT & HADiscovery, & get pointers to them.
+    require(og3::MqttManager::kName, &m_mqtt_manager);
+    require(og3::HADiscovery::kName, &m_ha_discovery);
     add_init_fn([this]() {
       // During app initialization, set the LED pin to output mode.
       pinMode(kLEDPin, OUTPUT);
       // Declare the blink status as a sensor in Home Assistant via its MQTT Discovery protocol.
-      if (m_dependencies.ok()) {
-        m_dependencies.ha_discovery()->addDiscoveryCallback(
+      if (m_ha_discovery) {
+        m_ha_discovery->addDiscoveryCallback(
             [this](og3::HADiscovery* had, JsonDocument* json) -> bool {
               json->clear();
               // Declare this this as a binary sensor of type light.
@@ -74,13 +74,14 @@ class Blink : public og3::Module {
     digitalWrite(kLEDPin, m_high.value() ? HIGH : LOW);
     m_high = !m_high.value();
     m_app->log().logf("blink: %s", m_high.value() ? "on" : "off");
-    if (m_dependencies.mqtt_manager()) {
-      m_dependencies.mqtt_manager()->mqttSend(m_vg);
+    if (m_mqtt_manager) {
+      m_mqtt_manager->mqttSend(m_vg);
     }
   }
 
   og3::App* m_app;                            // A pointer to the App.
-  og3::HADependencies m_dependencies;         // This module depends on MQTTManager and HADisovery
+  og3::MqttManager* m_mqtt_manager;           // This module depends on MQTTManager
+  og3::HADiscovery* m_ha_discovery;           // This module depends on HADisovery
   og3::VariableGroup m_vg;                    // The variable group for the module variables
   og3::BinarySensorVariable m_high;           // The only module variable: the status of the LED
   og3::PeriodicTaskScheduler m_blink_timing;  // Controls of blink timing

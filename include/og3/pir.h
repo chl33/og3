@@ -4,13 +4,14 @@
 #pragma once
 
 #include "og3/din.h"
-#include "og3/ha_dependencies.h"
 #include "og3/module.h"
 #include "og3/tasks.h"
 #include "og3/util.h"
 #include "og3/variable.h"
 
 namespace og3 {
+
+class HADiscovery;
 
 /**
  * @brief Module for managing Passive Infrared (PIR) motion sensors.
@@ -59,8 +60,7 @@ class Pir : public Module {
 
   static bool s_interrupt_setup;
 
-  HADependencies m_dependencies;
-  const String m_din_name;
+  HADiscovery* m_ha_discovery = nullptr;
   DIn m_din;
 };
 
