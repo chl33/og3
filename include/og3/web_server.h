@@ -43,8 +43,6 @@ class WebServer : public Module {
  public:
   explicit WebServer(ModuleSystem* module_system, uint16_t port = 80);
 
-  static WebServer* get(const NameToModule& n2m) { return GetModule<WebServer>(n2m, kName); }
-
   static const char* kName;
 
 #ifndef NATIVE

@@ -48,15 +48,6 @@ class ConfigInterface : public Module {
    */
   Logger* log();
 
-  /**
-   * @brief Static helper to retrieve the ConfigInterface from a module map.
-   * @param n2m Name-to-module map.
-   * @return Pointer to the ConfigInterface instance.
-   */
-  static ConfigInterface* get(const NameToModule& n2m) {
-    return GetModule<ConfigInterface>(n2m, kName);
-  }
-
  private:
   FlashSupport* m_fs = nullptr;
 };

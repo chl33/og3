@@ -365,9 +365,6 @@ class HADiscovery : public Module {
    */
   const char* deviceId() const { return m_device_id; }
 
-  /** @return Pointer to the HADiscovery module instance. */
-  static HADiscovery* get(const NameToModule& n2m) { return GetModule<HADiscovery>(n2m, kName); }
-
   /** @return Reference to the options used. */
   const Options& options() const { return m_options; }
 

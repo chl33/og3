@@ -19,9 +19,6 @@ class Tasks : public Module {
  public:
   static const char* kName;  ///< @brief "tasks"
 
-  /** @return Pointer to the Tasks module instance. */
-  static Tasks* get(const NameToModule& n2m) { return GetModule<Tasks>(n2m, kName); }
-
   /**
    * @brief Direct way to schedule a task from an interrupt context.
    * @param thunk The callback to run in the next loop.
