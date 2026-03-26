@@ -2,6 +2,8 @@
 
 The **og3** library is a robust C++ application framework for ESP32 and ESP8266 microprocessors. It is designed to simplify the development of MQTT-based IoT applications, particularly those integrating with [Home Assistant](https://www.home-assistant.io/).
 
+Applications can be organized into separate modules, and modules can use one another. Modules provided include support for WiFi configuration, connections to MQTT brokers, a web interface, OTA updates, simple logging, and support for Home Assistant device discovery using MQTT.
+
 This library is built for the [PlatformIO](https://platformio.org/) development environment.
 
 ## What's New in v0.6.0
