@@ -43,6 +43,22 @@ class ConfigInterface : public Module {
   bool write_config(const VariableGroup& var_group, const char* filename = nullptr);
 
   /**
+   * @brief Read a file from flash storage.
+   * @param filename The filename to read.
+   * @param content Pointer to a string to store the file content.
+   * @return true if reading succeeded.
+   */
+  bool read_file(const char* filename, String* content);
+
+  /**
+   * @brief Write a file to flash storage.
+   * @param filename The filename to write.
+   * @param content The content to write.
+   * @return true if writing succeeded.
+   */
+  bool write_file(const char* filename, const char* content);
+
+  /**
    * @brief Get the application logger.
    * @return Pointer to the logger.
    */
