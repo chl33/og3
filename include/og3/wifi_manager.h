@@ -105,9 +105,6 @@ class WifiManager : public Module {
     m_softAPCallbacks.push_back(callback);
   }
 
-  /** @return Pointer to the WifiManager instance. */
-  static WifiManager* get(const NameToModule& n2m) { return GetModule<WifiManager>(n2m, kName); }
-
   /** @brief Periodically checks and updates WiFi status variables. */
   void updateStatus();
 

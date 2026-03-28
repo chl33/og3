@@ -89,22 +89,6 @@ class Module {
 
  protected:
   /**
-   * @brief Helper function to retrieve a module by name and cast it to the correct type.
-   * @tparam T The expected type of the module.
-   * @param name_to_module The map of module names to module pointers.
-   * @param name The name of the module to retrieve.
-   * @return A pointer to the module, or nullptr if not found or wrong type.
-   */
-  template <class T>
-  static T* GetModule(const NameToModule& name_to_module, const char* name) {
-    auto iter = name_to_module.find(name);
-    if (iter == name_to_module.end()) {
-      return nullptr;
-    }
-    return reinterpret_cast<T*>(iter->second);
-  }
-
-  /**
    * @brief Declaratively require another module.
    *
    * Registers a dependency and automatically populates the pointer during the linking phase.

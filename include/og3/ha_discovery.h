@@ -299,6 +299,7 @@ class HADiscovery : public Module {
     const char* manufacturer = nullptr;   ///< Override parent HADiscovery value
     const char* software = nullptr;       ///< Override parent HADiscovery value
     const char* model = nullptr;          ///< Override parent HADiscovery value
+    const char* availability = nullptr;   ///< Override ~/availability as device availbabilty topic
     const char* icon = nullptr;
     const char* state_class = nullptr;
     const char* via_device = nullptr;
@@ -365,9 +366,6 @@ class HADiscovery : public Module {
    */
   const char* deviceId() const { return m_device_id; }
 
-  /** @return Pointer to the HADiscovery module instance. */
-  static HADiscovery* get(const NameToModule& n2m) { return GetModule<HADiscovery>(n2m, kName); }
-
   /** @return Reference to the options used. */
   const Options& options() const { return m_options; }
 
@@ -378,6 +376,8 @@ class HADiscovery : public Module {
 
   /** @return The base MQTT topic for this board. */
   const String& boardTopic();
+
+  MqttManager* mqttManager() { return m_mqtt_manager; }
 
  private:
   void onMqttConnect();

@@ -46,9 +46,6 @@ class MqttManager : public Module {
   static const char kName[];       ///< @brief "mqtt"
   static const char kConfigUrl[];  ///< @brief "/mqtt"
 
-  /** @return Pointer to the MqttManager module instance. */
-  static MqttManager* get(const NameToModule& n2m) { return GetModule<MqttManager>(n2m, kName); }
-
   /** @brief Supported MQTT integration modes. */
   enum class Mode {
     kHomeAssistant,  ///< Automatic discovery and state topics for HA.

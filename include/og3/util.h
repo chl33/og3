@@ -17,9 +17,6 @@ using Thunk = std::function<void()>;
 /** @brief Map for retrieving modules by their unique names. */
 using NameToModule = std::map<const char*, Module*>;
 
-/** @brief Callback type for cross-module linking during initialization. */
-using LinkFn = std::function<bool(NameToModule&)>;
-
 /**
  * @brief Checks if timestamp t1 is chronologically before t2, handling 32-bit overflow.
  * @param t1 The earlier timestamp (millis).

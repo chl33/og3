@@ -163,4 +163,47 @@ bool ConfigInterface::write_config(const VariableGroup& var_group, const char* f
   return true;
 }
 
+bool ConfigInterface::read_file(const char* filename, String* content) {
+  if (!m_fs || !m_fs->setup() || !filename || !content) {
+    return false;
+  }
+  char fname[80];
+  snprintf(fname, sizeof(fname), "%s%s", kFSRoot, filename);
+  if (!LittleFS.exists(fname)) {
+    return false;
+  }
+  File file = LittleFS.open(fname, "r");
+  if (!file) {
+    return false;
+  }
+#ifndef NATIVE
+  content->reserve(file.size());
+#endif
+  *content = "";
+  while (file) {
+    int c = file.read();
+    if (c < 0) {
+      break;
+    }
+    *content += static_cast<char>(c);
+  }
+  file.close();
+  return true;
+}
+
+bool ConfigInterface::write_file(const char* filename, const char* content) {
+  if (!m_fs || !m_fs->setup() || !filename || !content) {
+    return false;
+  }
+  char fname[80];
+  snprintf(fname, sizeof(fname), "%s%s", kFSRoot, filename);
+  File file = LittleFS.open(fname, "w");
+  if (!file) {
+    return false;
+  }
+  file.write(reinterpret_cast<const uint8_t*>(content), strlen(content));
+  file.close();
+  return true;
+}
+
 }  // namespace og3

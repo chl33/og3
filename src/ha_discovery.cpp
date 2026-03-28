@@ -230,7 +230,7 @@ void HADiscovery::addRoot(JsonDocument* json, const HADiscovery::Entry& entry) {
   // Root path
   js["~"] = boardTopic().c_str();
   // Availability topic
-  js["avty_t"] = "~/connection";
+  js["avty_t"] = entry.availability ? entry.availability : "~/connection";
   js["pl_avail"] = "online";
   js["pl_not_avail"] = "offline";
 

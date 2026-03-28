@@ -32,13 +32,6 @@ class FlashSupport : public Module {
   /** @return true if the filesystem existed before this boot. */
   bool fsPreexisted() const { return m_fs_preexisted; }
 
-  /**
-   * @brief Helper to retrieve the FlashSupport module from a map.
-   * @param n2m Map of module names to pointers.
-   * @return Pointer to the FlashSupport instance, or nullptr.
-   */
-  static FlashSupport* get(const NameToModule& n2m) { return GetModule<FlashSupport>(n2m, kName); }
-
  private:
   bool m_is_setup = false;
   bool m_fs_preexisted = false;

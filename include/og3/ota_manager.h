@@ -40,9 +40,6 @@ class OtaManager : public Module {
     m_errorCallbacks.push_back(callback);
   }
 
-  /** @return Pointer to the OtaManager module instance. */
-  static OtaManager* get(const NameToModule& n2m) { return GetModule<OtaManager>(n2m, kName); }
-
  private:
   void setup();
   void enable();
