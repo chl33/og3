@@ -176,6 +176,9 @@ bool ConfigInterface::read_file(const char* filename, String* content) {
   if (!file) {
     return false;
   }
+#ifndef NATIVE
+  content->reserve(file.size());
+#endif
   *content = "";
   while (file) {
     int c = file.read();
