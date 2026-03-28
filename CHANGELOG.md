@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - **Extended ConfigInterface**: Added `read_file(filename, &content)` and `write_file(filename, content)` methods to support arbitrary JSON and text data storage on the flash filesystem.
 - **Improved Native Support**: Enhanced the `LittleFS` mock in `config_interface.cpp` to provide better file IO behavior for unit tests and local development.
+- **HA Discovery**: Allow overriding the device-availability MQTT topic.
 
 ## [0.6.0] - 2026-03-24
 
