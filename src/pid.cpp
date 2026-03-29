@@ -11,7 +11,8 @@ constexpr unsigned kOutputSet = 0;
 }  // namespace
 
 PID::PID(const PID::Gains& gains, VariableGroup& vg, VariableGroup& cfg_vg, VariableGroup& cmd_vg)
-    : m_p("p", gains.p, "", "proportional gain", kCfgSet, 2, cfg_vg),
+    : m_cfg_vg(cfg_vg),
+      m_p("p", gains.p, "", "proportional gain", kCfgSet, 2, cfg_vg),
       m_i("i", gains.i, "", "integral gain", kCfgSet, 5, cfg_vg),
       m_d("d", gains.d, "", "derivative gain", kCfgSet, 2, cfg_vg),
       m_i_max("i_max", gains.i_max, "", "maximum integral val", kCfgSet, 1, cfg_vg),

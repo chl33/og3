@@ -98,7 +98,15 @@ class PID {
   FloatVariable& target() { return m_target; }      ///< @return Current setpoint variable.
   FloatVariable& d_target() { return m_d_target; }  ///< @return Target rate variable.
 
+  float p_term() const { return m_p_cmd.value(); }
+  float i_term() const { return m_i_cmd.value(); }
+  float d_term() const { return m_d_cmd.value(); }
+  float ff_term() const { return m_feedforward.value(); }
+
+  VariableGroup& gains_vg() { return m_cfg_vg; }
+
  private:
+  VariableGroup& m_cfg_vg;
   // Gains
   FloatVariable m_p;
   FloatVariable m_i;

@@ -43,6 +43,9 @@ class Pwm : public Module {
   /** @brief Sets the duty cycle as a percentage (0.0 to 100.0). */
   void setDutyF(float percent);
 
+  /** @return The current duty cycle as a percentage (0.0 to 1.0). */
+  float dutyF() const { return m_duty_counts / static_cast<float>(m_max_counts); }
+
  private:
   const char* m_name;
   const uint8_t m_pwm_pin;
