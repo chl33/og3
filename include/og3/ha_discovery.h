@@ -379,6 +379,9 @@ class HADiscovery : public Module {
 
   MqttManager* mqttManager() { return m_mqtt_manager; }
 
+  /** @return true if MQTT is connected. */
+  bool mqttConnected() const { return m_mqtt_manager && m_mqtt_manager->isConnected(); }
+
  private:
   void onMqttConnect();
 

@@ -14,7 +14,10 @@ Adc::Adc(const char* name_, uint8_t pin_, ModuleSystem* module_system_, const ch
     : Module(name_, module_system_),
       m_pin(pin_),
       m_counts(name_, false, "counts", description, var_flags, vg) {
-  add_init_fn([this]() { pinMode(m_pin, INPUT); });
+  add_init_fn([this]() {
+    pinMode(m_pin, INPUT);
+    analogRead(m_pin);
+  });
 }
 
 unsigned Adc::read() {
