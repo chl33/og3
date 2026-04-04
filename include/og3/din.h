@@ -27,7 +27,7 @@ class DIn : public Module {
    * @param invert true if the input logic is inverted (active-low).
    */
   DIn(const char* name_, ModuleSystem* module_system_, uint8_t pin_, const char* description,
-      VariableGroup& vg, bool publish = true, bool invert = false);
+      VariableGroup& vg, bool publish = true, bool invert = false, int pin_mode = INPUT);
 
   /**
    * @brief Reads the current state of the GPIO pin.

@@ -1,6 +1,6 @@
 {
     "name": "og3",
-    "version": "0.6.3",
+    "version": "0.6.4",
     "description": "A modular framework for ESP32 and ESP8266 IoT applications featuring a task scheduler, persistent configuration management, and seamless Home Assistant integration via MQTT.",
     "keywords": "iot, esp32, esp8266, home-assistant, mqtt, automation, task-scheduler, pid-control, sensors",
     "authors": [
