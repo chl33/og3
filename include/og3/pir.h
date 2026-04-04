@@ -34,7 +34,8 @@ class Pir : public Module {
    * @param ha_discovery true to enable Home Assistant discovery.
    */
   Pir(const char* module_name, const char* motion_name, ModuleSystem* module_system, uint8_t pin,
-      const char* description, VariableGroup& vg, bool publish, bool ha_discovery);
+      const char* description, VariableGroup& vg, bool publish, bool ha_discovery,
+      int pin_mode = INPUT);
 
   /** @brief Polls the sensor state. */
   void read();

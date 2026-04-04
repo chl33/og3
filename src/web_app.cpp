@@ -44,8 +44,8 @@ NetHandlerStatus WebApp::handleWifiConfigRequest(NetRequest* request, NetRespons
   const bool all_set = ::og3::read(*request, wifi_manager().variables());
   config().write_config(wifi_manager().variables());
   m_web_page.clear();
-  // If wifi is configured from soft-ap mode, reboot the board.
-  if (all_set && m_wifi_manager.apMode()) {
+  // Reboot the board after wifi is configured.
+  if (all_set) {
     htmlRestartPage(request, response, &tasks());
     NET_REPLY(request, ESP_OK);
   }

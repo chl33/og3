@@ -10,12 +10,12 @@
 namespace og3 {
 
 DIn::DIn(const char* name_, ModuleSystem* module_system_, uint8_t pin_, const char* description,
-         VariableGroup& vg, bool publish, bool invert)
+         VariableGroup& vg, bool publish, bool invert, int pin_mode)
     : Module(name_, module_system_),
       m_pin(pin_),
       m_invert(invert),
       m_is_high(name_, false, description, vg, publish) {
-  add_init_fn([this]() { pinMode(m_pin, INPUT); });
+  add_init_fn([this, pin_mode]() { pinMode(m_pin, pin_mode); });
 }
 
 bool DIn::read() {
