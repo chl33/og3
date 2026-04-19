@@ -20,6 +20,11 @@ namespace og3 {
  */
 class HAApp : public WebApp {
  public:
+  HAApp(const HAApp&) = delete;
+  HAApp(HAApp&&) = delete;
+  HAApp& operator=(const HAApp&) = delete;
+  HAApp& operator=(HAApp&&) = delete;
+
   /** @brief Configuration options for the HAApp. */
   struct Options {
     /**

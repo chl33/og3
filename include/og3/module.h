@@ -25,6 +25,9 @@ class Logger;
 class Module {
  public:
   Module(const Module&) = delete;
+  Module(Module&&) = delete;
+  Module& operator=(const Module&) = delete;
+  Module& operator=(Module&&) = delete;
 
   /**
    * @brief Returns the name of the module.

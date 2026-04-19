@@ -21,6 +21,11 @@ class VariableBase;
  */
 class VariableGroup {
  public:
+  VariableGroup(const VariableGroup&) = delete;
+  VariableGroup(VariableGroup&&) = delete;
+  VariableGroup& operator=(const VariableGroup&) = delete;
+  VariableGroup& operator=(VariableGroup&&) = delete;
+
   /**
    * @brief Constructs a VariableGroup.
    * @param name The human-readable name of the group.
@@ -28,7 +33,6 @@ class VariableGroup {
    * @param initial_size Initial capacity for the internal variables vector.
    */
   VariableGroup(const char* name, const char* id = nullptr, size_t initial_size = 16);
-  VariableGroup(const VariableGroup&) = delete;
 
   /**
    * @brief Adds a variable to this group. Called by VariableBase constructor.
@@ -93,6 +97,9 @@ class VariableGroup {
 class VariableBase {
  public:
   VariableBase(const VariableBase&) = delete;
+  VariableBase(VariableBase&&) = delete;
+  VariableBase& operator=(const VariableBase&) = delete;
+  VariableBase& operator=(VariableBase&&) = delete;
 
   /**
    * @brief Constructs a VariableBase and registers it with a VariableGroup.

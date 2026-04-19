@@ -42,6 +42,10 @@ bool ModuleSystem::link() {
   // Map module names to module pointers.
   NameToModule name_to_module;
   for (auto* mod : m_modules) {
+    if (!mod) {
+      log()->log("ModuleSystem: Found nullptr in m_modules during link().");
+      return false;
+    }
     name_to_module[mod->name()] = mod;
   }
 
@@ -49,6 +53,10 @@ bool ModuleSystem::link() {
   for (auto& req : m_pending_requirements) {
     auto it = name_to_module.find(req.required_name);
     if (it != name_to_module.end()) {
+      if (!it->second) {
+        log()->logf("ModuleSystem: it->second is nullptr for '%s'.", req.required_name);
+        return false;
+      }
       *(req.target_ptr) = it->second;
       m_implicit_deps.push_back({req.owner, it->second});
     } else {
@@ -88,7 +96,7 @@ void ModuleSystem::init() {
   if (!m_is_ok) {
     return;
   }
-  for (auto& fn : m_init_fns) {
+  for (const auto& fn : m_init_fns) {
     fn.fn();
   }
 }
@@ -97,7 +105,7 @@ void ModuleSystem::start() {
   if (!m_is_ok) {
     return;
   }
-  for (auto& fn : m_start_fns) {
+  for (const auto& fn : m_start_fns) {
     fn.fn();
   }
 }
@@ -106,7 +114,7 @@ int ModuleSystem::update() {
   if (!m_is_ok) {
     return -1;
   }
-  for (auto& fn : m_update_fns) {
+  for (const auto& fn : m_update_fns) {
     fn.fn();
   }
   return m_update_fns.size();
