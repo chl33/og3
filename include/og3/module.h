@@ -33,14 +33,14 @@ class Module {
    * @brief Returns the name of the module.
    * @return The unique module name.
    */
-  const char* name() const { return m_name; }
+  const char* name() const { return m_name.c_str(); }
 
   /**
    * @brief Constructs a new Module instance.
-   * @param name_ Unique name identifying the module.
+   * @param name Unique name identifying the module.
    * @param module_system The ModuleSystem to register with.
    */
-  Module(const char* name_, ModuleSystem* module_system);
+  Module(const std::string& name, ModuleSystem* module_system);
 
   /**
    * @brief Gets the logger instance from the ModuleSystem.
@@ -114,7 +114,7 @@ class Module {
   friend ModuleSystem;  ///< @brief ModuleSystem is a friend to access private dependency
                         ///< information.
 
-  const char* m_name;             ///< @brief Unique name identifying this module instance.
+  std::string m_name;             ///< @brief Unique name identifying this module instance.
   ModuleSystem* m_module_system;  ///< @brief The ModuleSystem this module is part of.
   bool m_is_ok = false;           ///< @brief Indicates if the module is in a healthy state.
   unsigned m_sorted_idx = 0;      ///< @brief The topological sort index assigned by ModuleSystem.

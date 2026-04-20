@@ -18,7 +18,7 @@ class DIn : public Module {
  public:
   /**
    * @brief Constructs a DIn module.
-   * @param name_ Unique name for the module and its variable.
+   * @param name Unique name for the module and its variable.
    * @param module_system_ The ModuleSystem to register with.
    * @param pin_ The hardware GPIO pin number.
    * @param description Human-readable description of the input.
@@ -26,7 +26,7 @@ class DIn : public Module {
    * @param publish true to publish the state via MQTT.
    * @param invert true if the input logic is inverted (active-low).
    */
-  DIn(const char* name_, ModuleSystem* module_system_, uint8_t pin_, const char* description,
+  DIn(const std::string& name, ModuleSystem* module_system_, uint8_t pin_, const char* description,
       VariableGroup& vg, bool publish = true, bool invert = false, int pin_mode = INPUT);
 
   /**

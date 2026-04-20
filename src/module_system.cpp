@@ -5,6 +5,7 @@
 
 #include <algorithm>
 #include <set>
+#include <unordered_map>
 
 #include "og3/logger.h"
 #include "og3/module.h"
@@ -39,11 +40,15 @@ bool ModuleSystem::setup() {
 }
 
 bool ModuleSystem::link() {
-  // Map module names to module pointers.
   NameToModule name_to_module;
   for (auto* mod : m_modules) {
     if (!mod) {
       log()->log("ModuleSystem: Found nullptr in m_modules during link().");
+      return false;
+    }
+    auto iter = name_to_module.find(mod->name());
+    if (iter != name_to_module.end()) {
+      log()->logf("ModuleSystem: Duplicate module name '%s' detected.", mod->name());
       return false;
     }
     name_to_module[mod->name()] = mod;
@@ -135,7 +140,7 @@ bool ModuleSystem::topological_sort_internal(std::vector<size_t>* out_sorted_mod
   const size_t n_modules = m_modules.size();
   out_sorted_module_indexes->resize(n_modules);
 
-  std::map<const Module*, size_t> module_to_index;
+  std::unordered_map<const Module*, size_t> module_to_index;
   for (size_t i = 0; i < n_modules; i++) {
     module_to_index[m_modules[i]] = i;
   }

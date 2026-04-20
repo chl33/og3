@@ -43,7 +43,7 @@ class Adc : public Module {
    * @param var_flags Flags for the ADC variable.
    * @param vg The variable group to add the ADC variable to.
    */
-  Adc(const char* name_, uint8_t pin_, ModuleSystem* module_system_, const char* description,
+  Adc(const std::string& name, uint8_t pin_, ModuleSystem* module_system_, const char* description,
       unsigned var_flags, VariableGroup& vg);
 
   Adc(const Adc&) = delete;

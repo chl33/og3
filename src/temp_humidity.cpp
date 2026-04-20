@@ -7,13 +7,13 @@
 
 namespace og3 {
 
-TempHumidity::TempHumidity(const char* temp_name, const char* humidity_name,
+TempHumidity::TempHumidity(const std::string& temp_name, const std::string& humidity_name,
                            ModuleSystem* module_system_, const char* description, VariableGroup& vg,
                            bool publish, bool ha_discovery)
     : Module(temp_name, module_system_),
-      m_temperature(temp_name, 0.0f, units::kCelsius, description,
+      m_temperature(temp_name.c_str(), 0.0f, units::kCelsius, description,
                     publish ? 0 : VariableBase::kNoPublish, 1, vg),
-      m_humidity(humidity_name, 0.0f, units::kPercentage, humidity_name,
+      m_humidity(humidity_name.c_str(), 0.0f, units::kPercentage, humidity_name.c_str(),
                  publish ? 0 : VariableBase::kNoPublish, 0, vg) {
   m_temperature.setFailed();
   m_humidity.setFailed();
