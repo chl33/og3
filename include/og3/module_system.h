@@ -148,13 +148,6 @@ class ModuleSystem {
    */
   bool link_modules_by_name();
 
-  /**
-   * @brief Performs a topological sort of modules based on their declared dependencies.
-   * @param sorted_module_indexes An output array to store the sorted indices of modules.
-   * @return `true` if sorting was successful, `false` if a circular dependency was detected.
-   */
-  bool topological_sort(size_t* sorted_module_indexes);
-
  private:
   bool topological_sort_internal(std::vector<size_t>* out_sorted_module_indexes);
 

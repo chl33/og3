@@ -125,17 +125,6 @@ int ModuleSystem::update() {
   return m_update_fns.size();
 }
 
-bool ModuleSystem::topological_sort(size_t* sorted_module_indexes) {
-  std::vector<size_t> vec;
-  if (!topological_sort_internal(&vec)) {
-    return false;
-  }
-  for (size_t i = 0; i < vec.size(); i++) {
-    sorted_module_indexes[i] = vec[i];
-  }
-  return true;
-}
-
 bool ModuleSystem::topological_sort_internal(std::vector<size_t>* out_sorted_module_indexes) {
   const size_t n_modules = m_modules.size();
   out_sorted_module_indexes->resize(n_modules);
