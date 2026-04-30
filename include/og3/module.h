@@ -90,6 +90,15 @@ class Module {
    */
   unsigned sorted_index() const { return m_sorted_idx; }
 
+  /**
+   * @brief Manually declare a dependency on another module pointer.
+   *
+   * This is used when you already have a pointer to a module (e.g. it is a member)
+   * but you still need to ensure it is initialized/started before this module.
+   * @param dependency The module this module depends on.
+   */
+  void add_dependency(Module* dependency);
+
  protected:
   /**
    * @brief Declaratively require another module.

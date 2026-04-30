@@ -14,6 +14,10 @@ Module::Module(const std::string& name, ModuleSystem* module_system)
 
 Logger* Module::log() const { return m_module_system->log(); }
 
+void Module::add_dependency(Module* dependency) {
+  m_module_system->add_implicit_dep(this, dependency);
+}
+
 void Module::add_init_fn(const Thunk& thunk) { m_module_system->add_init_fn(thunk, this); }
 
 void Module::add_start_fn(const Thunk& thunk) { m_module_system->add_start_fn(thunk, this); }

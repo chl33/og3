@@ -115,11 +115,20 @@ class ModuleSystem {
    * @param target_ptr Address of the pointer to populate.
    */
   void add_requirement(Module* owner, const char* name, void** target_ptr) {
-    m_pending_requirements.push_back({owner, name, target_ptr});
+    m_pending_requirements.push_back({owner, name ? name : "", target_ptr});
   }
 
  private:
   friend class Module;  ///< @brief Module is a friend to allow it to add callbacks.
+
+  /**
+   * @brief Adds an implicit dependency on another module.
+   * @param owner The module declaring the dependency.
+   * @param dependency The module this module depends on.
+   */
+  void add_implicit_dep(Module* owner, Module* dependency) {
+    m_implicit_deps.push_back({owner, dependency});
+  }
 
   /**
    * @brief Adds an initialization callback. Called by Modules during their construction.
@@ -170,7 +179,7 @@ class ModuleSystem {
 
   struct RequirementDescriptor {
     Module* owner;
-    const char* required_name;
+    std::string required_name;
     void** target_ptr;
   };
   std::vector<RequirementDescriptor> m_pending_requirements;

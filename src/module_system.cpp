@@ -59,13 +59,13 @@ bool ModuleSystem::link() {
     auto it = name_to_module.find(req.required_name);
     if (it != name_to_module.end()) {
       if (!it->second) {
-        log()->logf("ModuleSystem: it->second is nullptr for '%s'.", req.required_name);
+        log()->logf("ModuleSystem: it->second is nullptr for '%s'.", req.required_name.c_str());
         return false;
       }
       *(req.target_ptr) = it->second;
       m_implicit_deps.push_back({req.owner, it->second});
     } else {
-      log()->logf("Failed to resolve requirement '%s' for module '%s'.", req.required_name,
+      log()->logf("Failed to resolve requirement '%s' for module '%s'.", req.required_name.c_str(),
                   req.owner->name());
       return false;
     }

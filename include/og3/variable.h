@@ -40,10 +40,13 @@ class VariableGroup {
    */
   void add(VariableBase* variable);
 
-  /** @return The human-readable name of the group. */
-  const char* name() const { return m_name; }
+  /** @return The name of the variable group */
+  const char* name() const { return m_name.c_str(); }
+  const std::string& sname() const { return m_name; }
+
   /** @return The unique identifier of the group. */
-  const char* id() const { return m_id; }
+  const char* id() const { return m_id.c_str(); }
+  const std::string& sid() const { return m_id; }
 
   /** @return Constant reference to the list of variables in this group. */
   const std::vector<VariableBase*>& variables() const { return m_variables; }
@@ -82,8 +85,8 @@ class VariableGroup {
   unsigned updateFromJson(JsonObjectConst obj);
 
  private:
-  const char* m_name;
-  const char* m_id;
+  std::string m_name;
+  std::string m_id;
   unsigned m_num_config = 0;
   std::vector<VariableBase*> m_variables;
 };
@@ -147,15 +150,16 @@ class VariableBase {
   };
 
   /** @return The unique name of the variable. */
-  const char* name() const { return m_name; }
+  const char* name() const { return m_name.c_str(); }
+  const std::string& sname() const { return m_name; }
   /** @return The units of measurement. */
-  const char* units() const { return m_units; }
+  const char* units() const { return m_units.c_str(); }
+  const std::string& sunits() const { return m_units; }
   /** @return The human-readable description. */
-  const char* description() const { return m_description; }
+  const char* description() const { return m_description.c_str(); }
+  const std::string& sdescription() const { return m_description; }
   /** @return Description if available, otherwise the name. */
-  const char* human_str() const {
-    return m_description && m_description[0] ? description() : name();
-  }
+  const char* human_str() const { return m_description.length() > 0 ? description() : name(); }
   /** @return Reference to the owning VariableGroup. */
   const VariableGroup& group() const { return m_group; }
 
@@ -177,9 +181,9 @@ class VariableBase {
  private:
   bool testFlag(Flags flag) const { return m_flags & static_cast<unsigned>(flag); }
 
-  const char* m_name;
-  const char* m_units;
-  const char* m_description;
+  std::string m_name;
+  std::string m_units;
+  std::string m_description;
   const unsigned m_flags;
   const VariableGroup& m_group;
   bool m_failed = false;
