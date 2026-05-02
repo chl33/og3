@@ -10,7 +10,7 @@
 namespace og3 {
 
 // Class which can blink an LED.
-BlinkLed::BlinkLed(const char* name_, uint8_t led, App* app, unsigned onMsec, bool onLow,
+BlinkLed::BlinkLed(const std::string& name_, uint8_t led, App* app, unsigned onMsec, bool onLow,
                    unsigned offMsec)
     : Module(name_, &app->module_system()),
       m_led(led),

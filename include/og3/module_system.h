@@ -115,11 +115,20 @@ class ModuleSystem {
    * @param target_ptr Address of the pointer to populate.
    */
   void add_requirement(Module* owner, const char* name, void** target_ptr) {
-    m_pending_requirements.push_back({owner, name, target_ptr});
+    m_pending_requirements.push_back({owner, name ? name : "", target_ptr});
   }
 
  private:
   friend class Module;  ///< @brief Module is a friend to allow it to add callbacks.
+
+  /**
+   * @brief Adds an implicit dependency on another module.
+   * @param owner The module declaring the dependency.
+   * @param dependency The module this module depends on.
+   */
+  void add_implicit_dep(Module* owner, Module* dependency) {
+    m_implicit_deps.push_back({owner, dependency});
+  }
 
   /**
    * @brief Adds an initialization callback. Called by Modules during their construction.
@@ -148,13 +157,6 @@ class ModuleSystem {
    */
   bool link_modules_by_name();
 
-  /**
-   * @brief Performs a topological sort of modules based on their declared dependencies.
-   * @param sorted_module_indexes An output array to store the sorted indices of modules.
-   * @return `true` if sorting was successful, `false` if a circular dependency was detected.
-   */
-  bool topological_sort(size_t* sorted_module_indexes);
-
  private:
   bool topological_sort_internal(std::vector<size_t>* out_sorted_module_indexes);
 
@@ -177,7 +179,7 @@ class ModuleSystem {
 
   struct RequirementDescriptor {
     Module* owner;
-    const char* required_name;
+    std::string required_name;
     void** target_ptr;
   };
   std::vector<RequirementDescriptor> m_pending_requirements;

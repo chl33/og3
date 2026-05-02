@@ -3,9 +3,11 @@
 
 #pragma once
 
+#include <cstring>
 #include <functional>
 #include <limits>
-#include <map>
+#include <string>
+#include <unordered_map>
 
 namespace og3 {
 
@@ -15,7 +17,7 @@ class Module;
 using Thunk = std::function<void()>;
 
 /** @brief Map for retrieving modules by their unique names. */
-using NameToModule = std::map<const char*, Module*>;
+using NameToModule = std::unordered_map<std::string, Module*>;
 
 /**
  * @brief Checks if timestamp t1 is chronologically before t2, handling 32-bit overflow.

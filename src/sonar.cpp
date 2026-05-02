@@ -8,14 +8,14 @@
 namespace og3 {
 
 // m/s (dry air)
-Sonar::Sonar(const char* name, int trigPin, int echoPin, ModuleSystem* module_system,
+Sonar::Sonar(const std::string& name, int trigPin, int echoPin, ModuleSystem* module_system,
              VariableGroup& vg, bool ha_discovery)
     : Module(name, module_system),
       m_trigPin(trigPin),
       m_echoPin(echoPin),
-      m_delay_name(String(name) + "_usec"),
+      m_delay_name(String(name.c_str()) + "_usec"),
       m_delay_usec(m_delay_name.c_str(), 0.0f, units::kMicroseconds, "sonar ping time", 0, 0, vg),
-      m_distance_m(name, 0.0f, units::kMeters, "measured distance", 0, 2, vg) {
+      m_distance_m(name.c_str(), 0.0f, units::kMeters, "measured distance", 0, 2, vg) {
   if (ha_discovery) {
     require(HADiscovery::kName, &m_ha_discovery);
   }
