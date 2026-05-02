@@ -3,8 +3,6 @@
 
 #pragma once
 
-#include <Arduino.h>
-
 #include <cstring>
 #include <functional>
 #include <limits>

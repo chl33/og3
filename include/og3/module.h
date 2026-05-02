@@ -2,9 +2,11 @@
 // Licensed under the MIT license. See LICENSE file in the project root for details.
 
 #pragma once
+
 #include <Arduino.h>
 
 #include <memory>
+#include <string>
 #include <vector>
 
 #include "og3/compiler_definitions.h"

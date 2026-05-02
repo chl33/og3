@@ -7,6 +7,7 @@
 #include <ArduinoJson.h>
 
 #include <cstring>
+#include <string>
 #include <vector>
 
 namespace og3 {
