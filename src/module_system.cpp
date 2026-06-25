@@ -5,6 +5,7 @@
 
 #include <algorithm>
 #include <set>
+#include <unordered_map>
 
 #include "og3/logger.h"
 #include "og3/module.h"
@@ -39,9 +40,17 @@ bool ModuleSystem::setup() {
 }
 
 bool ModuleSystem::link() {
-  // Map module names to module pointers.
   NameToModule name_to_module;
   for (auto* mod : m_modules) {
+    if (!mod) {
+      log()->log("ModuleSystem: Found nullptr in m_modules during link().");
+      return false;
+    }
+    auto iter = name_to_module.find(mod->name());
+    if (iter != name_to_module.end()) {
+      log()->logf("ModuleSystem: Duplicate module name '%s' detected.", mod->name());
+      return false;
+    }
     name_to_module[mod->name()] = mod;
   }
 
@@ -49,10 +58,14 @@ bool ModuleSystem::link() {
   for (auto& req : m_pending_requirements) {
     auto it = name_to_module.find(req.required_name);
     if (it != name_to_module.end()) {
+      if (!it->second) {
+        log()->logf("ModuleSystem: it->second is nullptr for '%s'.", req.required_name.c_str());
+        return false;
+      }
       *(req.target_ptr) = it->second;
       m_implicit_deps.push_back({req.owner, it->second});
     } else {
-      log()->logf("Failed to resolve requirement '%s' for module '%s'.", req.required_name,
+      log()->logf("Failed to resolve requirement '%s' for module '%s'.", req.required_name.c_str(),
                   req.owner->name());
       return false;
     }
@@ -88,7 +101,7 @@ void ModuleSystem::init() {
   if (!m_is_ok) {
     return;
   }
-  for (auto& fn : m_init_fns) {
+  for (const auto& fn : m_init_fns) {
     fn.fn();
   }
 }
@@ -97,7 +110,7 @@ void ModuleSystem::start() {
   if (!m_is_ok) {
     return;
   }
-  for (auto& fn : m_start_fns) {
+  for (const auto& fn : m_start_fns) {
     fn.fn();
   }
 }
@@ -106,28 +119,17 @@ int ModuleSystem::update() {
   if (!m_is_ok) {
     return -1;
   }
-  for (auto& fn : m_update_fns) {
+  for (const auto& fn : m_update_fns) {
     fn.fn();
   }
   return m_update_fns.size();
-}
-
-bool ModuleSystem::topological_sort(size_t* sorted_module_indexes) {
-  std::vector<size_t> vec;
-  if (!topological_sort_internal(&vec)) {
-    return false;
-  }
-  for (size_t i = 0; i < vec.size(); i++) {
-    sorted_module_indexes[i] = vec[i];
-  }
-  return true;
 }
 
 bool ModuleSystem::topological_sort_internal(std::vector<size_t>* out_sorted_module_indexes) {
   const size_t n_modules = m_modules.size();
   out_sorted_module_indexes->resize(n_modules);
 
-  std::map<const Module*, size_t> module_to_index;
+  std::unordered_map<const Module*, size_t> module_to_index;
   for (size_t i = 0; i < n_modules; i++) {
     module_to_index[m_modules[i]] = i;
   }

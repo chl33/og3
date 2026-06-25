@@ -27,7 +27,7 @@ class AdcVoltage : public ConfigModule {
    * @param vg The variable group to add the voltage variable to.
    * @param config_vg The variable group to add the configuration variables to.
    */
-  AdcVoltage(const char* name, App* app, uint8_t pin, const char* raw_desc, const char* desc,
+  AdcVoltage(const std::string& name, App* app, uint8_t pin, const char* raw_desc, const char* desc,
              float out_max, VariableGroup& vg, VariableGroup& config_vg);
 
   /**

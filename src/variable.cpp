@@ -25,7 +25,7 @@ String VariableBase::formEntry() const {
 }
 
 VariableGroup::VariableGroup(const char* name, const char* id, size_t initial_size)
-    : m_name(name), m_id(id ? id : name) {
+    : m_name(name ? name : ""), m_id(id ? id : m_name) {
   m_variables.reserve(initial_size);
 }
 
@@ -83,7 +83,11 @@ unsigned VariableGroup::updateFromJson(JsonObjectConst obj) {
 
 VariableBase::VariableBase(const char* name_, const char* units_, const char* description_,
                            unsigned flags_, VariableGroup& group)
-    : m_name(name_), m_units(units_), m_description(description_), m_flags(flags_), m_group(group) {
+    : m_name(name_ ? name_ : ""),
+      m_units(units_ ? units_ : ""),
+      m_description(description_ ? description_ : ""),
+      m_flags(flags_),
+      m_group(group) {
   group.add(this);
 }
 

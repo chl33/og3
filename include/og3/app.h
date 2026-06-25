@@ -19,6 +19,11 @@ namespace og3 {
  */
 class App {
  public:
+  App(const App&) = delete;
+  App(App&&) = delete;
+  App& operator=(const App&) = delete;
+  App& operator=(App&&) = delete;
+
   /**
    * @brief Defines the type of logger to be used by the application.
    */

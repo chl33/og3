@@ -7,12 +7,12 @@
 
 namespace og3 {
 
-AdcVoltage::AdcVoltage(const char* name, App* app, uint8_t pin, const char* raw_desc,
+AdcVoltage::AdcVoltage(const std::string& name, App* app, uint8_t pin, const char* raw_desc,
                        const char* desc, float out_max, VariableGroup& vg, VariableGroup& config_vg)
     : ConfigModule(name, app),
       m_mapped_adc(
           {
-              .name = name,
+              .name = name.c_str(),
               .pin = pin,
               .units = units::kVolt,
               .raw_description = raw_desc,

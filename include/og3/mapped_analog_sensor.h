@@ -16,6 +16,11 @@ namespace og3 {
  */
 class MappedAnalogSensor {
  public:
+  MappedAnalogSensor(const MappedAnalogSensor&) = delete;
+  MappedAnalogSensor(MappedAnalogSensor&&) = delete;
+  MappedAnalogSensor& operator=(const MappedAnalogSensor&) = delete;
+  MappedAnalogSensor& operator=(MappedAnalogSensor&&) = delete;
+
   /** @brief Configuration options for the mapped sensor. */
   struct Options {
     const char* name;             ///< Unique name for the sensor.

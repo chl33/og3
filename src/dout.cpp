@@ -10,11 +10,11 @@
 namespace og3 {
 const char* strHigh(bool high) { return high ? "high" : "low"; }
 
-DOut::DOut(const char* name_, bool initial_val, ModuleSystem* module_system_, uint8_t pin_,
+DOut::DOut(const std::string& name, bool initial_val, ModuleSystem* module_system_, uint8_t pin_,
            const char* description, bool publish, VariableGroup& vg)
-    : Module(name_, module_system_),
+    : Module(name, module_system_),
       m_pin(pin_),
-      m_is_high(name_, false, description, vg, publish) {
+      m_is_high(name.c_str(), false, description, vg, publish) {
   add_init_fn([this]() { pinMode(m_pin, OUTPUT); });
   add_start_fn([this, initial_val]() { set(initial_val); });
 }
