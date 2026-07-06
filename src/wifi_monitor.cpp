@@ -5,6 +5,7 @@
 
 #include "og3/constants.h"
 #include "og3/ha_discovery.h"
+#include "og3/mqtt_manager.h"
 #include "og3/wifi_manager.h"
 
 namespace og3 {
@@ -32,7 +33,9 @@ void WifiMonitor::statusUpdate() {
     return;
   }
   m_wifi_manager->updateStatus();
-  m_mqtt_manager->mqttSend(m_wifi_manager->variables());
+  if (m_mqtt_manager->mode() != MqttManager::Mode::kAdafruitIO) {
+    m_mqtt_manager->mqttSend(m_wifi_manager->variables());
+  }
 }
 
 }  // namespace og3
