@@ -177,4 +177,13 @@ bool ModuleSystem::topological_sort_internal(std::vector<size_t>* out_sorted_mod
   return true;
 }
 
+Module* ModuleSystem::get_module(const char* name) const {
+  for (auto* mod : m_modules) {
+    if (mod && strcmp(mod->name(), name) == 0) {
+      return mod;
+    }
+  }
+  return nullptr;
+}
+
 }  // namespace og3

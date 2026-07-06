@@ -7,8 +7,8 @@
 
 namespace og3 {
 
-Module::Module(const std::string& name, ModuleSystem* module_system)
-    : m_name(name), m_module_system(module_system) {
+Module::Module(const std::string& name, ModuleSystem* module_system, bool link_by_name)
+    : m_name(name), m_link_by_name(link_by_name), m_module_system(module_system) {
   m_module_system->add_module(this);
 }
 

@@ -103,6 +103,13 @@ class ModuleSystem {
   size_t num_modules() const { return m_modules.size(); }
 
   /**
+   * @brief Find a registered module by name.
+   * @param name Name of the module to find.
+   * @return Pointer to the Module, or nullptr if not found.
+   */
+  Module* get_module(const char* name) const;
+
+  /**
    * @brief Returns the allocated capacity for modules.
    * @return The module capacity.
    */

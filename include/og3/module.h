@@ -33,16 +33,14 @@ class Module {
 
   /**
    * @brief Returns the name of the module.
-   * @return The unique module name.
+   * @return The module name, which must be unique if link_by_name() is true.
    */
   const char* name() const { return m_name.c_str(); }
 
   /**
-   * @brief Constructs a new Module instance.
-   * @param name Unique name identifying the module.
-   * @param module_system The ModuleSystem to register with.
+   * @brief Returns Whether the module can be added by a dependency by name, using module.require().
    */
-  Module(const std::string& name, ModuleSystem* module_system);
+  bool link_by_name() const { return m_link_by_name; }
 
   /**
    * @brief Gets the logger instance from the ModuleSystem.
@@ -103,6 +101,13 @@ class Module {
 
  protected:
   /**
+   * @brief Constructs a new Module instance.
+   * @param name Unique name identifying the module.
+   * @param module_system The ModuleSystem to register with.
+   */
+  Module(const std::string& name, ModuleSystem* module_system, bool link_by_name = true);
+
+  /**
    * @brief Declaratively require another module.
    *
    * Registers a dependency and automatically populates the pointer during the linking phase.
@@ -125,7 +130,10 @@ class Module {
   friend ModuleSystem;  ///< @brief ModuleSystem is a friend to access private dependency
                         ///< information.
 
-  std::string m_name;             ///< @brief Unique name identifying this module instance.
+  /// @brief Name identifying this module instance. Must be unique in the ModuleSystem if
+  ///   m_link_by_name is true.
+  const std::string m_name;
+  const bool m_link_by_name;      ///< @brief Module may be required by name.
   ModuleSystem* m_module_system;  ///< @brief The ModuleSystem this module is part of.
   bool m_is_ok = false;           ///< @brief Indicates if the module is in a healthy state.
   unsigned m_sorted_idx = 0;      ///< @brief The topological sort index assigned by ModuleSystem.
