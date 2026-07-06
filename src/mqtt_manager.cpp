@@ -10,6 +10,7 @@
 #include "og3/config_interface.h"
 #include "og3/constants.h"
 #include "og3/html_table.h"
+#include "og3/ntp.h"
 #include "og3/web_server.h"
 #include "og3/wifi_manager.h"
 
@@ -53,10 +54,8 @@ MqttManager::MqttManager(const Options& opts, Tasks* tasks)
                 VariableBase::kConfig | VariableBase::kSettable | VariableBase::kNoPublish, m_vg),
       m_host_addr("hostAddr", opts.default_server, "", "MQTT server",
                   VariableBase::kConfig | VariableBase::kSettable, m_vg),
-#if 0
       m_port("port", opts.port, "", "port",
-                  VariableBase::kConfig | VariableBase::kSettable | VariableBase::kNoPublish, m_vg),
-#endif
+             VariableBase::kConfig | VariableBase::kSettable | VariableBase::kNoPublish, m_vg),
       m_auth_user("authUser", opts.default_user, "", "username",
                   VariableBase::kConfig | VariableBase::kSettable, m_vg),
       m_auth_password("authPassword", opts.default_password, "", "password",
@@ -65,6 +64,8 @@ MqttManager::MqttManager(const Options& opts, Tasks* tasks)
                       m_vg),
       m_mode("mode", opts.mode, "mode", Mode::kAdafruitIO, s_str_modes,
              VariableBase::kConfig | VariableBase::kSettable | VariableBase::kNoPublish, m_vg),
+      m_ssl("ssl", opts.ssl, "Enable SSL/TLS",
+            VariableBase::kConfig | VariableBase::kSettable | VariableBase::kNoPublish, m_vg),
       m_connected("connection", kNotConnected, "connection", kConnected, s_str_connected,
                   VariableBase::kNoPublish, m_vg) {
   // Module callbacks
@@ -72,6 +73,7 @@ MqttManager::MqttManager(const Options& opts, Tasks* tasks)
   require(WifiManager::kName, &m_wifi_manager);
 
   add_init_fn([this]() {
+    m_ntp = reinterpret_cast<Ntp*>(module_system()->get_module(Ntp::kName));
     if (m_config) {
       m_config->read_config(m_vg);
     }
@@ -159,14 +161,24 @@ void MqttManager::connect() {
     return;
   }
 
+  if (m_ssl.value() && m_ntp && !m_ntp->isSynced()) {
+    log()->log("Skipping MQTT connect: waiting for NTP sync.");
+    m_connect_scheduler.runIn(5 * kMsecInSec);
+    return;
+  }
+
 #if defined(ESP32)
-  // PsychicMqttClient uses a URI: mqtt://host:port
-  String uri = "mqtt://" + host + ":" + String(m_opts.port);
+  // PsychicMqttClient uses a URI: mqtts://host:port or mqtt://host:port
+  String protocol = m_ssl.value() ? "mqtts://" : "mqtt://";
+  String uri = protocol + host + ":" + String(m_port.value());
   log()->logf("MQTT uri: '%s'", uri.c_str());
   m_mqttClient.setServer(uri.c_str());
+  if (m_ssl.value()) {
+    m_mqttClient.attachArduinoCACertBundle(true);
+  }
 #elif defined(ESP8266)
-  log()->logf("MQTT h:'%s':%d", host.c_str(), (int)m_opts.port);
-  m_mqttClient.setServer(host.c_str(), m_opts.port);
+  log()->logf("MQTT h:'%s':%d", host.c_str(), (int)m_port.value());
+  m_mqttClient.setServer(host.c_str(), m_port.value());
 #endif
 
   const auto& password = m_auth_password.value();
@@ -226,19 +238,28 @@ bool MqttManager::mqttSend(const VariableGroup& variables, unsigned flags) {
   if (!connected()) {
     return false;
   }
-  String mqttOutput;
   switch (mode()) {
     case Mode::kHomeAssistant: {
+      String mqttOutput;
       variables.toJson(&mqttOutput, flags);
+      mqttSend(topic(variables.id()).c_str(), mqttOutput.c_str());
       break;
     }
-    case Mode::kAdafruitIO:
-      String values;
-      variables.toJson(&values, flags);
-      mqttOutput = String("value:") + values;
+    case Mode::kAdafruitIO: {
+      for (auto* val : variables.variables()) {
+        if ((flags & VariableBase::kNoPublish) && (val->flags() & VariableBase::kNoPublish)) {
+          continue;
+        }
+        if (val->config() && !(flags & VariableBase::kConfig)) {
+          continue;
+        }
+        String val_topic = topic(val->name(), variables.id());
+        String val_str = val->string();
+        mqttSend(val_topic.c_str(), val_str.c_str());
+      }
       break;
+    }
   }
-  mqttSend(topic(variables.id()).c_str(), mqttOutput.c_str());
   return true;
 }
 
