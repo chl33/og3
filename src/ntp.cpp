@@ -75,14 +75,10 @@ void Ntp::onWifiConnect() {
 void Ntp::updateStatus() {
   bool synced = false;
 #ifndef NATIVE
-#ifdef ESP32
-  synced = (sntp_get_sync_status() == SNTP_SYNC_STATUS_COMPLETED);
-#else
-  // On ESP8266 and others, check if year is valid (> 2020)
+  // Check if year is valid (> 2020)
   time_t now = time(nullptr);
   struct tm* timeinfo = localtime(&now);
-  synced = (timeinfo->tm_year > (2020 - 1900));
-#endif
+  synced = (timeinfo && timeinfo->tm_year > (2020 - 1900));
 #else
   // Mock behavior for NATIVE
   synced = false;

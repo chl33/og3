@@ -73,6 +73,7 @@ class MqttManager : public Module {
     bool will_retain = true;
     Mode mode = Mode::kHomeAssistant;
     bool ssl = false;
+    bool ssl_verify = true;
   };
 
   /** @brief Constructs an MqttManager. */
@@ -186,6 +187,7 @@ class MqttManager : public Module {
   Variable<String> m_auth_password;
   EnumStrVariable<Mode> m_mode;
   BoolVariable m_ssl;
+  BoolVariable m_ssl_verify;
   EnumStrVariable<ConnectionStatus> m_connected;
 
   Ntp* m_ntp = nullptr;

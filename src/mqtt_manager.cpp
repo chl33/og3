@@ -17,6 +17,30 @@
 namespace {
 const char* s_str_modes[] = {"home-assistant", "adafruit.io."};
 const char* s_str_connected[] = {"not connected", "connected"};
+
+const char* kAdafruitIOCACert =
+    "-----BEGIN CERTIFICATE-----\n"
+    "MIIDjjCCAnagAwIBAgIQAzrx5qcRqaC7KGSxHQn65TANBgkqhkiG9w0BAQsFADBh\n"
+    "MQswCQYDVQQGEwJVUzEVMBMGA1UEChMMRGlnaUNlcnQgSW5jMRkwFwYDVQQLExB3\n"
+    "d3cuZGlnaWNlcnQuY29tMSAwHgYDVQQDExdEaWdpQ2VydCBHbG9iYWwgUm9vdCBH\n"
+    "MjAeFw0xMzA4MDExMjAwMDBaFw0zODAxMTUxMjAwMDBaMGExCzAJBgNVBAYTAlVT\n"
+    "MRUwEwYDVQQKEwxEaWdpQ2VydCBJbmMxGTAXBgNVBAsTEHd3dy5kaWdpY2VydC5j\n"
+    "b20xIDAeBgNVBAMTF0RpZ2lDZXJ0IEdsb2JhbCBSb290IEcyMIIBIjANBgkqhkiG\n"
+    "9w0BAQEFAAOCAQ8AMIIBCgKCAQEAuzfNNNx7a8myaJCtSnX/RrohCgiN9RlUyfuI\n"
+    "2/Ou8jqJkTx65qsGGmvPrC3oXgkkRLpimn7Wo6h+4FR1IAWsULecYxpsMNzaHxmx\n"
+    "1x7e/dfgy5SDN67sH0NO3Xss0r0upS/kqbitOtSZpLYl6ZtrAGCSYP9PIUkY92eQ\n"
+    "q2EGnI/yuum06ZIya7XzV+hdG82MHauVBJVJ8zUtluNJbd134/tJS7SsVQepj5Wz\n"
+    "tCO7TG1F8PapspUwtP1MVYwnSlcUfIKdzXOS0xZKBgyMUNGPHgm+F6HmIcr9g+UQ\n"
+    "vIOlCsRnKPZzFBQ9RnbDhxSJITRNrw9FDKZJobq7nMWxM4MphQIDAQABo0IwQDAP\n"
+    "BgNVHRMBAf8EBTADAQH/MA4GA1UdDwEB/wQEAwIBhjAdBgNVHQ4EFgQUTiJUIBiV\n"
+    "5uNu5g/6+rkS7QYXjzkwDQYJKoZIhvcNAQELBQADggEBAGBnKJRvDkhj6zHd6mcY\n"
+    "1Yl9PMWLSn/pvtsrF9+wX3N3KjITOYFnQoQj8kVnNeyIv/iPsGEMNKSuIEyExtv4\n"
+    "NeF22d+mQrvHRAiGfzZ0JFrabA0UWTW98kndth/Jsw1HKj2ZL7tcu7XUIOGZX1NG\n"
+    "Fdtom/DzMNU+MeKNhJ7jitralj41E6Vf8PlwUHBHQRFXGU7Aj64GxJUTFy8bJZ91\n"
+    "8rGOmaFvE7FBcf6IKshPECBV1/MUReXgRPTqh5Uykw7+U0b6LJ3/iyK5S9kJRaTe\n"
+    "pLiaWN0bfVKfjllDiIGknibVb63dDcY3fe0Dkhvld1927jyNxF1WW6LZZm6zNTfl\n"
+    "MrY=\n"
+    "-----END CERTIFICATE-----\n";
 }  // namespace
 
 namespace og3 {
@@ -66,6 +90,9 @@ MqttManager::MqttManager(const Options& opts, Tasks* tasks)
              VariableBase::kConfig | VariableBase::kSettable | VariableBase::kNoPublish, m_vg),
       m_ssl("ssl", opts.ssl, "Enable SSL/TLS",
             VariableBase::kConfig | VariableBase::kSettable | VariableBase::kNoPublish, m_vg),
+      m_ssl_verify("sslVerify", opts.ssl_verify, "Verify SSL Cert",
+                   VariableBase::kConfig | VariableBase::kSettable | VariableBase::kNoPublish,
+                   m_vg),
       m_connected("connection", kNotConnected, "connection", kConnected, s_str_connected,
                   VariableBase::kNoPublish, m_vg) {
   // Module callbacks
@@ -98,6 +125,11 @@ MqttManager::MqttManager(const Options& opts, Tasks* tasks)
       [this](int packetId) { log()->debugf("Publish acknowledged. packetId: %d", packetId); });
   m_mqttClient.onSubscribe(
       [this](int packetId) { log()->logf("Subscription acknowledged. packetId: %d", packetId); });
+  m_mqttClient.onError([this](esp_mqtt_error_codes_t error) {
+    log()->logf("MQTT Error: type=%d, return_code=%d, tls_err=0x%x, tls_stack_err=0x%x",
+                static_cast<int>(error.error_type), error.connect_return_code,
+                error.esp_tls_last_esp_err, error.esp_tls_stack_err);
+  });
   m_mqttClient.onMessage([this](char* topic, char* payload, int len, int index, bool total) {
     for (const auto& it : m_mqtt_callbacks) {
       if (it.topic == topic) {
@@ -174,7 +206,19 @@ void MqttManager::connect() {
   log()->logf("MQTT uri: '%s'", uri.c_str());
   m_mqttClient.setServer(uri.c_str());
   if (m_ssl.value()) {
-    m_mqttClient.attachArduinoCACertBundle(true);
+    if (m_ssl_verify.value()) {
+      if (mode() == Mode::kAdafruitIO) {
+        log()->log("Setting Adafruit.io CA certificate.");
+        m_mqttClient.setCACert(kAdafruitIOCACert);
+        m_mqttClient.attachArduinoCACertBundle(false);
+      } else {
+        m_mqttClient.setCACert(nullptr);
+        m_mqttClient.attachArduinoCACertBundle(true);
+      }
+    } else {
+      m_mqttClient.setCACert(nullptr);
+      m_mqttClient.attachArduinoCACertBundle(false);
+    }
   }
 #elif defined(ESP8266)
   log()->logf("MQTT h:'%s':%d", host.c_str(), (int)m_port.value());
