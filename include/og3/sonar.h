@@ -37,8 +37,8 @@ class Sonar : public Module {
    * @param vg The VariableGroup to add distance variables to.
    * @param ha_discovery true to enable Home Assistant discovery.
    */
-  Sonar(const char* name, int trigPin, int echoPin, ModuleSystem* module_system, VariableGroup& vg,
-        bool ha_discovery = true);
+  Sonar(const std::string& name, int trigPin, int echoPin, ModuleSystem* module_system,
+        VariableGroup& vg, bool ha_discovery = true);
 
   /**
    * @brief Updates the temperature used for speed of sound compensation.

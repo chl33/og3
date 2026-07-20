@@ -33,8 +33,8 @@ class Pir : public Module {
    * @param publish true to publish via MQTT.
    * @param ha_discovery true to enable Home Assistant discovery.
    */
-  Pir(const char* module_name, const char* motion_name, ModuleSystem* module_system, uint8_t pin,
-      const char* description, VariableGroup& vg, bool publish, bool ha_discovery,
+  Pir(const std::string& module_name, const char* motion_name, ModuleSystem* module_system,
+      uint8_t pin, const char* description, VariableGroup& vg, bool publish, bool ha_discovery,
       int pin_mode = INPUT);
 
   /** @brief Polls the sensor state. */

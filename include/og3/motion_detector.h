@@ -26,7 +26,7 @@ class MotionDetector : public DIn {
    * @param publish true to publish via MQTT.
    * @param ha_discovery true to enable Home Assistant discovery.
    */
-  MotionDetector(const char* name, ModuleSystem* module_system, uint8_t pin,
+  MotionDetector(const std::string& name, ModuleSystem* module_system, uint8_t pin,
                  const char* description, VariableGroup& vg, bool publish = true,
                  bool ha_discovery = true);
 

@@ -113,7 +113,7 @@ WifiManager::WifiManager(const char* default_board_name, Tasks* tasks,
   });
   add_start_fn([this]() {
     if (m_enable) {
-      trySetup();
+      m_scheduler.runIn(500, [this]() { trySetup(); });
     }
   });
 #ifndef NATIVE

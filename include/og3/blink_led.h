@@ -22,7 +22,7 @@ class BlinkLed : public Module {
    * @param onLow Whether the LED is active low.
    * @param offMsec Duration in milliseconds for the LED to be off during a blink.
    */
-  BlinkLed(const char* name_, uint8_t led, App* app, unsigned onMsec, bool onLow = true,
+  BlinkLed(const std::string& name_, uint8_t led, App* app, unsigned onMsec, bool onLow = true,
            unsigned offMsec = 0);
 
   /**

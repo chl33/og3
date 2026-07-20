@@ -22,7 +22,7 @@ class ConfigModule : public Module {
    * @param name The name of the module.
    * @param app The application instance.
    */
-  ConfigModule(const char* name, App* app);
+  ConfigModule(const std::string& name, App* app);
 
   /**
    * @brief Get the URL for the configuration page.

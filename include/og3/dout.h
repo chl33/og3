@@ -18,7 +18,7 @@ class DOut : public Module {
  public:
   /**
    * @brief Constructs a DOut module.
-   * @param name_ Unique name for the module and its variable.
+   * @param name Unique name for the module and its variable.
    * @param initial_val The starting state of the pin.
    * @param module_system_ The ModuleSystem to register with.
    * @param pin_ The hardware GPIO pin number.
@@ -26,7 +26,7 @@ class DOut : public Module {
    * @param publish true to publish the state via MQTT.
    * @param vg The VariableGroup to add the state variable to.
    */
-  DOut(const char* name_, bool initial_val, ModuleSystem* module_system_, uint8_t pin_,
+  DOut(const std::string& name, bool initial_val, ModuleSystem* module_system_, uint8_t pin_,
        const char* description, bool publish, VariableGroup& vg);
 
   /**

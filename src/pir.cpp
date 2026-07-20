@@ -17,8 +17,9 @@ Thunk s_motion_callback;
 
 bool Pir::s_interrupt_setup = false;
 
-Pir::Pir(const char* module_name, const char* motion_name, ModuleSystem* module_system, uint8_t pin,
-         const char* description, VariableGroup& vg, bool publish, bool ha_discovery, int pin_mode)
+Pir::Pir(const std::string& module_name, const char* motion_name, ModuleSystem* module_system,
+         uint8_t pin, const char* description, VariableGroup& vg, bool publish, bool ha_discovery,
+         int pin_mode)
     : Module(module_name, module_system),
       m_din(motion_name, module_system, pin, description, vg, publish, false, pin_mode) {
   if (ha_discovery) {
