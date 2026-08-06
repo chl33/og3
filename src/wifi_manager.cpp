@@ -164,6 +164,9 @@ void WifiManager::onDisconnect() {
 #ifndef NATIVE
     log()->debugf("Wifi: onDisconnect(%s): was not connected.", strWifiStatus());
 #endif
+    if (m_start_connect_msec != 0) {
+      m_scheduler.runIn(100, [this]() { trySetup(); });
+    }
   }
   m_was_connected = false;
 }
@@ -175,12 +178,16 @@ void WifiManager::trySetup() {
   if (m_start_connect_msec != 0) {
     const auto now_msec = millis();
     const auto wait_end_msec = m_start_connect_msec + 30 * 1000;
-    if (wait_end_msec > now_msec && m_start_connect_msec < now_msec /*integer wraparound*/) {
+    if (wait_end_msec > now_msec && m_start_connect_msec <= now_msec /*integer wraparound*/) {
       const auto wait_secs = 1e-3 * (wait_end_msec - now_msec);
       log()->debugf("Wifi setup -- waiting %.1f more seconds", wait_secs);
       m_scheduler.runIn(wait_end_msec - now_msec, [this]() { trySetup(); });
       return;
     }
+    log()->log("Wifi: connection timed out, starting AP mode.");
+    m_start_connect_msec = 0;
+    startAp();
+    return;
   }
   log()->debugf("Wifi: setup (%s)", strWifiStatus());
 
@@ -290,6 +297,7 @@ void WifiManager::startClient() {
   log()->logf("Wifi: connecting to essid %s (%s)", essId().c_str(), strWifiStatus());
   WiFi.mode(WIFI_STA);
   WiFi.begin(essId().c_str(), wifiPassword().c_str());
+  m_scheduler.runIn(30000, [this]() { trySetup(); });
 #endif
 }
 

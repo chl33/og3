@@ -297,6 +297,7 @@ bool MqttManager::mqttSend(const VariableGroup& variables, unsigned flags) {
         if (val->config() && !(flags & VariableBase::kConfig)) {
           continue;
         }
+
         String val_topic = topic(val->name(), variables.id());
         String val_str = val->string();
         mqttSend(val_topic.c_str(), val_str.c_str());
