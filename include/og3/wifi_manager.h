@@ -54,9 +54,16 @@ class WifiManager : public Module {
     const char* default_essid = nullptr;
     const char* default_password = nullptr;
     const char* ap_password = nullptr;  ///< Password for the fall-back Soft AP.
+    unsigned long ap_retry_interval_ms =
+        60000;  ///< Interval to retry client connection while in Soft AP mode.
     /** @brief Sets the Soft AP password. */
     Options& withApPassword(const char* pw) {
       this->ap_password = pw;
+      return *this;
+    }
+    /** @brief Sets the AP retry interval in milliseconds. */
+    Options& withApRetryIntervalMs(unsigned long interval_ms) {
+      this->ap_retry_interval_ms = interval_ms;
       return *this;
     }
   };
@@ -156,6 +163,7 @@ class WifiManager : public Module {
 #endif
 
   bool m_ap_mode = false;
+  unsigned long m_ap_retry_interval_ms = 60000;
 };
 
 }  // namespace og3

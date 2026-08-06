@@ -89,7 +89,8 @@ WifiManager::WifiManager(const char* default_board_name, Tasks* tasks,
                      VariableBase::kNoDisplay,
                  m_vg),
       m_ip_addr("ipAddr", "", "", "", 0, m_vg),
-      m_rssi("rssi", 0, units::kDecibel, "", 0, m_vg) {
+      m_rssi("rssi", 0, units::kDecibel, "", 0, m_vg),
+      m_ap_retry_interval_ms(options.ap_retry_interval_ms) {
   require(ConfigInterface::kName, &m_config);
   add_init_fn([this]() {
 #ifndef NATIVE
@@ -189,6 +190,19 @@ void WifiManager::trySetup() {
     startAp();
     return;
   }
+
+  if (m_ap_mode && essId().length() > 0) {
+    if (WiFi.softAPgetStationNum() > 0) {
+      log()->logf("Wifi: AP has %d connected station(s); delaying client reconnect attempt.",
+                  WiFi.softAPgetStationNum());
+      m_scheduler.runIn(m_ap_retry_interval_ms, [this]() { trySetup(); });
+      return;
+    }
+    log()->logf("Wifi: retrying client connection to essid %s", essId().c_str());
+    startClient();
+    return;
+  }
+
   log()->debugf("Wifi: setup (%s)", strWifiStatus());
 
   // Take some action based on the current status.
@@ -279,6 +293,9 @@ void WifiManager::startAp() {
   // Allow time to setup maybe??
   m_scheduler.runIn(100, [this]() { onConnect(); });
   m_start_connect_msec = millis();
+  if (essId().length() > 0) {
+    m_scheduler.runIn(m_ap_retry_interval_ms, [this]() { trySetup(); });
+  }
 #endif
 }
 
