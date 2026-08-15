@@ -363,8 +363,13 @@ bool HADiscovery::mqttSendConfig(const char* name, const char* device_type, Json
   snprintf(topic, sizeof(topic), "homeassistant/%s/%s/%s/config", device_type,
            m_device_name.c_str(), name);
   // log()->debugf("sendConfig: '%s'\n %s", topic, content.c_str());
+#if defined(ESP32)
+  const int packetIdPub =
+      m_mqtt_manager->client().publish(topic, 1, true, content.c_str(), 0, /*async=*/false);
+#else
   const int packetIdPub = m_mqtt_manager->client().publish(topic, 1, true, content.c_str());
-  if (packetIdPub == 0) {
+#endif
+  if (packetIdPub <= 0) {
     log()->logf("%ld Failed to publish config on topic %s.", millis(), topic);
     return false;
   }

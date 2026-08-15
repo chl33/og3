@@ -53,6 +53,7 @@ void VariableGroup::toJson(String* out_str, unsigned flags) const {
   JsonDocument jsondoc;
   JsonObject json = jsondoc.to<JsonObject>();
   toJson(json, flags);
+  out_str->clear();
   serializeJson(jsondoc, *out_str);
 #endif
 }

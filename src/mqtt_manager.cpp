@@ -248,7 +248,8 @@ void MqttManager::onConnect(bool sessionPresent) {
   if (will_topic.length()) {
     log()->debugf("Printing will");
 #if defined(ESP32)
-    m_mqttClient.publish(will_topic.c_str(), m_opts.will_qos, m_opts.will_retain, "online");
+    m_mqttClient.publish(will_topic.c_str(), m_opts.will_qos, m_opts.will_retain, "online", 0,
+                         /*async=*/false);
 #elif defined(ESP8266)
     m_mqttClient.publish(will_topic.c_str(), m_opts.will_qos, m_opts.will_retain, "online");
 #endif
@@ -273,7 +274,13 @@ void MqttManager::mqttSend(const char topic[], const char content[]) {
     return;
   }
 #ifndef NATIVE
+#if defined(ESP32)
+  // Specify async = false so publish sends payload synchronously before the
+  //  temporary String buffers are destroyed.
+  m_mqttClient.publish(topic, 1, true, content, /*length=*/0, /*async=*/false);
+#else
   m_mqttClient.publish(topic, 1, true, content);
+#endif
   log()->debugf("%ld Publishing on topic '%s' at QoS 1", millis(), topic);
 #endif
 }
