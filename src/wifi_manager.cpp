@@ -73,6 +73,22 @@ const char* strWifiStatus(wl_status_t status) {
 const char WifiManager::kName[] = "wifi";
 const char WifiManager::kConfigUrl[] = "/wifi/update";
 
+const char* WifiManager::strState(State state) {
+  switch (state) {
+    case State::kIdle:
+      return "idle";
+    case State::kConnectingSta:
+      return "connecting";
+    case State::kConnectedSta:
+      return "connected";
+    case State::kWaitingReconnectSta:
+      return "reconnecting";
+    case State::kSoftAp:
+      return "soft-ap";
+  }
+  return "unknown";
+}
+
 WifiManager::WifiManager(const char* default_board_name, Tasks* tasks,
                          const WifiManager::Options& options)
     : Module(WifiManager::kName, tasks->module_system()),
@@ -114,12 +130,18 @@ WifiManager::WifiManager(const char* default_board_name, Tasks* tasks,
   });
   add_start_fn([this]() {
     if (m_enable) {
-      m_scheduler.runIn(500, [this]() { trySetup(); });
+      m_scheduler.runIn(500, [this]() {
+        if (essId().length() > 0) {
+          changeState(State::kConnectingSta);
+        } else {
+          changeState(State::kSoftAp);
+        }
+      });
     }
   });
 #ifndef NATIVE
   add_update_fn([this]() {
-    if (m_ap_mode && m_dns_server) {
+    if (m_state == State::kSoftAp && m_dns_server) {
       m_dns_server->processNextRequest();
     }
   });
@@ -127,106 +149,182 @@ WifiManager::WifiManager(const char* default_board_name, Tasks* tasks,
   scheduleSanityCheck();
 }
 
-void WifiManager::onConnect() {
-  m_start_connect_msec = 0;
-  m_disconnect_msec = 0;
-  m_retry_delay_ms = kInitialRetryDelayMs;
+void WifiManager::changeState(State next_state) {
+  if (m_state == next_state) {
+    return;
+  }
+  log()->logf("Wifi: State %s -> %s", strState(m_state), strState(next_state));
+
+  // Exit actions for previous state
+  switch (m_state) {
+    case State::kSoftAp:
 #ifndef NATIVE
-  const IPAddress ip = m_ap_mode ? WiFi.softAPIP() : WiFi.localIP();
-  m_ip_addr = ip.toString().c_str();
-  log()->logf("Connected to Wi-Fi. IP address: %s", m_ip_addr.value().c_str());
-  for (const auto& callback : m_connectCallbacks) {
-    callback();
+      if (m_dns_server) {
+        m_dns_server->stop();
+      }
+#endif
+      break;
+    default:
+      break;
+  }
+
+  m_state = next_state;
+
+  // Entry actions for new state
+  switch (m_state) {
+    case State::kIdle:
+#ifndef NATIVE
+      WiFi.mode(WIFI_OFF);
+#endif
+      break;
+
+    case State::kConnectingSta: {
+      if (essId().length() == 0) {
+        log()->log("Wifi: No ESSID configured; falling back to Soft AP.");
+        changeState(State::kSoftAp);
+        return;
+      }
+#ifndef NATIVE
+      WiFi.mode(WIFI_STA);
+      WiFi.begin(essId().c_str(), wifiPassword().c_str());
+      log()->logf("Wifi: connecting to essid %s (%s)", essId().c_str(), strWifiStatus());
+      m_scheduler.runIn(kConnectTimeoutMs, [this]() { handleConnectTimeout(); });
+#endif
+      break;
+    }
+
+    case State::kConnectedSta: {
+      m_was_connected = true;
+      m_retry_delay_ms = kInitialRetryDelayMs;
+      m_last_disconnect_msec = 0;
+#ifndef NATIVE
+      const IPAddress ip = WiFi.localIP();
+      m_ip_addr = ip.toString().c_str();
+      log()->logf("Connected to Wi-Fi. IP address: %s", m_ip_addr.value().c_str());
+      for (const auto& callback : m_connectCallbacks) {
+        callback();
+      }
+#endif
+      break;
+    }
+
+    case State::kWaitingReconnectSta: {
+      const auto delay_ms = m_retry_delay_ms;
+      m_retry_delay_ms = m_retry_delay_ms * kBackoffMultiplier;
+      if (m_retry_delay_ms > kMaxRetryDelayMs) {
+        m_retry_delay_ms = kMaxRetryDelayMs;
+      }
+#ifndef NATIVE
+      WiFi.disconnect();
+      m_last_disconnect_msec = millis();
+      for (const auto& callback : m_disconnectCallbacks) {
+        callback();
+      }
+      log()->logf("Wifi: Retry connection in %lu ms", delay_ms);
+#endif
+      m_scheduler.runIn(delay_ms, [this]() { changeState(State::kConnectingSta); });
+      break;
+    }
+
+    case State::kSoftAp: {
+#ifndef NATIVE
+      const char* essid = (board().length() > 0) ? board().c_str() : "og3board";
+      log()->logf("Wifi: starting in AP mode (%s).", essid);
+      WiFi.mode(WIFI_AP);
+      if (!WiFi.softAPConfig(apSoftIP, apSoftIP, IPAddress(255, 255, 255, 0))) {
+        log()->log("Failed to setup soft-AP config");
+        return;
+      }
+      if (m_ap_password) {
+        if (!WiFi.softAP(essid, m_ap_password)) {
+          log()->log("Failed to setup SoftAP mode (with password).");
+          return;
+        }
+      } else {
+        if (!WiFi.softAP(essid)) {
+          log()->log("Failed to setup SoftAP mode.");
+          return;
+        }
+      }
+      log()->debugf("Started AP mode as %s", essid);
+      if (!m_dns_server) {
+        m_dns_server.reset(new DNSServer());
+      }
+      m_dns_server->setErrorReplyCode(DNSReplyCode::NoError);
+      m_dns_server->start(DNS_PORT, "*", apSoftIP);
+      m_ip_addr = WiFi.softAPIP().toString().c_str();
+      for (const auto& callback : m_softAPCallbacks) {
+        callback();
+      }
+      for (const auto& callback : m_connectCallbacks) {
+        callback();
+      }
+      m_was_connected = true;
+      if (essId().length() > 0) {
+        m_scheduler.runIn(m_ap_retry_interval_ms, [this]() { handleApRetryTimer(); });
+      }
+#endif
+      break;
+    }
+  }
+}
+
+void WifiManager::onConnect() {
+#ifndef NATIVE
+  if (m_state == State::kSoftAp) {
+    return;
   }
 #endif
-  m_was_connected = true;
+  changeState(State::kConnectedSta);
 }
 
 void WifiManager::onDisconnect() {
-  if (m_was_connected) {
+  if (m_state == State::kConnectedSta || m_was_connected) {
 #ifndef NATIVE
     log()->logf("Wifi: onDisconnect(%s): was connected.", strWifiStatus());
 #endif
+    changeState(State::kWaitingReconnectSta);
+  } else if (m_state == State::kConnectingSta) {
 #ifndef NATIVE
-    WiFi.disconnect();  // disconnect so we can run Wifi.begin() later to attempt re-connection.
+    log()->debugf("Wifi: onDisconnect(%s): while connecting.", strWifiStatus());
+    switch (WiFi.status()) {
+      case WL_NO_SSID_AVAIL:
+      case WL_CONNECT_FAILED:
+#ifndef ARDUINO_ARCH_ESP32
+      case WL_WRONG_PASSWORD:
 #endif
-    for (const auto& callback : m_disconnectCallbacks) {
-      callback();
+        changeState(State::kSoftAp);
+        return;
+      default:
+        break;
     }
-    // Try to reconnect.
-    log()->logf("Wifi: Retry connection in %lu ms", m_retry_delay_ms);
-    m_scheduler.runIn(m_retry_delay_ms, [this]() { trySetup(); });
-    m_retry_delay_ms = m_retry_delay_ms * kBackoffMultiplier;
-    if (m_retry_delay_ms > kMaxRetryDelayMs) {
-      m_retry_delay_ms = kMaxRetryDelayMs;
-    }
-    m_disconnect_msec = millis();
-  } else {
-#ifndef NATIVE
-    log()->debugf("Wifi: onDisconnect(%s): was not connected.", strWifiStatus());
 #endif
-    if (m_start_connect_msec != 0) {
-      m_scheduler.runIn(100, [this]() { trySetup(); });
-    }
   }
-  m_was_connected = false;
 }
 
-void WifiManager::trySetup() {
+void WifiManager::handleConnectTimeout() {
 #ifndef NATIVE
-  // If we are waiting for a connection, wait if it has been less than 30 seconds since
-  //  we started the connection attempt.
-  if (m_start_connect_msec != 0) {
-    const auto now_msec = millis();
-    const auto wait_end_msec = m_start_connect_msec + 30 * 1000;
-    if (wait_end_msec > now_msec && m_start_connect_msec <= now_msec /*integer wraparound*/) {
-      const auto wait_secs = 1e-3 * (wait_end_msec - now_msec);
-      log()->debugf("Wifi setup -- waiting %.1f more seconds", wait_secs);
-      m_scheduler.runIn(wait_end_msec - now_msec, [this]() { trySetup(); });
-      return;
-    }
-    log()->log("Wifi: connection timed out, starting AP mode.");
-    m_start_connect_msec = 0;
-    startAp();
+  if (m_state != State::kConnectingSta) {
     return;
   }
-
-  if (m_ap_mode && essId().length() > 0) {
-    if (WiFi.softAPgetStationNum() > 0) {
-      log()->logf("Wifi: AP has %d connected station(s); delaying client reconnect attempt.",
-                  WiFi.softAPgetStationNum());
-      m_scheduler.runIn(m_ap_retry_interval_ms, [this]() { trySetup(); });
-      return;
-    }
-    log()->logf("Wifi: retrying client connection to essid %s", essId().c_str());
-    startClient();
-    return;
-  }
-
-  log()->debugf("Wifi: setup (%s)", strWifiStatus());
-
-  // Take some action based on the current status.
-  switch (WiFi.status()) {
-    case WL_NO_SHIELD:
-      // My esp32 module returns no_shield even though it supports WiFi.
-      startClient();
-      return;
-    case WL_CONNECTED:  // Already connected.
-      return;
-    case WL_IDLE_STATUS:
-    case WL_SCAN_COMPLETED:
-    case WL_CONNECTION_LOST:
-    case WL_DISCONNECTED:
-      startClient();
-      return;
-    case WL_NO_SSID_AVAIL:
-    case WL_CONNECT_FAILED:
-#ifndef ARDUINO_ARCH_ESP32
-    case WL_WRONG_PASSWORD:
+  log()->log("Wifi: connection timed out, starting AP mode.");
+  changeState(State::kSoftAp);
 #endif
-      startAp();
-      return;
+}
+
+void WifiManager::handleApRetryTimer() {
+#ifndef NATIVE
+  if (m_state != State::kSoftAp || essId().length() == 0) {
+    return;
   }
+  if (WiFi.softAPgetStationNum() > 0) {
+    log()->logf("Wifi: AP has %d connected station(s); delaying client reconnect attempt.",
+                WiFi.softAPgetStationNum());
+    m_scheduler.runIn(m_ap_retry_interval_ms, [this]() { handleApRetryTimer(); });
+    return;
+  }
+  log()->logf("Wifi: retrying client connection to essid %s", essId().c_str());
+  changeState(State::kConnectingSta);
 #endif
 }
 
@@ -240,81 +338,22 @@ void WifiManager::sanityCheck() {
   // Has it been an hour since we last disconnected?
   auto disconnect_timeout = [this]() {
     const auto now = millis();
-    if (m_disconnect_msec == 0) {
+    if (m_last_disconnect_msec == 0) {
       return false;  // not disconnected??
     }
-    if (now < m_disconnect_msec) {
+    if (now < m_last_disconnect_msec) {
       return true;  // millis() wrapped-around since last disconnection.
     }
-    return (now - m_disconnect_msec) >= kMsecInHour;
+    return (now - m_last_disconnect_msec) >= kMsecInHour;
   };
 
-  if (!m_ap_mode && WiFi.status() != WL_CONNECTED && disconnect_timeout()) {
+  if (m_state != State::kSoftAp && WiFi.status() != WL_CONNECTED && disconnect_timeout()) {
     log()->log("Wifi: sanity check -- restarting connection");
-    trySetup();
+    changeState(State::kConnectingSta);
   } else {
     log()->debug("Wifi: sanity check -- no action");
   }
   scheduleSanityCheck();
-#endif
-}
-
-// This is a function to call to startup the board in AP mode.
-void WifiManager::startAp() {
-#ifndef NATIVE
-  const char* essid = (board().length() > 0) ? board().c_str() : "og3board";
-  log()->logf("Wifi: starting in AP mode (%s).", essid);
-  WiFi.mode(WIFI_AP);
-  m_ap_mode = true;
-  if (!WiFi.softAPConfig(apSoftIP, apSoftIP, IPAddress(255, 255, 255, 0))) {
-    log()->log("Failed to setup soft-AP config");
-    return;
-  }
-  if (m_ap_password) {
-    if (!WiFi.softAP(essid, m_ap_password)) {
-      log()->log("Failed to setup SoftAP mode (with password).");
-      return;
-    }
-  } else {
-    if (!WiFi.softAP(essid)) {
-      log()->log("Failed to setup SoftAP mode.");
-      return;
-    }
-  }
-  log()->debugf("Started AP mode as %s", essid);
-  if (!m_dns_server) {
-    m_dns_server.reset(new DNSServer());
-  }
-  m_dns_server->setErrorReplyCode(DNSReplyCode::NoError);
-  m_dns_server->start(DNS_PORT, "*", apSoftIP);
-  for (const auto& callback : m_softAPCallbacks) {
-    callback();
-  }
-  // Allow time to setup maybe??
-  m_scheduler.runIn(100, [this]() { onConnect(); });
-  m_start_connect_msec = millis();
-  if (essId().length() > 0) {
-    m_scheduler.runIn(m_ap_retry_interval_ms, [this]() { trySetup(); });
-  }
-#endif
-}
-
-// This is a function to startup the board as a Wifi client (if configured).
-void WifiManager::startClient() {
-#ifndef NATIVE
-  // If we don't have a configured ESSID then startup in AP mode instead.
-  const bool have_essid = essId().length() > 0;
-  if (!have_essid) {
-    startAp();
-    return;
-  }
-  // If we have a configured ESSID, try to connect to it.
-  m_ap_mode = false;
-  m_start_connect_msec = millis();
-  log()->logf("Wifi: connecting to essid %s (%s)", essId().c_str(), strWifiStatus());
-  WiFi.mode(WIFI_STA);
-  WiFi.begin(essId().c_str(), wifiPassword().c_str());
-  m_scheduler.runIn(30000, [this]() { trySetup(); });
 #endif
 }
 

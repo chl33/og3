@@ -19,8 +19,41 @@ class TestWifiManager : public WifiManager {
 
   void triggerConnect() { this->onConnect(); }
 
+  void triggerStateChange(State s) { this->changeState(s); }
+
   unsigned long getRetryDelay() const { return m_retry_delay_ms; }
 };
+
+void test_state_transitions() {
+  App::Options app_opts;
+  App app(app_opts);
+  WifiManager::Options wifi_opts;
+
+  When(Method(ArduinoFake(), millis)).AlwaysReturn(10000);
+
+  TestWifiManager wifi("test-board", &app.tasks(), wifi_opts);
+  TEST_ASSERT_EQUAL(WifiManager::State::kIdle, wifi.state());
+  TEST_ASSERT_EQUAL_STRING("idle", wifi.stateString());
+  TEST_ASSERT_FALSE(wifi.apMode());
+  TEST_ASSERT_FALSE(wifi.wasConnected());
+
+  // Connect
+  wifi.triggerConnect();
+  TEST_ASSERT_EQUAL(WifiManager::State::kConnectedSta, wifi.state());
+  TEST_ASSERT_EQUAL_STRING("connected", wifi.stateString());
+  TEST_ASSERT_TRUE(wifi.wasConnected());
+
+  // Disconnect -> should transition to WaitingReconnectSta
+  wifi.triggerDisconnect();
+  TEST_ASSERT_EQUAL(WifiManager::State::kWaitingReconnectSta, wifi.state());
+  TEST_ASSERT_EQUAL_STRING("reconnecting", wifi.stateString());
+
+  // Switch to SoftAP
+  wifi.triggerStateChange(WifiManager::State::kSoftAp);
+  TEST_ASSERT_EQUAL(WifiManager::State::kSoftAp, wifi.state());
+  TEST_ASSERT_EQUAL_STRING("soft-ap", wifi.stateString());
+  TEST_ASSERT_TRUE(wifi.apMode());
+}
 
 void test_backoff_increase() {
   App::Options app_opts;
@@ -70,6 +103,7 @@ void test_backoff_reset() {
 
 int main() {
   UNITY_BEGIN();
+  RUN_TEST(test_state_transitions);
   RUN_TEST(test_backoff_increase);
   RUN_TEST(test_backoff_reset);
   return UNITY_END();

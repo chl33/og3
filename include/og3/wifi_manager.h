@@ -48,6 +48,20 @@ class WifiManager : public Module {
   static constexpr unsigned long kMaxRetryDelayMs = 60000;     ///< @brief Maximum retry delay.
   static constexpr unsigned long kBackoffMultiplier = 2;       ///< @brief Backoff exponent.
 
+  static constexpr unsigned long kConnectTimeoutMs = 30000;  ///< @brief STA connect timeout.
+
+  /** @brief Operational state of the WiFi manager state machine. */
+  enum class State {
+    kIdle,                 ///< Disabled or uninitialized.
+    kConnectingSta,        ///< Attempting to connect to configured ESSID.
+    kConnectedSta,         ///< Connected to AP with IP.
+    kWaitingReconnectSta,  ///< Disconnected; waiting for retry backoff.
+    kSoftAp,               ///< Running Soft AP captive portal.
+  };
+
+  /** @brief Converts a State enum to a human-readable string. */
+  static const char* strState(State state);
+
   /** @brief Configuration options for WiFi. */
   struct Options {
     Options() {}
@@ -74,6 +88,11 @@ class WifiManager : public Module {
   /** @brief Manually enables or disables WiFi. */
   void set_enable(bool enable) { m_enable = enable; }
 
+  /** @return Current operational state. */
+  State state() const { return m_state; }
+  /** @return Current operational state as a C-string. */
+  const char* stateString() const { return strState(m_state); }
+
   /** @return The configured board name (hostname). */
   const String& board() const { return m_board.value(); }
   /** @return The target ESSID. */
@@ -81,7 +100,7 @@ class WifiManager : public Module {
   /** @return The WiFi password. */
   const String& wifiPassword() const { return m_password.value(); }
   /** @return true if currently running in Soft AP mode. */
-  bool apMode() const { return m_ap_mode; }
+  bool apMode() const { return m_state == State::kSoftAp; }
 
   /** @return Variable tracking the current IP address. */
   const Variable<String>& ipAddrVariable() const { return m_ip_addr; }
@@ -120,12 +139,14 @@ class WifiManager : public Module {
   void onConnect();
   /** @brief Internal handler for connection loss. */
   void onDisconnect();
+  /** @brief State machine transition handler. */
+  void changeState(State next_state);
+
   unsigned long m_retry_delay_ms = kInitialRetryDelayMs;
 
  private:
-  void trySetup();
-  void startAp();
-  void startClient();
+  void handleConnectTimeout();
+  void handleApRetryTimer();
   void scheduleSanityCheck();
   void sanityCheck();
 
@@ -145,9 +166,10 @@ class WifiManager : public Module {
   Variable<String> m_password;
   Variable<String> m_ip_addr;
   Variable<int> m_rssi;
+
+  State m_state = State::kIdle;
   bool m_was_connected = false;
-  unsigned long m_start_connect_msec = 0;
-  unsigned long m_disconnect_msec = 0;
+  unsigned long m_last_disconnect_msec = 0;
   ConfigInterface* m_config = nullptr;
   bool m_enable = true;
 
@@ -162,7 +184,6 @@ class WifiManager : public Module {
   WiFiEventHandler m_wifiDisconnectHandler;
 #endif
 
-  bool m_ap_mode = false;
   unsigned long m_ap_retry_interval_ms = 60000;
 };
 
