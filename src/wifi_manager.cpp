@@ -201,10 +201,10 @@ void WifiManager::changeState(State next_state) {
       const IPAddress ip = WiFi.localIP();
       m_ip_addr = ip.toString().c_str();
       log()->logf("Connected to Wi-Fi. IP address: %s", m_ip_addr.value().c_str());
+#endif
       for (const auto& callback : m_connectCallbacks) {
         callback();
       }
-#endif
       break;
     }
 
@@ -216,12 +216,12 @@ void WifiManager::changeState(State next_state) {
       }
 #ifndef NATIVE
       WiFi.disconnect();
+      log()->logf("Wifi: Retry connection in %lu ms", delay_ms);
+#endif
       m_last_disconnect_msec = millis();
       for (const auto& callback : m_disconnectCallbacks) {
         callback();
       }
-      log()->logf("Wifi: Retry connection in %lu ms", delay_ms);
-#endif
       m_scheduler.runIn(delay_ms, [this]() { changeState(State::kConnectingSta); });
       break;
     }
