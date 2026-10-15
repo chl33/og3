@@ -34,6 +34,8 @@ using MqttClient = AsyncMqttClient;  ///< @brief Underlying MQTT client for ESP8
 class MqttClient;  ///< @brief Placeholder for non-ESP platforms.
 #endif
 
+class Ntp;
+
 /**
  * @brief Manages MQTT connectivity and message publishing/subscription.
  *
@@ -70,6 +72,8 @@ class MqttManager : public Module {
     int will_qos = 1;
     bool will_retain = true;
     Mode mode = Mode::kHomeAssistant;
+    bool ssl = false;
+    bool ssl_verify = true;
   };
 
   /** @brief Constructs an MqttManager. */
@@ -140,7 +144,9 @@ class MqttManager : public Module {
   /** @return The configured MQTT server address. */
   const String& hostAddr() const { return m_host_addr.value(); }
   /** @return The configured MQTT port. */
-  uint16_t port() const { return m_opts.port; }
+  uint16_t port() const { return m_port.value(); }
+  /** @return true if SSL is enabled. */
+  bool ssl() const { return m_ssl.value(); }
   /** @return The configured MQTT username. */
   const String& authUser() const { return m_auth_user.value(); }
   /** @return The configured MQTT password. */
@@ -176,10 +182,15 @@ class MqttManager : public Module {
   VariableGroup m_vg;
   BoolVariable m_enabled;
   Variable<String> m_host_addr;
+  Variable<int> m_port;
   Variable<String> m_auth_user;
   Variable<String> m_auth_password;
   EnumStrVariable<Mode> m_mode;
+  BoolVariable m_ssl;
+  BoolVariable m_ssl_verify;
   EnumStrVariable<ConnectionStatus> m_connected;
+
+  Ntp* m_ntp = nullptr;
 
   String m_will_topic;
 

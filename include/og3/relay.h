@@ -32,7 +32,7 @@ class Relay : public DOut {
    * @param vg VariableGroup to add the state variable to.
    * @param on_level Logic level for "on" state.
    */
-  Relay(const char* name_, Tasks* tasks, uint8_t pin_, const char* description, bool publish,
+  Relay(const std::string& name, Tasks* tasks, uint8_t pin_, const char* description, bool publish,
         VariableGroup& vg, OnLevel on_level = OnLevel::kHigh);
 
   /**

@@ -51,7 +51,7 @@ void AppStatus::read() {
 }
 
 void AppStatus::mqttSend() {
-  if (m_mqtt_manager) {
+  if (m_mqtt_manager && m_mqtt_manager->mode() != MqttManager::Mode::kAdafruitIO) {
     m_mqtt_manager->mqttSend(m_vg);
   }
   m_tasks->runIn(10 * kMsecInMin, [this]() { mqttSend(); });

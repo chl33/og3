@@ -5,7 +5,7 @@
 
 namespace og3 {
 
-MotionDetector::MotionDetector(const char* name, ModuleSystem* module_system, uint8_t pin,
+MotionDetector::MotionDetector(const std::string& name, ModuleSystem* module_system, uint8_t pin,
                                const char* description, VariableGroup& vg, bool publish,
                                bool ha_discovery)
     : DIn(name, module_system, pin, description, vg, publish) {

@@ -18,6 +18,11 @@ namespace og3 {
  */
 class WebApp : public WifiApp {
  public:
+  WebApp(const WebApp&) = delete;
+  WebApp(WebApp&&) = delete;
+  WebApp& operator=(const WebApp&) = delete;
+  WebApp& operator=(WebApp&&) = delete;
+
   /** @brief Constructs a WebApp instance. */
   explicit WebApp(const WifiApp::Options& options);
 

@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.0] - 2026-10-14
+
+### Added
+- **NTP Time Synchronization (`Ntp`)**: Added the `Ntp` module to synchronize system time via SNTP after WiFi connection, providing `isSynced()`, configurable time servers, and timezone string options (`og3/ntp.h`).
+- **Offline UDP Log Buffering**: `UdpLogger` now uses a fixed-capacity ring queue to buffer log entries with timestamps while WiFi is offline, automatically flushing queued logs in batched datagrams upon reconnection.
+- **Adafruit IO & SSL/TLS MQTT Support**: Enhanced `MqttManager` with support for Adafruit IO (`Mode::kAdafruitIO`) alongside Home Assistant, configurable SSL/TLS options, and Adafruit root CA bundle verification on ESP32.
+- **Pointer-Based Dependency Linking**: Added `Module::add_dependency(Module*)` to declare dependencies directly on module pointers.
+
+### Changed
+- **WifiManager State Machine & Exponential Backoff**: Restructured `WifiManager` into a formal state machine (`kIdle`, `kConnectingSta`, `kConnectedSta`, `kWaitingReconnectSta`, `kSoftAp`) with exponential backoff retries, automatic Soft AP failover, and periodic reconnect attempts.
+- **Module & Variable Identity**: Updated `Module` constructors and `VariableBase` metadata to use `std::string` internally to ensure safe lifecycle and memory management.
+- **Deleted Copy Constructors**: Explicitly deleted copy constructors and assignment operators for `Module`, `VariableBase`, `VariableGroup`, `App`, and related classes to prevent accidental slicing or lifecycle duplication.
+- **Sonar Pulse Timeout**: Added a configurable pulse timeout to `Sonar::ping()` to prevent blocking if an echo pulse is missed.
+- **Scoped MQTT Status Publishing**: Restricted periodic `AppStatus` and `WifiMonitor` MQTT status reporting to Home Assistant mode, avoiding feed spamming in Adafruit IO mode.
+
 ## [0.6.4] - 2026-04-04
 
 ### Changed

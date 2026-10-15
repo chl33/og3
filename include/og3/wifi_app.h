@@ -31,6 +31,11 @@ class WifiManager;
  */
 class WifiApp : public App {
  public:
+  WifiApp(const WifiApp&) = delete;
+  WifiApp(WifiApp&&) = delete;
+  WifiApp& operator=(const WifiApp&) = delete;
+  WifiApp& operator=(WifiApp&&) = delete;
+
   /** @brief Comprehensive options for initializing all core WifiApp services. */
   struct Options {
     App::Options app;

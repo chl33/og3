@@ -11,7 +11,7 @@ namespace {
 uint16_t _max_counts(uint8_t resolution) { return (static_cast<uint32_t>(1) << resolution) - 1; }
 }  // namespace
 
-Pwm::Pwm(const char* name, uint8_t pwm_pin,
+Pwm::Pwm(const std::string& name, uint8_t pwm_pin,
 #ifdef ARDUINO_ARCH_ESP32
          uint8_t pwm_channel, uint8_t pwm_resolution,
 #endif

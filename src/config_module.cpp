@@ -7,10 +7,10 @@
 
 namespace og3 {
 
-ConfigModule::ConfigModule(const char* name, App* app)
+ConfigModule::ConfigModule(const std::string& name, App* app)
     : Module(name, &app->module_system()),
       m_app(app),
-      m_cvg(name),
+      m_cvg(name.c_str()),
       m_cfg_url(std::string("/config/") + name) {
   require(ConfigInterface::kName, &m_config);
   require(WebServer::kName, &m_web_server);

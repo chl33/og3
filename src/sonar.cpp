@@ -6,23 +6,25 @@
 #include "og3/units.h"
 
 namespace og3 {
+namespace {
+constexpr unsigned long kPulseTimeoutUsec = 30000;  // 30 ms timeout
+}
 
 // m/s (dry air)
-Sonar::Sonar(const char* name, int trigPin, int echoPin, ModuleSystem* module_system,
+Sonar::Sonar(const std::string& name, int trigPin, int echoPin, ModuleSystem* module_system,
              VariableGroup& vg, bool ha_discovery)
     : Module(name, module_system),
       m_trigPin(trigPin),
       m_echoPin(echoPin),
-      m_delay_name(String(name) + "_usec"),
+      m_delay_name(String(name.c_str()) + "_usec"),
       m_delay_usec(m_delay_name.c_str(), 0.0f, units::kMicroseconds, "sonar ping time", 0, 0, vg),
-      m_distance_m(name, 0.0f, units::kMeters, "measured distance", 0, 2, vg) {
+      m_distance_m(name.c_str(), 0.0f, units::kMeters, "measured distance", 0, 2, vg) {
   if (ha_discovery) {
     require(HADiscovery::kName, &m_ha_discovery);
   }
   add_init_fn([this]() {
     pinMode(m_trigPin, OUTPUT);
     pinMode(m_echoPin, INPUT);
-    return true;
   });
   add_init_fn([this]() {
     if (m_ha_discovery) {
@@ -50,7 +52,7 @@ void Sonar::ping() {
   digitalWrite(m_trigPin, HIGH);
   delayMicroseconds(10);
   digitalWrite(m_trigPin, LOW);
-  m_delay_usec = pulseIn(m_echoPin, HIGH);
+  m_delay_usec = pulseIn(m_echoPin, HIGH, kPulseTimeoutUsec);
   // Divide distance by 2 because sound travels there and back.
   m_distance_m = (m_sound_m_per_usec * m_delay_usec.value()) / 2;
   m_last_ping_ok = (m_distance_m.value() <= m_max_distance);

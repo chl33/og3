@@ -31,7 +31,7 @@ class Pwm : public Module {
    * @param module_system The ModuleSystem to register with.
    * @param pwm_frequency The PWM frequency in Hz.
    */
-  Pwm(const char* name, uint8_t pwm_pin,
+  Pwm(const std::string& name, uint8_t pwm_pin,
 #ifdef ARDUINO_ARCH_ESP32
       uint8_t pwm_channel,     // 0-15
       uint8_t pwm_resolution,  // 1-16
@@ -47,7 +47,6 @@ class Pwm : public Module {
   float dutyF() const { return m_duty_counts / static_cast<float>(m_max_counts); }
 
  private:
-  const char* m_name;
   const uint8_t m_pwm_pin;
 #ifdef ARDUINO_ARCH_ESP32
   const uint8_t m_pwm_channel;

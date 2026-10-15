@@ -30,9 +30,9 @@ class TempHumidity : public Module {
    * @param publish true to publish via MQTT.
    * @param ha_discovery true to enable Home Assistant discovery.
    */
-  TempHumidity(const char* temp_name, const char* humidity_name, ModuleSystem* module_system_,
-               const char* description, VariableGroup& vg, bool publish = true,
-               bool ha_discovery = true);
+  TempHumidity(const std::string& temp_name, const std::string& humidity_name,
+               ModuleSystem* module_system_, const char* description, VariableGroup& vg,
+               bool publish = true, bool ha_discovery = true);
 
   /** @return true if the last sensor reading was valid. */
   bool ok() const { return m_ok; }
