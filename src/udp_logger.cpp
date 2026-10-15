@@ -11,7 +11,7 @@
 namespace og3 {
 
 UdpLogger::UdpLogger(WifiManager* wifi_mgr, IPAddress ip_address, uint16_t port)
-    : m_ip_address(ip_address), m_port(port) {
+    : m_ip_address(ip_address), m_port(port), m_packet_buf(new char[kMaxPacketSize]) {
   if (wifi_mgr) {
     if (wifi_mgr->state() == WifiManager::State::kConnectedSta) {
       m_ready = true;
@@ -100,8 +100,10 @@ void UdpLogger::flush() {
     m_dropped_count = 0;
   }
 
-  // Batch buffered messages into UDP datagrams (up to kMaxPacketSize)
-  char packet_buf[kMaxPacketSize];
+  char* packet_buf = m_packet_buf.get();
+  if (!packet_buf) {
+    return;
+  }
   size_t packet_len = 0;
 
   while (!m_buffer.empty()) {
@@ -112,7 +114,7 @@ void UdpLogger::flush() {
 
     if (line_len > 0) {
       // If adding this line exceeds datagram size, send current packet first
-      if (packet_len + static_cast<size_t>(line_len) >= sizeof(packet_buf)) {
+      if (packet_len + static_cast<size_t>(line_len) >= kMaxPacketSize) {
         if (packet_len > 0) {
 #ifndef NATIVE
           m_udp.beginPacket(m_ip_address, m_port);

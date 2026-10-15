@@ -7,7 +7,7 @@
 
 namespace og3 {
 namespace {
-unsigned long kPulseTimeoutUsec = 30000;  // 30 ms timeout
+constexpr unsigned long kPulseTimeoutUsec = 30000;  // 30 ms timeout
 }
 
 // m/s (dry air)
@@ -25,7 +25,6 @@ Sonar::Sonar(const std::string& name, int trigPin, int echoPin, ModuleSystem* mo
   add_init_fn([this]() {
     pinMode(m_trigPin, OUTPUT);
     pinMode(m_echoPin, INPUT);
-    return true;
   });
   add_init_fn([this]() {
     if (m_ha_discovery) {

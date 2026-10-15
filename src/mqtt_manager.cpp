@@ -18,6 +18,7 @@ namespace {
 const char* s_str_modes[] = {"home-assistant", "adafruit.io."};
 const char* s_str_connected[] = {"not connected", "connected"};
 
+#if !defined(NATIVE) && defined(ESP32)
 const char* kAdafruitIOCACert =
     "-----BEGIN CERTIFICATE-----\n"
     "MIIDjjCCAnagAwIBAgIQAzrx5qcRqaC7KGSxHQn65TANBgkqhkiG9w0BAQsFADBh\n"
@@ -41,6 +42,7 @@ const char* kAdafruitIOCACert =
     "pLiaWN0bfVKfjllDiIGknibVb63dDcY3fe0Dkhvld1927jyNxF1WW6LZZm6zNTfl\n"
     "MrY=\n"
     "-----END CERTIFICATE-----\n";
+#endif
 }  // namespace
 
 namespace og3 {

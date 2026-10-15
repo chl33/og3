@@ -6,14 +6,20 @@ Applications can be organized into separate modules, and modules can use one ano
 
 This library is built for the [PlatformIO](https://platformio.org/) development environment.
 
+## What's New in v0.7.0
+
+*   **NTP Time Synchronization**: Built-in SNTP module (`Ntp`) that automatically synchronizes time upon WiFi connection.
+*   **Offline UDP Log Buffering**: Ring-buffered UDP logging that queues messages during network dropouts and flushes them in batched datagrams when reconnected.
+*   **Robust WiFi State Machine**: Fully state-machine-driven `WifiManager` with exponential backoff reconnects and automatic Soft AP failover.
+*   **Adafruit IO & SSL/TLS MQTT Support**: Native support for Adafruit IO feeds, TLS connections, and certificate verification.
+*   **Lifecycle & Safety Improvements**: Deleted copy constructors across core classes, `std::string` module naming, and sonar ping timeouts.
+
 ## What's New in v0.6.0
 
 *   **Declarative Dependencies**: New `require<T>(name, &ptr)` API for automatic, type-safe module linking.
 *   **Boilerplate Reduction**: Removal of legacy linking lambdas and manual dependency declarations.
 *   **Svelte Alignment**: Core JSON keys and APIs now use `camelCase` for seamless frontend integration.
 *   **Memory Efficiency**: Optimized boot-time dependency resolution to minimize heap fragmentation on ESP8266.
-
-## What's New in v0.5.0
 
 ## Key Features
 

@@ -10,6 +10,8 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#include <memory>
+
 #include "og3/compiler_definitions.h"
 #include "og3/logger.h"
 #include "og3/ring_buffer.h"
@@ -78,6 +80,7 @@ class UdpLogger : public Logger {
 
   RingQueue<BufferedEntry, kDefaultCapacity> m_buffer;
   size_t m_dropped_count = 0;
+  std::unique_ptr<char[]> m_packet_buf;
 };
 
 }  // namespace og3
