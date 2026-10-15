@@ -6,6 +6,9 @@
 #include "og3/units.h"
 
 namespace og3 {
+namespace {
+unsigned long kPulseTimeoutUsec = 30000;  // 30 ms timeout
+}
 
 // m/s (dry air)
 Sonar::Sonar(const std::string& name, int trigPin, int echoPin, ModuleSystem* module_system,
@@ -50,7 +53,7 @@ void Sonar::ping() {
   digitalWrite(m_trigPin, HIGH);
   delayMicroseconds(10);
   digitalWrite(m_trigPin, LOW);
-  m_delay_usec = pulseIn(m_echoPin, HIGH);
+  m_delay_usec = pulseIn(m_echoPin, HIGH, kPulseTimeoutUsec);
   // Divide distance by 2 because sound travels there and back.
   m_distance_m = (m_sound_m_per_usec * m_delay_usec.value()) / 2;
   m_last_ping_ok = (m_distance_m.value() <= m_max_distance);
