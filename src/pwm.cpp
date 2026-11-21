@@ -28,9 +28,15 @@ Pwm::Pwm(const std::string& name, uint8_t pwm_pin,
       m_pwm_frequency(pwm_frequency) {
   add_init_fn([this]() {
 #ifdef ARDUINO_ARCH_ESP32
+#if defined(ESP_ARDUINO_VERSION_MAJOR) && ESP_ARDUINO_VERSION_MAJOR >= 3
+    // Attaches pin to LEDC channel (0-15) with given PWM frequency and resolution (1 - 16 bits)
+    ledcAttachChannel(m_pwm_pin, static_cast<uint32_t>(m_pwm_frequency), m_pwm_resolution,
+                      m_pwm_channel);
+#else
     // Sets up a channel (0-15), a PWM duty cycle frequency, and a PWM resolution (1 - 16 bits)
     ledcSetup(m_pwm_channel, m_pwm_frequency, m_pwm_resolution);
     ledcAttachPin(m_pwm_pin, m_pwm_channel);
+#endif
 #else
     pinMode(m_pwm_pin, OUTPUT);
 #endif
@@ -42,7 +48,11 @@ Pwm::Pwm(const std::string& name, uint8_t pwm_pin,
 void Pwm::setDuty(unsigned counts) {
   m_duty_counts = counts;
 #ifdef ARDUINO_ARCH_ESP32
+#if defined(ESP_ARDUINO_VERSION_MAJOR) && ESP_ARDUINO_VERSION_MAJOR >= 3
+  ledcWriteChannel(m_pwm_channel, counts);
+#else
   ledcWrite(m_pwm_channel, counts);
+#endif
 #else
   analogWrite(m_pwm_pin, counts);
 #endif

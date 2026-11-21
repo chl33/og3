@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.1] - 2026-11-21
+
+### Added
+- **Arduino-ESP32 3.x / `espressif32@^8.0.0` Support**: Added compatibility with PlatformIO `espressif32@^8.0.0` (Arduino-ESP32 3.3.12 / ESP-IDF 5.5.5) while preserving backwards compatibility with Arduino-ESP32 2.x, ESP8266, and native builds.
+
+### Changed
+- **PWM (`Pwm`)**: Updated ESP32 LEDC setup and duty cycle calls to use `ledcAttachChannel()` and `ledcWriteChannel()` on Arduino-ESP32 3.x (`ESP_ARDUINO_VERSION_MAJOR >= 3`).
+- **Watchdog (`Watchdog`)**: Updated ESP32 task watchdog initialization for ESP-IDF 5.x (`ESP_IDF_VERSION_MAJOR >= 5`) using `esp_task_wdt_config_t` (preserving default idle core monitoring) with `esp_task_wdt_reconfigure()` fallback when TWDT is already initialized at boot.
+- **WiFi Event & Status Handling (`WifiManager`)**: Handled `WL_STOPPED` on Arduino-ESP32 3.x and added default switch cases in `strWifiStatus()` and `onWifiEvent()` to eliminate `-Wswitch` warnings.
+- **ESP32 Example Builds (`platformio.ini`)**: Pinned `platform = espressif32@^8.0.0` and configured `board_build.partitions = min_spiffs.csv` in `[esp32_base]` so all example firmware targets fit comfortably under Arduino-ESP32 3.x.
+
 ## [0.7.0] - 2026-10-14
 
 ### Added
