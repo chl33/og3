@@ -34,6 +34,10 @@ static const char kStatusConnected[] = "connected";
 static const char kStatusConnectFailed[] = "connect-failed";
 static const char kStatusConnectionLost[] = "connection-lost";
 static const char kStatusDisconnected[] = "disconnected";
+#if defined(ARDUINO_ARCH_ESP32) && defined(ESP_ARDUINO_VERSION_MAJOR) && \
+    ESP_ARDUINO_VERSION_MAJOR >= 3
+static const char kStatusStopped[] = "stopped";
+#endif
 static const char kStatusWrongPassword[] = "wrong-password";
 
 const char* nullToEmpty(const char* str) { return str ? str : ""; }
@@ -61,10 +65,17 @@ const char* strWifiStatus(wl_status_t status) {
       return kStatusConnectionLost;
     case WL_DISCONNECTED:
       return kStatusDisconnected;
+#if defined(ARDUINO_ARCH_ESP32) && defined(ESP_ARDUINO_VERSION_MAJOR) && \
+    ESP_ARDUINO_VERSION_MAJOR >= 3
+    case WL_STOPPED:
+      return kStatusStopped;
+#endif
 #ifndef ARDUINO_ARCH_ESP32
     case WL_WRONG_PASSWORD:
       return kStatusWrongPassword;
 #endif
+    default:
+      break;
   }
   return "?unknown?";
 }
@@ -455,6 +466,7 @@ void WifiManager::onWifiEvent(arduino_event_id_t event, arduino_event_info_t inf
     case ARDUINO_EVENT_PROV_CRED_FAIL:
     case ARDUINO_EVENT_PROV_CRED_SUCCESS:
     case ARDUINO_EVENT_MAX:
+    default:
       break;
   }
 }
