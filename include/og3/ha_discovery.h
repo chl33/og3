@@ -395,7 +395,7 @@ class HADiscovery : public Module {
   MqttManager* m_mqtt_manager = nullptr;
 
   bool m_config_sent = false;
-  char m_device_id[32];
+  char m_device_id[32] = {0};
   std::vector<DiscoveryCallbackFn> m_discovery_callbacks;
   std::size_t m_idx_mqtt_connect_next_discovery_calback = 0;
 };

@@ -3,6 +3,10 @@
 
 #include "og3/ha_discovery.h"
 
+#if !defined(NATIVE) && defined(ARDUINO_ARCH_ESP32)
+#include <esp_mac.h>
+#endif
+
 #include <string.h>
 
 #include "og3/config_interface.h"
@@ -19,6 +23,21 @@ bool strOk(const char* str) { return str && str[0]; }
 String default_value_template(const HADiscovery::Entry& entry) {
   return String("{{value_json.") + entry.var.name() + "}}";
 };
+
+#ifndef NATIVE
+String readStaMacAddress() {
+#if defined(ARDUINO_ARCH_ESP32)
+  uint8_t mac[6] = {0};
+  if (esp_read_mac(mac, ESP_MAC_WIFI_STA) == ESP_OK) {
+    char mac_str[18];
+    snprintf(mac_str, sizeof(mac_str), "%02X:%02X:%02X:%02X:%02X:%02X", mac[0], mac[1], mac[2],
+             mac[3], mac[4], mac[5]);
+    return String(mac_str);
+  }
+#endif
+  return WiFi.macAddress();
+}
+#endif
 
 }  // namespace
 
@@ -187,31 +206,30 @@ HADiscovery::HADiscovery(const Options& opts, ModuleSystem* module_system)
     return;
   }
 
-#ifndef NATIVE
-  m_mac_address = WiFi.macAddress();
-#endif
-
   require(ConfigInterface::kName, &m_config);
   require(Tasks::kName, &m_tasks);
   require(WifiManager::kName, &m_wifi_manager);
   require(MqttManager::kName, &m_mqtt_manager);
 
   add_init_fn([this]() {
+#ifndef NATIVE
+    m_mac_address = readStaMacAddress();
+#endif
+    size_t i = 0;
+    for (const char c : m_mac_address) {
+      if (c == ':' || i >= sizeof(m_device_id) - 1) {
+        continue;
+      }
+      m_device_id[i] = c;
+      i += 1;
+    }
+    snprintf(m_device_id + i, sizeof(m_device_id) - i, "_%s", m_options.model);
+
     if (m_mqtt_manager) {
       m_device_name = m_options.device_name ? m_options.device_name : m_wifi_manager->board();
       m_mqtt_manager->addConnectCallback([this] { onMqttConnect(); });
     }
   });
-
-  size_t i = 0;
-  for (const char c : m_mac_address) {
-    if (c == ':' || i >= sizeof(m_device_id) - 1) {
-      continue;
-    }
-    m_device_id[i] = c;
-    i += 1;
-  }
-  snprintf(m_device_id + i, sizeof(m_device_id) - i, "_%s", m_options.model);
 }
 
 const String& HADiscovery::boardTopic() {
