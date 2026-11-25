@@ -24,18 +24,44 @@ WebApp::WebApp(const WifiApp::Options& options) : WifiApp(options), m_web_server
       .serveStatic("/static/", LittleFS, "/static/")
       .setCacheControl("max-age=600");
 #endif
-  // For captive portal mode, map unknown URI paths to the root page.
-  wifi_manager().addSoftAPCallback([this]() {
+  // For captive portal mode, temporarily route unknown URI paths to the WiFi config page
+  // while in Soft AP mode, and restore the normal default handler upon STA reconnect.
 #if defined(ESP32)
-    web_server_module().onNotFound([this](NetRequest* request, NetResponse* response) {
-      return handleWifiConfigRequest(request, response);
-    });
-#else
-    web_server_module().onNotFound([this](NetRequest* request, NetResponse* response) {
-      return handleWifiConfigRequest(request, response);
-    });
-#endif
+  wifi_manager().addSoftAPCallback([this]() {
+    auto& server = web_server_module().native_server();
+    if (!m_softap_endpoint) {
+      m_softap_endpoint = std::make_unique<PsychicEndpoint>(&server, HTTP_ANY, "");
+      auto* handler = new PsychicWebHandler();
+      handler->onRequest([this](NetRequest* request, NetResponse* response) {
+        return handleWifiConfigRequest(request, response);
+      });
+      m_softap_endpoint->setHandler(handler);
+    }
+    if (server.defaultEndpoint != m_softap_endpoint.get()) {
+      m_saved_default_endpoint = server.defaultEndpoint;
+      server.defaultEndpoint = m_softap_endpoint.get();
+    }
   });
+  wifi_manager().addConnectCallback([this]() {
+    if (!wifi_manager().apMode() && m_saved_default_endpoint) {
+      auto& server = web_server_module().native_server();
+      if (server.defaultEndpoint == m_softap_endpoint.get()) {
+        server.defaultEndpoint = m_saved_default_endpoint;
+      }
+      m_saved_default_endpoint = nullptr;
+    }
+  });
+#else
+  wifi_manager().addSoftAPCallback([this]() {
+    web_server_module().onNotFound([this](NetRequest* request, NetResponse* response) {
+      if (wifi_manager().apMode()) {
+        return handleWifiConfigRequest(request, response);
+      }
+      request->send(404, "text/plain", "Not found");
+      NET_REPLY(request, ESP_OK);
+    });
+  });
+#endif
 }
 #endif
 
