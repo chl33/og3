@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include <memory>
+
 #include "og3/web.h"
 #include "og3/web_server.h"
 #include "og3/wifi_app.h"
@@ -45,6 +47,10 @@ class WebApp : public WifiApp {
 #ifndef NATIVE
   WebServer m_web_server;
   String m_web_page;  ///< Internal buffer for rendering web pages.
+#if defined(ESP32)
+  std::unique_ptr<PsychicEndpoint> m_softap_endpoint;
+  PsychicEndpoint* m_saved_default_endpoint = nullptr;
+#endif
 #endif
 };
 

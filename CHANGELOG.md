@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.2] - 2026-11-25
+
+### Fixed
+- **Home Assistant Discovery MAC / Device ID on Arduino-ESP32 3.x (`HADiscovery`)**: Read the WiFi station MAC address via `esp_read_mac(mac, ESP_MAC_WIFI_STA)` on ESP32 and initialize `m_mac_address` and `m_device_id` inside `HADiscovery`'s module `init` callback instead of the static constructor. Under `espressif32@^8.0.0` (Arduino-ESP32 3.x), calling `WiFi.macAddress()` before WiFi STA is initialized returned `00:00:00:00:00:00`, resulting in all-zero device IDs in Home Assistant MQTT discovery payloads.
+- **Web Server Default Endpoint Restored After Soft AP Failover (`WebApp`)**: Preserve and restore `PsychicHttpServer::defaultEndpoint` on ESP32 (and guard the `onNotFound` handler with `apMode()` on ESP8266) when transitioning between Soft AP captive-portal mode and STA mode, preventing temporary WiFi outages from permanently replacing the device home page (e.g., Svelte `/index.html`) with the WiFi configuration form until reboot.
+
 ## [0.7.1] - 2026-11-21
 
 ### Added
